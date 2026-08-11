@@ -1,0 +1,52 @@
+name: Deploy & Validate Portfolio Website
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/sync-substack.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy-and-validate:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate JSON Data & HTML
+        run: |
+          python3 -c "
+          import json
+          with open('data.json', 'r') as f:
+              data = json.load(f)
+          print(f'Validated data.json: {len(data.get(\"repos\", []))} repos, {len(data.get(\"articles\", []))} articles, {len(data.get(\"hf\", []))} HF assets.')
+          "
+          test -f index.html
+          echo "index.html validation passed!"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
