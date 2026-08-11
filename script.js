@@ -600,7 +600,8 @@ function openArticleModal(articleIdOrObj) {
   const avatarEl = document.getElementById('articleAuthorAvatar');
   if (avatarEl) avatarEl.textContent = (article.author || 'M').charAt(0).toUpperCase();
 
-  articleContent.innerHTML = article.content || generateSubstackArticleModalHTML(article);
+  const rawHtml = article.content || generateSubstackArticleModalHTML(article);
+  renderFormattedContent(rawHtml, articleContent);
   articleModal.classList.add('active');
 
   // Trigger KaTeX Math Rendering
