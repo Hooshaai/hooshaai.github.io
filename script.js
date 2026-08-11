@@ -587,9 +587,18 @@ function openArticleModal(articleIdOrObj) {
   document.getElementById('articleReadTime').innerHTML = `<i class="fas fa-book-open"></i> ${article.readTime || '8 min read'}`;
   document.getElementById('articleDate').textContent = `Substack Dispatch · ${article.date || article.pubDate || '2026'}`;
   document.getElementById('articleWordCount').textContent = article.wordCount || '2,000 words';
-  document.getElementById('articleTitle').textContent = article.title;
+  document.getElementById('articleTitle').textContent = article.title || 'Substack Article';
   document.getElementById('articleSubtitle').textContent = article.subtitle || article.snippet || '';
   document.getElementById('externalArticleLink').href = article.url || article.link || 'https://hooshaai.substack.com';
+
+  const authorNameEl = document.getElementById('articleAuthorName');
+  if (authorNameEl) authorNameEl.textContent = article.author || 'Mohammad Taha Majlesi';
+
+  const authorRoleEl = document.getElementById('articleAuthorRole');
+  if (authorRoleEl) authorRoleEl.textContent = article.authorRole || 'Co-Founder & Lead AI Architect @ Hoosha AI';
+
+  const avatarEl = document.getElementById('articleAuthorAvatar');
+  if (avatarEl) avatarEl.textContent = (article.author || 'M').charAt(0).toUpperCase();
 
   articleContent.innerHTML = article.content || generateSubstackArticleModalHTML(article);
   articleModal.classList.add('active');
@@ -2978,6 +2987,9 @@ function openPublishedArticleModal(articleId) {
   const authorNameEl = document.getElementById('articleAuthorName');
   if (authorNameEl) authorNameEl.textContent = article.author || 'Mohammad Taha Majlesi';
   
+  const authorRoleEl = document.getElementById('articleAuthorRole');
+  if (authorRoleEl) authorRoleEl.textContent = article.authorRole || 'Co-Founder & Lead AI Architect @ Hoosha AI';
+
   const avatarEl = document.getElementById('articleAuthorAvatar');
   if (avatarEl) {
     avatarEl.textContent = (article.author || 'M').charAt(0).toUpperCase();
