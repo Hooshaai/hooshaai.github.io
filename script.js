@@ -579,40 +579,19 @@ function renderKaTeXMath() {
 }
 
 function openArticleModal(articleIdOrObj) {
-  let article = null;
-  if (typeof articleIdOrObj === 'object' && articleIdOrObj !== null) {
-    article = articleIdOrObj;
-  } else if (typeof articleIdOrObj === 'string' && articlesDatabase[articleIdOrObj]) {
-    article = articlesDatabase[articleIdOrObj];
-  } else if (typeof ALL_SUBSTACK_ARTICLES !== 'undefined') {
-    const found = ALL_SUBSTACK_ARTICLES.find((a, idx) => 
-      idx === Number(articleIdOrObj) || a.id === articleIdOrObj || a.link === articleIdOrObj
-    );
-    if (found) {
-      article = {
-        category: found.categoryName || 'Substack Article',
-        readTime: found.readTime || '8 min read',
-        wordCount: found.wordCount || '2,000 words',
-        date: found.pubDate || 'Substack Dispatch',
-        title: found.title,
-        subtitle: found.snippet,
-        url: found.link,
-        content: found.content || generateSubstackArticleModalHTML(found)
-      };
-    }
-  }
-
+  let article = getArticleObj(articleIdOrObj);
   if (!article) return;
+  currentReadingArticle = article;
 
-  document.getElementById('articleCategoryBadge').textContent = article.category || 'Research Essay';
+  document.getElementById('articleCategoryBadge').textContent = article.category || article.categoryName || 'Research Essay';
   document.getElementById('articleReadTime').innerHTML = `<i class="fas fa-book-open"></i> ${article.readTime || '8 min read'}`;
-  document.getElementById('articleDate').textContent = `Substack Dispatch · ${article.date || '2026'}`;
+  document.getElementById('articleDate').textContent = `Substack Dispatch · ${article.date || article.pubDate || '2026'}`;
   document.getElementById('articleWordCount').textContent = article.wordCount || '2,000 words';
   document.getElementById('articleTitle').textContent = article.title;
-  document.getElementById('articleSubtitle').textContent = article.subtitle || '';
-  document.getElementById('externalArticleLink').href = article.url || 'https://hooshaai.substack.com';
+  document.getElementById('articleSubtitle').textContent = article.subtitle || article.snippet || '';
+  document.getElementById('externalArticleLink').href = article.url || article.link || 'https://hooshaai.substack.com';
 
-  articleContent.innerHTML = article.content || `<p>${article.subtitle}</p>`;
+  articleContent.innerHTML = article.content || generateSubstackArticleModalHTML(article);
   articleModal.classList.add('active');
 
   // Trigger KaTeX Math Rendering
@@ -1273,6 +1252,420 @@ function generateSubstackArticleModalHTML(art) {
   `;
 }
 
+// ==========================================
+// BibTeX Citation Generator & PDF Export Engine
+// ==========================================
+let currentReadingArticle = null;
+let currentBibtexArticle = null;
+
+function getArticleObj(artIdOrObj) {
+  if (typeof artIdOrObj === 'object' && artIdOrObj !== null) return artIdOrObj;
+  if (typeof ALL_SUBSTACK_ARTICLES !== 'undefined') {
+    const found = ALL_SUBSTACK_ARTICLES.find((a, idx) => 
+      a.id === artIdOrObj || idx === Number(artIdOrObj) || a.link === artIdOrObj || a.title === artIdOrObj
+    );
+    if (found) {
+      return {
+        id: found.id,
+        category: found.categoryName || 'Substack Article',
+        categoryName: found.categoryName,
+        readTime: found.readTime || '8 min read',
+        wordCount: found.wordCount || '2,000 words',
+        date: found.pubDate || 'Substack Dispatch',
+        pubDate: found.pubDate || 'Substack Dispatch',
+        title: decodeHTMLEntities(found.title),
+        subtitle: decodeHTMLEntities(found.snippet || ''),
+        snippet: decodeHTMLEntities(found.snippet || ''),
+        url: found.link,
+        link: found.link,
+        content: found.content || generateSubstackArticleModalHTML(found)
+      };
+    }
+  }
+  if (typeof articlesDatabase !== 'undefined' && articlesDatabase[artIdOrObj]) {
+    const dbArt = articlesDatabase[artIdOrObj];
+    return {
+      id: artIdOrObj,
+      category: dbArt.category || 'Research Essay',
+      categoryName: dbArt.category || 'Research Essay',
+      readTime: dbArt.readTime || '8 min read',
+      wordCount: dbArt.wordCount || '2,000 words',
+      date: dbArt.date || '2026',
+      pubDate: dbArt.date || '2026',
+      title: decodeHTMLEntities(dbArt.title),
+      subtitle: decodeHTMLEntities(dbArt.subtitle || ''),
+      snippet: decodeHTMLEntities(dbArt.subtitle || ''),
+      url: dbArt.url || 'https://hooshaai.substack.com',
+      link: dbArt.url || 'https://hooshaai.substack.com',
+      content: dbArt.content
+    };
+  }
+  if (currentReadingArticle) return currentReadingArticle;
+  return null;
+}
+
+function generateBibTeX(art) {
+  if (!art) return '';
+  const author = "Majlesi, Mohammad Taha";
+  const year = "2026";
+  const title = decodeHTMLEntities(art.title || "Research Publication");
+  
+  // Format slug for cite key: @article{majlesi2026<slug>, ...}
+  let rawWords = title.replace(/[^a-zA-Z0-9\s]/g, '').split(/\s+/).filter(Boolean);
+  let slug = rawWords.slice(0, 4).map(w => w.toLowerCase()).join('');
+  if (!slug) slug = (art.id || "article").replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  
+  const citeKey = `majlesi2026${slug}`;
+
+  let month = "aug";
+  const dateStr = art.pubDate || art.date || '';
+  if (dateStr.includes("Jul") || dateStr.includes("07")) month = "jul";
+  else if (dateStr.includes("Aug") || dateStr.includes("08")) month = "aug";
+
+  const url = art.link || art.url || 'https://hooshaai.substack.com';
+  const readTime = art.readTime || '8 min read';
+  const wordCount = art.wordCount || '2,000 words';
+
+  return `@article{${citeKey},
+  author    = {${author}},
+  title     = {${title}},
+  journal   = {Hoosha AI Research Journal},
+  year      = {${year}},
+  month     = {${month}},
+  publisher = {Substack / Hoosha AI Lab},
+  url       = {${url}},
+  note      = {Substack Research Dispatch (${readTime}, ${wordCount})}
+}`;
+}
+
+function openBibtexModal(artIdOrObj) {
+  const art = getArticleObj(artIdOrObj);
+  if (!art) return;
+  currentBibtexArticle = art;
+
+  const modal = document.getElementById('bibtexModal');
+  const titleEl = document.getElementById('bibtexArticleTitle');
+  const codeEl = document.getElementById('bibtexCodeText');
+  const copyBtn = document.getElementById('copyBibtexBtn');
+
+  if (titleEl) {
+    titleEl.textContent = `Citation for: "${art.title}" (Author: Mohammad Taha Majlesi, 2026)`;
+  }
+  if (codeEl) {
+    codeEl.textContent = generateBibTeX(art);
+  }
+
+  if (copyBtn) {
+    copyBtn.innerHTML = `<i class="fas fa-copy"></i> Copy BibTeX`;
+    copyBtn.style.background = 'rgba(147, 51, 234, 0.2)';
+    copyBtn.style.color = '#c084fc';
+  }
+
+  if (modal) {
+    modal.classList.add('active');
+  }
+}
+
+function closeBibtexModal() {
+  const modal = document.getElementById('bibtexModal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+}
+
+function exportArticlePDF(artIdOrObj) {
+  const art = getArticleObj(artIdOrObj);
+  if (!art) {
+    if (typeof showToast === 'function') showToast('Error', 'Unable to locate article for PDF export.', 'error');
+    return;
+  }
+
+  if (typeof showToast === 'function') {
+    showToast('Exporting PDF', `Generating paper PDF for "${art.title.slice(0, 35)}..."`, 'info');
+  }
+
+  const bibtex = generateBibTeX(art);
+  const contentHTML = art.content || (typeof generateSubstackArticleModalHTML === 'function' ? generateSubstackArticleModalHTML(art) : `<p>${art.snippet}</p>`);
+
+  const printWindow = window.open('', '_blank', 'width=900,height=1000');
+  if (!printWindow) {
+    downloadArticleManuscriptBlob(art, bibtex, contentHTML);
+    return;
+  }
+
+  const doc = printWindow.document;
+  doc.open();
+  doc.write(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${art.title} - Hoosha AI Research Paper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <style>
+    @page { size: A4; margin: 20mm; }
+    body {
+      font-family: 'Merriweather', serif;
+      color: #1e293b;
+      line-height: 1.7;
+      margin: 0;
+      padding: 20px;
+      background: #fff;
+    }
+    .paper-header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .lab-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #0284c7;
+      text-transform: uppercase;
+    }
+    .paper-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #64748b;
+    }
+    h1.title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.25;
+      margin: 0 0 15px 0;
+    }
+    .author-block {
+      margin-bottom: 25px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-left: 4px solid #0284c7;
+      border-radius: 4px;
+    }
+    .author-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: #0f172a;
+    }
+    .author-affiliation {
+      font-size: 12px;
+      color: #475569;
+    }
+    .article-meta-line {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 5px;
+    }
+    .abstract-box {
+      background: #f1f5f9;
+      padding: 16px 20px;
+      border-radius: 6px;
+      margin-bottom: 30px;
+      font-style: italic;
+      font-size: 14px;
+    }
+    .abstract-box strong {
+      font-style: normal;
+      font-family: 'Space Grotesk', sans-serif;
+      color: #0f172a;
+    }
+    .paper-content {
+      font-size: 14px;
+    }
+    .paper-content h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      color: #0f172a;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 5px;
+      margin-top: 25px;
+    }
+    .math-display-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+      text-align: center;
+    }
+    .bibtex-ref-section {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px dashed #cbd5e1;
+    }
+    .bibtex-ref-section h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      color: #0f172a;
+    }
+    .bibtex-box {
+      background: #0f172a;
+      color: #38bdf8;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .footer-stamp {
+      margin-top: 30px;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <div class="paper-header">
+    <div class="lab-title">HOOSHA AI RESEARCH LAB</div>
+    <div class="paper-type">TECHNICAL REPORT / SUBSTACK DISPATCH</div>
+  </div>
+
+  <h1 class="title">${art.title}</h1>
+
+  <div class="author-block">
+    <div class="author-name">Mohammad Taha Majlesi</div>
+    <div class="author-affiliation">Co-Founder & Lead AI Architect @ Hoosha AI Research Lab</div>
+    <div class="article-meta-line">
+      Published: ${art.pubDate || 'August 2026'} | Length: ${art.wordCount || ''} (${art.readTime || ''}) | URL: ${art.link || art.url || ''}
+    </div>
+  </div>
+
+  ${art.snippet ? `
+  <div class="abstract-box">
+    <strong>Abstract:</strong> ${art.snippet}
+  </div>
+  ` : ''}
+
+  <div class="paper-content">
+    ${contentHTML}
+  </div>
+
+  <div class="bibtex-ref-section">
+    <h3>BibTeX Citation</h3>
+    <div class="bibtex-box">${bibtex}</div>
+  </div>
+
+  <div class="footer-stamp">
+    &copy; 2026 Hoosha AI Research Lab. Official PDF Export. Downloaded from https://hooshaai.github.io
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+          ]
+        });
+      }
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    });
+  </script>
+</body>
+</html>
+  `);
+  doc.close();
+
+  downloadArticleManuscriptBlob(art, bibtex, contentHTML);
+}
+
+function downloadArticleManuscriptBlob(art, bibtex, contentHTML) {
+  const rawWords = (art.title || 'article').toLowerCase().replace(/[^a-z0-9]/g, '_');
+  const filename = `majlesi2026_${rawWords.slice(0, 30)}.html`;
+  
+  const blobContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${art.title}</title><style>body{font-family:sans-serif;padding:30px;max-width:850px;margin:0 auto;line-height:1.6;}h1{color:#0f172a;}pre{background:#0f172a;color:#38bdf8;padding:15px;border-radius:6px;font-size:12px;}</style></head><body><h1>${art.title}</h1><p><strong>Author:</strong> Mohammad Taha Majlesi (Hoosha AI Research Lab)</p><p><strong>Date:</strong> ${art.pubDate || '2026'}</p><hr/><div>${contentHTML}</div><hr/><h3>BibTeX</h3><pre>${bibtex}</pre></body></html>`;
+  
+  const blob = new Blob([blobContent], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+window.openBibtexModal = openBibtexModal;
+window.closeBibtexModal = closeBibtexModal;
+window.exportArticlePDF = exportArticlePDF;
+window.generateBibTeX = generateBibTeX;
+window.getArticleObj = getArticleObj;
+
+// Global Click Handlers for BibTeX & PDF Modals
+document.addEventListener('click', (e) => {
+  const copyBtn = e.target.closest('#copyBibtexBtn');
+  if (copyBtn) {
+    const codeEl = document.getElementById('bibtexCodeText');
+    if (codeEl && codeEl.textContent) {
+      navigator.clipboard.writeText(codeEl.textContent).then(() => {
+        copyBtn.innerHTML = `<i class="fas fa-check"></i> Copied!`;
+        copyBtn.style.background = 'var(--cyan)';
+        copyBtn.style.color = '#030712';
+        if (typeof showToast === 'function') {
+          showToast('BibTeX Copied', 'BibTeX citation copied to clipboard!', 'success');
+        }
+        setTimeout(() => {
+          copyBtn.innerHTML = `<i class="fas fa-copy"></i> Copy BibTeX`;
+          copyBtn.style.background = 'rgba(147, 51, 234, 0.2)';
+          copyBtn.style.color = '#c084fc';
+        }, 2000);
+      });
+    }
+  }
+
+  const downloadBibBtn = e.target.closest('#downloadBibFileBtn');
+  if (downloadBibBtn && currentBibtexArticle) {
+    const bibtex = generateBibTeX(currentBibtexArticle);
+    const titleSlug = (currentBibtexArticle.title || 'citation').toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 30);
+    const filename = `majlesi2026_${titleSlug}.bib`;
+    
+    const blob = new Blob([bibtex], { type: 'text/x-bibtex;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+
+    if (typeof showToast === 'function') {
+      showToast('BibTeX Downloaded', `Saved ${filename} to your device!`, 'success');
+    }
+  }
+
+  const closeBibModalBtn = e.target.closest('#closeBibtexModal, #closeBibtexModalBottom');
+  if (closeBibModalBtn) {
+    closeBibtexModal();
+  }
+
+  const modalCiteBtn = e.target.closest('#modalCiteBibtexBtn');
+  if (modalCiteBtn && currentReadingArticle) {
+    openBibtexModal(currentReadingArticle);
+  }
+
+  const modalPdfBtn = e.target.closest('#modalExportPdfBtn');
+  if (modalPdfBtn && currentReadingArticle) {
+    exportArticlePDF(currentReadingArticle);
+  }
+});
+
 async function loadSubstackArticlesGrid() {
   const gridEl = document.getElementById('substackArticlesGrid');
   const searchInput = document.getElementById('substackSearchInput');
@@ -1366,7 +1759,13 @@ async function loadSubstackArticlesGrid() {
             </div>
             <div class="substack-card-actions">
               <button class="btn-read-modal-inline" data-article-index="${currentArticles.indexOf(art)}">
-                <i class="fas fa-book-reader"></i> Read Essay
+                <i class="fas fa-book-reader"></i> Read
+              </button>
+              <button class="btn-cite-sub" data-article-id="${art.id}" title="Generate BibTeX Citation" onclick="event.stopPropagation(); openBibtexModal('${art.id}');">
+                <i class="fas fa-quote-right"></i> Cite
+              </button>
+              <button class="btn-pdf-sub" data-article-id="${art.id}" title="Export PDF Download" onclick="event.stopPropagation(); exportArticlePDF('${art.id}');">
+                <i class="fas fa-file-pdf"></i> PDF
               </button>
               <a href="${art.link}" target="_blank" class="btn-external-sub" title="Open original essay on Substack" onclick="event.stopPropagation();">
                 <i class="fas fa-external-link-alt"></i>
@@ -1377,7 +1776,7 @@ async function loadSubstackArticlesGrid() {
 
         // Click anywhere on card or read button opens inline reading modal
         card.addEventListener('click', (e) => {
-          if (e.target.closest('.btn-external-sub')) return;
+          if (e.target.closest('.btn-external-sub') || e.target.closest('.btn-cite-sub') || e.target.closest('.btn-pdf-sub')) return;
           openArticleModal(art);
         });
 

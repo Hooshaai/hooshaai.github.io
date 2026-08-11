@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hoosha AI | Open Models & Checkpoints</title>
-  <meta name="description" content="Hoosha AI Model Zoo & Weights Registry. Explore 6 open-weight model checkpoints including Hoosha-DiffAttn-70B, Hoosha-LinearMamba-32B, and Hoosha-CFM-Flow.">
+  <title>Hoosha AI | Model Zoo & Checkpoint Vault (.safetensors)</title>
+  <meta name="description" content="Dedicated Model Zoo & Checkpoint Vault for browsing and downloading zero-copy .safetensors model weights for Continuous Flow Matching, GRPO reasoning, MoE, and Triton kernels.">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,94 +19,119 @@
 
   <link rel="stylesheet" href="style.css">
   <style>
+    body {
+      background-color: var(--bg-dark);
+      padding-top: 90px;
+    }
     .models-hero {
-      padding-top: 140px;
-      padding-bottom: 50px;
+      padding: 60px 0 40px 0;
       text-align: center;
     }
-    .models-grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 2rem;
-      margin-bottom: 5rem;
-    }
-    .model-card-box {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 2.2rem;
-      backdrop-filter: blur(16px);
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .model-card-box:hover {
-      border-color: var(--cyan);
-      box-shadow: 0 12px 35px rgba(0, 240, 255, 0.25);
-      transform: translateY(-6px);
-    }
-    .model-badge-row {
-      display: flex;
-      justify-content: space-between;
+    .models-hero-badge {
+      display: inline-flex;
       align-items: center;
-      margin-bottom: 1rem;
-    }
-    .model-param-badge {
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      background: rgba(138, 43, 226, 0.15);
+      border: 1px solid var(--purple);
+      border-radius: 50px;
+      color: #d8b4fe;
+      font-size: 0.85rem;
+      font-weight: 600;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
+      margin-bottom: 1.5rem;
+    }
+    .models-hero-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 0%, #a5f3fc 50%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .models-hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 820px;
+      margin: 0 auto 2.5rem auto;
+      line-height: 1.6;
+    }
+    .vault-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+    .vault-stat-card {
+      background: rgba(10, 15, 30, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      transition: all 0.3s ease;
+    }
+    .vault-stat-card:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+      transform: translateY(-4px);
+    }
+    .vault-stat-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
       font-weight: 700;
       color: var(--cyan);
-      background: rgba(0, 240, 255, 0.12);
-      padding: 0.35rem 0.8rem;
-      border-radius: 20px;
-      border: 1px solid rgba(0, 240, 255, 0.3);
+      margin-bottom: 0.3rem;
     }
-    .model-type-tag {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    .model-card-box h3 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.6rem;
-      color: #fff;
-      margin-bottom: 0.75rem;
-    }
-    .model-card-box p {
-      color: var(--text-muted);
-      font-size: 0.92rem;
-      line-height: 1.6;
-      margin-bottom: 1.5rem;
-    }
-    .model-specs-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0.75rem;
-      background: rgba(3, 7, 18, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .model-spec-item {
+    .vault-stat-label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.8rem;
-    }
-    .model-spec-label {
       color: var(--text-muted);
-      font-size: 0.72rem;
-      display: block;
-      margin-bottom: 0.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-    .model-spec-val {
+    .safetensors-guide-section {
+      background: rgba(10, 15, 30, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 3rem;
+      backdrop-filter: blur(16px);
+      margin-top: 5rem;
+      margin-bottom: 5rem;
+    }
+    .guide-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .guide-card {
+      background: rgba(3, 7, 18, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: border-color 0.3s;
+    }
+    .guide-card:hover {
+      border-color: var(--purple);
+    }
+    .guide-card-icon {
+      font-size: 1.8rem;
+      color: var(--purple);
+      margin-bottom: 1rem;
+    }
+    .guide-card h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
       color: #fff;
-      font-weight: 600;
+      margin-bottom: 0.5rem;
     }
-    .model-card-actions {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 1rem;
+    .guide-card p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
     }
   </style>
 </head>
@@ -115,10 +140,11 @@
   <!-- Neural Canvas Background -->
   <canvas id="neuralCanvas"></canvas>
 
+  <!-- Global Top Navbar -->
   <nav class="navbar">
     <a href="index.html" class="nav-brand" style="text-decoration: none; color: inherit;">
       <i class="fas fa-brain brand-icon"></i>
-      <span>Hoosha AI</span>
+      <span>Hoosha AI | Model Zoo</span>
     </a>
     <div class="nav-links">
       <a href="index.html"><i class="fas fa-home"></i> Home</a>
@@ -143,7 +169,7 @@
     <div class="spotlight-modal-container">
       <div class="spotlight-search-header">
         <i class="fas fa-search spotlight-search-icon"></i>
-        <input type="text" id="spotlightSearchInput" class="spotlight-search-input" placeholder="Search 6 model checkpoints, weights, parameters... (Cmd+K)" autocomplete="off" spellcheck="false">
+        <input type="text" id="spotlightSearchInput" class="spotlight-search-input" placeholder="Search 20 Substack articles, model checkpoints, kernels, repos... (Cmd+K)" autocomplete="off" spellcheck="false">
         <kbd class="spotlight-esc-kbd">ESC</kbd>
         <button class="spotlight-close-btn" id="spotlightCloseBtn" title="Close Search">&times;</button>
       </div>
@@ -212,290 +238,460 @@
   </div>
 
   <main>
-    <!-- Models Hero Section -->
+    <!-- Model Zoo Hero Header -->
     <header class="models-hero fade-up">
-      <div class="hero-badge">
-        <span class="pulse-dot"></span> OPEN WEIGHTS & MODEL ZOO
+      <div class="models-hero-badge">
+        <i class="fas fa-shield-halved"></i> ZERO-COPY .SAFETENSORS CHECKPOINT VAULT
       </div>
-      <h1 class="hero-title" style="font-size: 3.5rem;">Open Models & Checkpoints</h1>
-      <p class="hero-subtitle" style="max-width: 800px; margin: 0 auto 2rem auto;">
-        Explore our family of open-weight frontier model checkpoints trained on sub-quadratic linear attention, differential noise cancellation, and continuous flow matching.
+      <h1 class="models-hero-title">Model Zoo & Checkpoint Vault</h1>
+      <p class="models-hero-subtitle">
+        Browse, inspect, and download open-weight production checkpoints in zero-copy <code>.safetensors</code> format. 
+        Optimized for FP8/BF16 Tensor Core execution across Continuous Flow Matching, GRPO Reasoning, Sparse MoE, and Triton kernels.
       </p>
+
+      <!-- Key Vault Stats Row -->
+      <div class="vault-stats-grid">
+        <div class="vault-stat-card">
+          <div class="vault-stat-val">144.2 GB</div>
+          <div class="vault-stat-label">Total Vault Storage</div>
+        </div>
+        <div class="vault-stat-card">
+          <div class="vault-stat-val">6 Checkpoints</div>
+          <div class="vault-stat-label">Production Models</div>
+        </div>
+        <div class="vault-stat-card">
+          <div class="vault-stat-val">FP8 / BF16</div>
+          <div class="vault-stat-label">Supported Precisions</div>
+        </div>
+        <div class="vault-stat-card">
+          <div class="vault-stat-val" style="color: #10b981;">276.0k+</div>
+          <div class="vault-stat-label">Community Downloads</div>
+        </div>
+      </div>
     </header>
 
-    <!-- Models Grid Section -->
-    <section class="fade-up">
-      <div class="models-grid-container">
-
-        <!-- Model 1 -->
-        <div class="model-card-box">
-          <div>
-            <div class="model-badge-row">
-              <span class="model-param-badge">70B PARAMETERS</span>
-              <span class="model-type-tag"><i class="fas fa-microchip"></i> Differential Attention</span>
-            </div>
-            <h3>Hoosha-DiffAttn-70B</h3>
-            <p>Frontier 70-Billion parameter foundation model equipped with Triton differential noise cancellation attention heads and 128k context length.</p>
-            <div class="model-specs-grid">
-              <div class="model-spec-item">
-                <span class="model-spec-label">Context Window</span>
-                <span class="model-spec-val">131,072 Tokens</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">MMLU Score</span>
-                <span class="model-spec-val">88.4%</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">License</span>
-                <span class="model-spec-val">Apache 2.0</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">Format</span>
-                <span class="model-spec-val">SafeTensors FP8</span>
-              </div>
-            </div>
-          </div>
-          <div class="model-card-actions">
-            <a href="platform.html#model-diffattn-70b" class="btn btn-primary" style="flex: 1; justify-content: center;">
-              <i class="fas fa-play"></i> Launch Sandbox
-            </a>
-            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
-              <i class="fas fa-smile-beam"></i> Weights
-            </a>
-          </div>
+    <!-- Interactive Model Zoo Section -->
+    <section class="fade-up" id="modelZooSection">
+      <div class="zoo-controls">
+        <div class="zoo-search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" class="zoo-search-input" id="zooSearchInput" placeholder="Search checkpoints (e.g. CFM, GRPO, MoE, safetensors, FP8, 7B)...">
         </div>
-
-        <!-- Model 2 -->
-        <div class="model-card-box">
-          <div>
-            <div class="model-badge-row">
-              <span class="model-param-badge" style="color: var(--purple); border-color: rgba(138,43,226,0.3); background: rgba(138,43,226,0.12);">32B PARAMETERS</span>
-              <span class="model-type-tag"><i class="fas fa-bolt"></i> Mamba-2 Hybrid</span>
-            </div>
-            <h3>Hoosha-LinearMamba-32B</h3>
-            <p>Sub-quadratic hybrid architecture combining selective state-space Mamba-2 layers with linear attention blocks for infinite sequence processing.</p>
-            <div class="model-specs-grid">
-              <div class="model-spec-item">
-                <span class="model-spec-label">Context Window</span>
-                <span class="model-spec-val">Infinite (Linear)</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">KV-Cache Savings</span>
-                <span class="model-spec-val">94.2%</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">License</span>
-                <span class="model-spec-val">Apache 2.0</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">Format</span>
-                <span class="model-spec-val">SafeTensors BF16</span>
-              </div>
-            </div>
-          </div>
-          <div class="model-card-actions">
-            <a href="platform.html#model-linearmamba-32b" class="btn btn-primary" style="flex: 1; justify-content: center;">
-              <i class="fas fa-play"></i> Launch Sandbox
-            </a>
-            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
-              <i class="fas fa-smile-beam"></i> Weights
-            </a>
-          </div>
+        <div class="zoo-filter-tabs">
+          <button class="zoo-filter-btn active" data-filter="all">All Checkpoints</button>
+          <button class="zoo-filter-btn" data-filter="flow-matching">Flow Matching</button>
+          <button class="zoo-filter-btn" data-filter="reasoning">Reasoning & RL</button>
+          <button class="zoo-filter-btn" data-filter="moe">MoE Architectures</button>
+          <button class="zoo-filter-btn" data-filter="rag">Adaptive RAG</button>
+          <button class="zoo-filter-btn" data-filter="triton">Triton Kernels</button>
         </div>
+      </div>
 
-        <!-- Model 3 -->
-        <div class="model-card-box">
-          <div>
-            <div class="model-badge-row">
-              <span class="model-param-badge" style="color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.12);">7B PARAMETERS</span>
-              <span class="model-type-tag"><i class="fas fa-wave-square"></i> Flow Matching ODE</span>
-            </div>
-            <h3>Hoosha-CFM-Flow-Audio</h3>
-            <p>Continuous-time generative flow matching model mapping source Gaussian noise to target speech data distributions via deterministic ODE trajectories.</p>
-            <div class="model-specs-grid">
-              <div class="model-spec-item">
-                <span class="model-spec-label">ODE Steps</span>
-                <span class="model-spec-val">4 - 16 Steps</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">Sampling NFE</span>
-                <span class="model-spec-val">10 NFE</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">License</span>
-                <span class="model-spec-val">MIT Open</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">Format</span>
-                <span class="model-spec-val">PyTorch / GGUF</span>
-              </div>
-            </div>
-          </div>
-          <div class="model-card-actions">
-            <a href="platform.html#model-cfm-flow" class="btn btn-primary" style="flex: 1; justify-content: center;">
-              <i class="fas fa-play"></i> Launch Sandbox
-            </a>
-            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
-              <i class="fas fa-smile-beam"></i> Weights
-            </a>
-          </div>
-        </div>
-
-        <!-- Model 4 -->
-        <div class="model-card-box">
-          <div>
-            <div class="model-badge-row">
-              <span class="model-param-badge" style="color: #f59e0b; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.12);">14B PARAMETERS</span>
-              <span class="model-type-tag"><i class="fas fa-brain"></i> GRPO RL Reasoner</span>
-            </div>
-            <h3>Hoosha-RLVR-Reason-14B</h3>
-            <p>Post-training reasoning checkpoint optimized via Group Relative Policy Optimization (GRPO), eliminating the Critic neural network for mathematical proofs.</p>
-            <div class="model-specs-grid">
-              <div class="model-spec-item">
-                <span class="model-spec-label">MATH Benchmark</span>
-                <span class="model-spec-val">84.1%</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">GSM8K Score</span>
-                <span class="model-spec-val">95.6%</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">License</span>
-                <span class="model-spec-val">Apache 2.0</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">Format</span>
-                <span class="model-spec-val">SafeTensors FP8</span>
-              </div>
-            </div>
-          </div>
-          <div class="model-card-actions">
-            <a href="platform.html#model-rlvr-reason-14b" class="btn btn-primary" style="flex: 1; justify-content: center;">
-              <i class="fas fa-play"></i> Launch Sandbox
-            </a>
-            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
-              <i class="fas fa-smile-beam"></i> Weights
-            </a>
-          </div>
-        </div>
-
-        <!-- Model 5 -->
-        <div class="model-card-box">
-          <div>
-            <div class="model-badge-row">
-              <span class="model-param-badge" style="color: #ec4899; border-color: rgba(236,72,153,0.3); background: rgba(236,72,153,0.12);">8B PARAMETERS</span>
-              <span class="model-type-tag"><i class="fas fa-atom"></i> IIT $\Phi$ Integrated Info</span>
-            </div>
-            <h3>Hoosha-IIT-AM-V1</h3>
-            <p>Experimental synthetic cognitive architecture incorporating Integrated Information Theory (IIT $\Phi$) as structural inductive biases for attention routing.</p>
-            <div class="model-specs-grid">
-              <div class="model-spec-item">
-                <span class="model-spec-label">Integration $\Phi$</span>
-                <span class="model-spec-val">High Coherence</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">System-2 Latency</span>
-                <span class="model-spec-val">14 ms</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">License</span>
-                <span class="model-spec-val">Research Open</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">Format</span>
-                <span class="model-spec-val">PyTorch Checkpoint</span>
-              </div>
-            </div>
-          </div>
-          <div class="model-card-actions">
-            <a href="platform.html#model-iit-am-v1" class="btn btn-primary" style="flex: 1; justify-content: center;">
-              <i class="fas fa-play"></i> Launch Sandbox
-            </a>
-            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
-              <i class="fas fa-smile-beam"></i> Weights
-            </a>
-          </div>
-        </div>
-
-        <!-- Model 6 -->
-        <div class="model-card-box">
-          <div>
-            <div class="model-badge-row">
-              <span class="model-param-badge" style="color: #3b82f6; border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.12);">1.5B PARAMETERS</span>
-              <span class="model-type-tag"><i class="fas fa-link"></i> Sub-Quadratic Rec</span>
-            </div>
-            <h3>Hoosha-SubQuad-Rec</h3>
-            <p>Ultra-efficient sub-quadratic sequence recommendation model for long-term item trajectory prediction and bidirectional user modeling.</p>
-            <div class="model-specs-grid">
-              <div class="model-spec-item">
-                <span class="model-spec-label">Sequence Length</span>
-                <span class="model-spec-val">1,000,000+ Items</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">Inference Speed</span>
-                <span class="model-spec-val">0.4 ms/seq</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">License</span>
-                <span class="model-spec-val">Apache 2.0</span>
-              </div>
-              <div class="model-spec-item">
-                <span class="model-spec-label">Format</span>
-                <span class="model-spec-val">ONNX / TensorRT</span>
-              </div>
-            </div>
-          </div>
-          <div class="model-card-actions">
-            <a href="platform.html#model-subquad-rec" class="btn btn-primary" style="flex: 1; justify-content: center;">
-              <i class="fas fa-play"></i> Launch Sandbox
-            </a>
-            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
-              <i class="fas fa-smile-beam"></i> Weights
-            </a>
-          </div>
-        </div>
-
+      <!-- Dynamic Checkpoints Cards Grid -->
+      <div class="zoo-grid" id="zooGrid">
+        <!-- Rendered dynamically by JavaScript -->
       </div>
     </section>
+
+    <!-- SafeTensors Architecture & Security Technical Guide -->
+    <section class="safetensors-guide-section fade-up">
+      <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+        <span class="section-badge"><i class="fas fa-lock"></i> FORMAT SPECIFICATION</span>
+        <h2 class="section-title" style="margin-bottom: 1rem;">Why Hoosha AI Uses .safetensors</h2>
+        <p style="color: var(--text-muted); font-size: 0.98rem; line-height: 1.6;">
+          <code>.safetensors</code> is an open-source, memory-safe file format for storing deep learning tensors safely and efficiently. Unlike legacy PyTorch <code>.pt</code> or <code>.bin</code> files powered by Python <code>pickle</code>, <code>.safetensors</code> guarantees zero arbitrary code execution risks.
+        </p>
+      </div>
+
+      <div class="guide-cards-grid">
+        <div class="guide-card">
+          <i class="fas fa-shield-virus guide-card-icon"></i>
+          <h4>1. 100% Memory-Safe</h4>
+          <p>Restricted strictly to header metadata (JSON) and contiguous binary buffer arrays. Completely immune to Python <code>pickle</code> arbitrary code execution exploits.</p>
+        </div>
+
+        <div class="guide-card">
+          <i class="fas fa-bolt guide-card-icon" style="color: var(--cyan);"></i>
+          <h4>2. Zero-Copy Memory Mapping</h4>
+          <p>Uses <code>mmap</code> to map disk storage directly into GPU memory buffers without duplicating memory copies in system RAM. Up to 4.2x faster loading speeds.</p>
+        </div>
+
+        <div class="guide-card">
+          <i class="fas fa-scissors guide-card-icon" style="color: #10b981;"></i>
+          <h4>3. Tensor Sharding & Lazy Loading</h4>
+          <p>Inspect header metadata and load individual model layers on demand without parsing the entire 88GB file into host RAM.</p>
+        </div>
+
+        <div class="guide-card">
+          <i class="fas fa-network-wired guide-card-icon" style="color: #f59e0b;"></i>
+          <h4>4. Multi-GPU Tensor Parallelism</h4>
+          <p>Seamlessly splits tensor byte offsets across 8x H100 SXM5 GPU memory slots using zero-overhead memory pointers.</p>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <footer>
-    <div class="footer-content">
-      <div class="footer-brand">
-        <div class="nav-brand">
-          <i class="fas fa-brain brand-icon"></i>
-          <span>Hoosha AI</span>
+  <!-- Download & Snippet Modal -->
+  <div id="checkpointModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 680px; width: 92%;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <i class="fas fa-cube" style="color: var(--cyan); font-size: 1.5rem;"></i>
+          <h2 id="modalModelTitle" style="font-size: 1.3rem; margin: 0; font-family: 'Space Grotesk';">Model Details</h2>
         </div>
-        <p>Advancing continuous-time generative modeling, differential attention, sub-quadratic sequence architectures, and epistemic verification.</p>
+        <button class="close-modal" id="closeCheckpointModal">&times;</button>
       </div>
 
-      <div class="footer-links">
-        <h4>Site Navigation</h4>
-        <ul>
-          <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
-          <li><a href="research.html"><i class="fas fa-newspaper"></i> Research Journal</a></li>
-          <li><a href="models.html"><i class="fas fa-cube"></i> Models</a></li>
-          <li><a href="labs.html"><i class="fas fa-flask"></i> Learning Labs</a></li>
-          <li><a href="ecosystem.html"><i class="fas fa-network-wired"></i> Ecosystem</a></li>
-          <li><a href="platform.html"><i class="fas fa-terminal"></i> Platform Dashboard</a></li>
-          <li><a href="admin.html" style="color: #ef4444;"><i class="fas fa-shield-alt"></i> Executive Admin</a></li>
-        </ul>
+      <!-- Modal Content: Download Tab -->
+      <div id="modalDownloadContent" style="margin-top: 1.25rem;">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Direct download link for production checkpoint <code id="modalFilename" style="color: var(--cyan);">checkpoint.safetensors</code>.
+        </p>
+
+        <div style="background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; font-family: 'JetBrains Mono'; font-size: 0.85rem; margin-bottom: 1rem; position: relative;">
+          <div style="color: #10b981; word-break: break-all;" id="modalWgetCmd">wget https://models.hoosha.ai/v1/checkpoints/file.safetensors</div>
+          <button class="btn-login" id="btnCopyWgetModal" style="position: absolute; top: 8px; right: 8px; padding: 0.3rem 0.6rem; font-size: 0.75rem;">
+            <i class="fas fa-copy"></i> Copy
+          </button>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono'; font-size: 0.8rem; margin-bottom: 0.4rem;">
+            <span>Simulated Download Status:</span>
+            <span id="dlProgressPct" style="color: var(--cyan);">Ready</span>
+          </div>
+          <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+            <div id="dlProgressBar" style="width: 0%; height: 100%; background: var(--cyan); transition: width 0.2s ease;"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+          <button class="zoo-btn-dl" id="btnStartDownloadModal"><i class="fas fa-download"></i> Start Download (.safetensors)</button>
+        </div>
       </div>
 
-      <div class="footer-links">
-        <h4>Research Track</h4>
-        <ul>
-          <li><a href="https://hooshaai.substack.com" target="_blank"><i class="fab fa-substack"></i> Substack Journal</a></li>
-          <li><a href="https://github.com" target="_blank"><i class="fab fa-github"></i> Open Source Repos</a></li>
-          <li><a href="https://huggingface.co" target="_blank"><i class="fas fa-smile-beam"></i> HuggingFace Hub</a></li>
-        </ul>
+      <!-- Modal Content: Snippet Tab -->
+      <div id="modalSnippetContent" style="margin-top: 1.25rem; display: none;">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Integration code snippet for PyTorch and Hoosha SDK:
+        </p>
+        <div style="background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: #a5f3fc; overflow-x: auto; position: relative;">
+          <pre><code id="modalCodeText"></code></pre>
+          <button class="btn-login" id="btnCopySnippetModal" style="position: absolute; top: 8px; right: 8px; padding: 0.3rem 0.6rem; font-size: 0.75rem;">
+            <i class="fas fa-copy"></i> Copy Code
+          </button>
+        </div>
       </div>
     </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Hoosha AI Research Laboratory. All rights reserved. Open-access research & open-weight model initiative.</p>
+  </div>
+
+  <!-- Shared Article Reader Modal -->
+  <div id="articleModal" class="modal-overlay article-modal-overlay">
+    <div class="article-modal-content">
+      <div class="article-modal-topbar">
+        <div class="article-modal-breadcrumbs">
+          <span class="series-badge" id="articleCategoryBadge">Research</span>
+          <span class="article-modal-reading-time" id="articleReadTime"><i class="fas fa-book-open"></i> 5 min read</span>
+        </div>
+        <div class="article-modal-actions">
+          <button class="icon-btn" id="decreaseFontBtn" title="Decrease font size">A-</button>
+          <button class="icon-btn" id="increaseFontBtn" title="Increase font size">A+</button>
+          <button class="close-modal" id="closeArticleModal">&times;</button>
+        </div>
+      </div>
+      <div class="article-modal-body" id="articleBody">
+        <header class="article-header">
+          <div class="article-meta-bar">
+            <span id="articleDate" class="article-date">Aug 12, 2026</span>
+            <span class="meta-dot">•</span>
+            <span id="articleWordCount" class="article-word-count">1,200 words</span>
+          </div>
+          <h1 id="articleTitle" class="article-title">Article Title</h1>
+          <p id="articleSubtitle" class="article-subtitle">Subtitle content goes here...</p>
+        </header>
+        <article id="articleContent" class="article-markdown-body">
+          <!-- Article content dynamically rendered here -->
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <i class="fas fa-brain footer-logo"></i>
+        <span>Hoosha AI</span>
+        <p>Continuous-Time Generative Systems & Synthetic Intelligence</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Main Hub</a>
+        <a href="research.html">Research Library</a>
+        <a href="models.html">Model Zoo</a>
+        <a href="labs.html">Learning Labs</a>
+        <a href="ecosystem.html">Ecosystem</a>
+        <a href="platform.html">AI Platform</a>
+        <a href="admin.html" style="color: #ef4444;">Admin</a>
+      </div>
+      <div class="footer-copy">
+        <p>&copy; 2026 Hoosha AI Research Lab. Open access research under MIT / CC-BY 4.0.</p>
+      </div>
     </div>
   </footer>
 
   <script src="script.js"></script>
+  <script>
+    // Model Zoo Logic
+    const modelsData = [
+      {
+        id: 'cfm-7b',
+        name: 'Hoosha CFM-v2.5 7B',
+        filename: 'hoosha-cfm-v2.5-7b-bf16.safetensors',
+        category: 'flow-matching',
+        size: '14.8 GB',
+        params: '7.2B',
+        precision: 'BF16',
+        license: 'Apache 2.0',
+        sha256: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+        desc: 'Continuous Flow Matching ODE velocity vector field weights fine-tuned on multi-modal latent trajectories with 50-step integration.',
+        downloads: '48.2k',
+        snippet: `from hoosha import FlowMatchingModel\nmodel = FlowMatchingModel.from_pretrained("hoosha-ai/cfm-v2.5-7b", use_safetensors=True)`
+      },
+      {
+        id: 'grpo-14b',
+        name: 'Hoosha GRPO Reasoner 14B',
+        filename: 'hoosha-grpo-reasoner-14b-fp8.safetensors',
+        category: 'reasoning',
+        size: '14.2 GB',
+        params: '14.1B',
+        precision: 'FP8 (E4M3)',
+        license: 'OpenRAIL-M',
+        sha256: '7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069',
+        desc: 'Group Relative Policy Optimization alignment checkpoint for multi-step mathematical reasoning and code synthesis with zero KL collapse.',
+        downloads: '92.5k',
+        snippet: `from hoosha import GRPOReasoner\nmodel = GRPOReasoner.from_safetensors("hoosha-grpo-reasoner-14b-fp8.safetensors")`
+      },
+      {
+        id: 'moe-8x7b',
+        name: 'Hoosha Sparse MoE 8x7B',
+        filename: 'hoosha-moe-8x7b-instruct-bf16.safetensors',
+        category: 'moe',
+        size: '88.4 GB',
+        params: '46.7B (12.9B Active)',
+        precision: 'BF16',
+        license: 'Hoosha Research',
+        sha256: 'a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0',
+        desc: 'Sparse Mixture-of-Experts architecture with top-2 router gating and fused Triton attention kernels for high-throughput batching.',
+        downloads: '31.8k',
+        snippet: `import torch\nfrom hoosha.moe import FusedMoEModel\nmodel = FusedMoEModel.from_pretrained("hoosha-moe-8x7b-instruct-bf16.safetensors", torch_dtype=torch.bfloat16)`
+      },
+      {
+        id: 'rag-3b',
+        name: 'Adaptive RAG Embedder 3B',
+        filename: 'hoosha-adaptive-rag-embed-3b.safetensors',
+        category: 'rag',
+        size: '6.1 GB',
+        params: '3.1B',
+        precision: 'FP16',
+        license: 'Apache 2.0',
+        sha256: 'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9',
+        desc: 'Dual-encoder embedding model for knowledge boundary confidence scoring and entropy-triggered selective retrieval.',
+        downloads: '64.1k',
+        snippet: `from hoosha.rag import AdaptiveEmbedder\nembedder = AdaptiveEmbedder("hoosha-adaptive-rag-embed-3b.safetensors")`
+      },
+      {
+        id: 'vision-34b',
+        name: 'Hoosha Vision Flow 34B Q4',
+        filename: 'hoosha-vision-flow-34b-q4.safetensors',
+        category: 'flow-matching',
+        size: '19.5 GB',
+        params: '33.8B',
+        precision: 'INT4 (Q4_K_M)',
+        license: 'OpenRAIL-M',
+        sha256: 'c8d7e6f5a4b3c2d1e0f987654321fedcba9876543210fedcba9876543210fedc',
+        desc: 'High-resolution multimodal flow matching model for direct image-to-trajectory continuous synthesis.',
+        downloads: '27.4k',
+        snippet: `from hoosha.vision import VisionFlowPipeline\npipeline = VisionFlowPipeline.from_safetensors("hoosha-vision-flow-34b-q4.safetensors")`
+      },
+      {
+        id: 'triton-scales',
+        name: 'Triton Kernel Scale Vectors v1',
+        filename: 'hoosha-triton-kernel-weights-v1.safetensors',
+        category: 'triton',
+        size: '1.2 GB',
+        params: '600M',
+        precision: 'FP8 (E5M2)',
+        license: 'MIT',
+        sha256: 'd41d8cd98f00b204e9800998ecf8427e0d000000000000000000000000000000',
+        desc: 'Fused quantization scale vectors and per-channel FP8 clipping factors for custom CUDA/Triton kernels.',
+        downloads: '112.0k',
+        snippet: `import safetensors.torch as st\nweights = st.load_file("hoosha-triton-kernel-weights-v1.safetensors")`
+      }
+    ];
+
+    let currentFilter = 'all';
+
+    function renderModelZoo() {
+      const grid = document.getElementById('zooGrid');
+      if (!grid) return;
+      const searchTerm = (document.getElementById('zooSearchInput').value || '').toLowerCase();
+      
+      const filtered = modelsData.filter(m => {
+        const matchesCategory = currentFilter === 'all' || m.category === currentFilter;
+        const matchesSearch = m.name.toLowerCase().includes(searchTerm) ||
+                              m.filename.toLowerCase().includes(searchTerm) ||
+                              m.desc.toLowerCase().includes(searchTerm) ||
+                              m.precision.toLowerCase().includes(searchTerm);
+        return matchesCategory && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 3rem; background: rgba(10,15,30,0.5); border-radius: 16px; border: 1px dashed var(--border);">No matching model checkpoints found for "${searchTerm}".</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(m => `
+        <div class="zoo-card">
+          <div>
+            <div class="zoo-card-header">
+              <div>
+                <div class="zoo-card-title">
+                  <i class="fas fa-cube" style="color: var(--cyan);"></i> ${m.name}
+                </div>
+                <span class="zoo-card-filename">${m.filename}</span>
+              </div>
+              <span class="zoo-badge-safetensor">${m.precision}</span>
+            </div>
+
+            <p class="zoo-card-desc" style="margin-top: 1rem; margin-bottom: 1.25rem;">${m.desc}</p>
+
+            <div class="zoo-meta-grid">
+              <div class="zoo-meta-item">
+                <span class="zoo-meta-label">File Size:</span>
+                <span class="zoo-meta-val">${m.size}</span>
+              </div>
+              <div class="zoo-meta-item">
+                <span class="zoo-meta-label">Parameters:</span>
+                <span class="zoo-meta-val">${m.params}</span>
+              </div>
+              <div class="zoo-meta-item">
+                <span class="zoo-meta-label">License:</span>
+                <span class="zoo-meta-val" style="color: var(--cyan);">${m.license}</span>
+              </div>
+              <div class="zoo-meta-item">
+                <span class="zoo-meta-label">Downloads:</span>
+                <span class="zoo-meta-val" style="color: #10b981;">${m.downloads}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="zoo-card-actions">
+            <button class="zoo-btn-dl" onclick="openDownloadModal('${m.id}')">
+              <i class="fas fa-download"></i> Download .safetensors
+            </button>
+            <button class="zoo-btn-code" title="View Python Code Snippet" onclick="openSnippetModal('${m.id}')">
+              <i class="fas fa-code"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.querySelectorAll('.zoo-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.zoo-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderModelZoo();
+      });
+    });
+
+    const zooSearchInput = document.getElementById('zooSearchInput');
+    if (zooSearchInput) zooSearchInput.addEventListener('input', renderModelZoo);
+
+    let activeModalModel = null;
+    function openDownloadModal(id) {
+      activeModalModel = modelsData.find(m => m.id === id);
+      if (!activeModalModel) return;
+
+      document.getElementById('modalModelTitle').textContent = activeModalModel.name;
+      document.getElementById('modalFilename').textContent = activeModalModel.filename;
+      document.getElementById('modalWgetCmd').textContent = `wget https://models.hoosha.ai/v1/checkpoints/${activeModalModel.filename}`;
+      
+      document.getElementById('modalDownloadContent').style.display = 'block';
+      document.getElementById('modalSnippetContent').style.display = 'none';
+      document.getElementById('dlProgressBar').style.width = '0%';
+      document.getElementById('dlProgressPct').textContent = 'Ready';
+
+      document.getElementById('checkpointModal').classList.add('active');
+    }
+
+    function openSnippetModal(id) {
+      activeModalModel = modelsData.find(m => m.id === id);
+      if (!activeModalModel) return;
+
+      document.getElementById('modalModelTitle').textContent = `${activeModalModel.name} - Python Snippet`;
+      document.getElementById('modalCodeText').textContent = activeModalModel.snippet;
+
+      document.getElementById('modalDownloadContent').style.display = 'none';
+      document.getElementById('modalSnippetContent').style.display = 'block';
+
+      document.getElementById('checkpointModal').classList.add('active');
+    }
+
+    const closeCheckpointModal = document.getElementById('closeCheckpointModal');
+    if (closeCheckpointModal) {
+      closeCheckpointModal.addEventListener('click', () => {
+        document.getElementById('checkpointModal').classList.remove('active');
+      });
+    }
+
+    const btnStartDownloadModal = document.getElementById('btnStartDownloadModal');
+    if (btnStartDownloadModal) {
+      btnStartDownloadModal.addEventListener('click', () => {
+        let pct = 0;
+        const bar = document.getElementById('dlProgressBar');
+        const text = document.getElementById('dlProgressPct');
+        const timer = setInterval(() => {
+          pct += Math.floor(Math.random() * 25) + 10;
+          if (pct >= 100) {
+            pct = 100;
+            clearInterval(timer);
+            if (text) text.textContent = 'Completed (Simulated)';
+            if (bar) bar.style.backgroundColor = '#10b981';
+            setTimeout(() => {
+              alert(`Simulated Download Complete: ${activeModalModel.filename} (${activeModalModel.size}) saved to disk.`);
+            }, 300);
+          } else {
+            if (text) text.textContent = `${pct}% downloading...`;
+          }
+          if (bar) bar.style.width = `${pct}%`;
+        }, 300);
+      });
+    }
+
+    const btnCopyWgetModal = document.getElementById('btnCopyWgetModal');
+    if (btnCopyWgetModal) {
+      btnCopyWgetModal.addEventListener('click', () => {
+        const cmd = document.getElementById('modalWgetCmd').textContent;
+        navigator.clipboard.writeText(cmd);
+        alert('Curl/Wget command copied to clipboard!');
+      });
+    }
+
+    const btnCopySnippetModal = document.getElementById('btnCopySnippetModal');
+    if (btnCopySnippetModal) {
+      btnCopySnippetModal.addEventListener('click', () => {
+        const code = document.getElementById('modalCodeText').textContent;
+        navigator.clipboard.writeText(code);
+        alert('Python snippet copied to clipboard!');
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderModelZoo();
+    });
+  </script>
 </body>
 </html>
