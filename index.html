@@ -30,11 +30,11 @@
       <span>Hoosha AI</span>
     </a>
     <div class="nav-links">
-      <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
-      <a href="research.html"><i class="fas fa-newspaper"></i> Research Journal</a>
-      <a href="models.html"><i class="fas fa-cube"></i> Models</a>
-      <a href="labs.html"><i class="fas fa-flask"></i> Learning Labs</a>
+      <a href="index.html" class="active" style="color: var(--cyan);"><i class="fas fa-home"></i> Home</a>
+      <a href="research.html"><i class="fas fa-newspaper"></i> Research</a>
       <a href="ecosystem.html"><i class="fas fa-network-wired"></i> Ecosystem</a>
+      <a href="models.html"><i class="fas fa-cube"></i> Models</a>
+      <a href="labs.html"><i class="fas fa-flask"></i> Labs</a>
       <a href="platform.html"><i class="fas fa-terminal"></i> Platform</a>
       <a href="admin.html" style="color: #ef4444 !important;"><i class="fas fa-shield-alt"></i> Admin</a>
       <button class="spotlight-nav-btn" id="spotlightNavBtn" title="Search Everything (Cmd+K)">
@@ -1328,6 +1328,100 @@
     </div>
   </footer>
 
+  <!-- Web Audio Text-To-Speech (TTS) Audio Dispatch Floating Bar Player -->
+  <div id="ttsAudioDispatchBar" class="tts-dispatch-bar" style="display: none;">
+    <div class="tts-bar-content">
+      <!-- Left: Audio Metadata & Waveform -->
+      <div class="tts-bar-info">
+        <canvas id="ttsWaveformCanvas" width="75" height="34" class="tts-waveform-canvas"></canvas>
+        <div class="tts-essay-meta">
+          <span class="tts-now-playing-tag"><i class="fas fa-podcast"></i> AUDIO DISPATCH</span>
+          <div id="ttsBarTitle" class="tts-bar-title" title="View Article Detail Modal">Scaling Transformers...</div>
+          <div class="tts-bar-subinfo">
+            <span id="ttsBarCategory" class="tts-cat-badge">Linear Attention</span>
+            <span id="ttsBarIndex" class="tts-index-badge">Essay 1 of 20</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Playback Controls & Progress Bar -->
+      <div class="tts-bar-controls-center">
+        <div class="tts-buttons-row">
+          <button id="ttsPrevBtn" class="tts-btn" title="Previous Essay (Shift + Left)"><i class="fas fa-step-backward"></i></button>
+          <button id="ttsRewindBtn" class="tts-btn" title="Rewind 10s (Left Arrow)"><i class="fas fa-undo-alt"></i></button>
+          <button id="ttsPlayPauseBtn" class="tts-btn tts-play-main-btn" title="Play/Pause (Spacebar)"><i class="fas fa-play"></i></button>
+          <button id="ttsForwardBtn" class="tts-btn" title="Forward 10s (Right Arrow)"><i class="fas fa-redo-alt"></i></button>
+          <button id="ttsNextBtn" class="tts-btn" title="Next Essay (Shift + Right)"><i class="fas fa-step-forward"></i></button>
+          <button id="ttsStopBtn" class="tts-btn" title="Stop Playback"><i class="fas fa-stop"></i></button>
+        </div>
+
+        <div class="tts-progress-row">
+          <span id="ttsCurrentTime" class="tts-time">0:00</span>
+          <div id="ttsProgressBarContainer" class="tts-progress-bar-container" title="Click to scrub audio">
+            <div id="ttsProgressBar" class="tts-progress-bar"></div>
+          </div>
+          <span id="ttsTotalTime" class="tts-time">0:00</span>
+        </div>
+      </div>
+
+      <!-- Right: Voice, Rate, Queue & Minimize -->
+      <div class="tts-bar-options">
+        <div class="tts-select-group">
+          <i class="fas fa-tachometer-alt" title="Speed"></i>
+          <select id="ttsSpeedSelect" class="tts-select" title="Playback Speed">
+            <option value="0.75">0.75x</option>
+            <option value="1.0" selected>1.0x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="1.75">1.75x</option>
+            <option value="2.0">2.0x</option>
+          </select>
+        </div>
+
+        <div class="tts-select-group">
+          <i class="fas fa-user-astronaut" title="Voice"></i>
+          <select id="ttsVoiceSelect" class="tts-select tts-voice-select" title="Voice Model">
+            <option value="">Default Voice</option>
+          </select>
+        </div>
+
+        <button id="ttsQueueToggleBtn" class="tts-btn tts-queue-btn" title="Playlist Queue (20 Essays)">
+          <i class="fas fa-list-ol"></i> <span class="queue-count-badge">20</span>
+        </button>
+
+        <button id="ttsBarCloseBtn" class="tts-btn tts-close-btn" title="Minimize Bar">&times;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Substack Audio Playlist Queue Modal -->
+  <div id="ttsQueueModal" class="tts-queue-modal-overlay">
+    <div class="tts-queue-container">
+      <div class="tts-queue-header">
+        <div class="tts-queue-title-wrap">
+          <i class="fas fa-podcast tts-queue-icon"></i>
+          <div>
+            <h3>Substack Audio Dispatch Queue</h3>
+            <p>Listen to all 20 Substack Essays as an Audio Podcast</p>
+          </div>
+        </div>
+        <div class="tts-queue-actions">
+          <button id="ttsAutoPlayNextToggle" class="btn-queue-toggle active" title="Toggle Continuous Playback">
+            <i class="fas fa-sync-alt"></i> Continuous: ON
+          </button>
+          <button id="ttsShuffleQueueBtn" class="btn-queue-toggle" title="Shuffle Queue">
+            <i class="fas fa-random"></i> Shuffle
+          </button>
+          <button id="ttsCloseQueueBtn" class="close-modal">&times;</button>
+        </div>
+      </div>
+      <div class="tts-queue-body" id="ttsQueueList">
+        <!-- Dynamically rendered queue items -->
+      </div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>
+

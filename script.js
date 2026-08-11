@@ -930,9 +930,13 @@ function initNewsletterSection() {
 // ==========================================
 function decodeHTMLEntities(text) {
   if (!text) return '';
-  const textarea = document.createElement('textarea');
-  textarea.innerHTML = text;
-  return textarea.value;
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value || text;
+  } catch (e) {
+    return text;
+  }
 }
 
 const ALL_SUBSTACK_ARTICLES = [
@@ -1657,14 +1661,625 @@ document.addEventListener('click', (e) => {
 
   const modalCiteBtn = e.target.closest('#modalCiteBibtexBtn');
   if (modalCiteBtn && currentReadingArticle) {
-    openBibtexModal(currentReadingArticle);
-  }
-
-  const modalPdfBtn = e.target.closest('#modalExportPdfBtn');
-  if (modalPdfBtn && currentReadingArticle) {
-    exportArticlePDF(currentReadingArticle);
+exportArticlePDF(currentReadingArticle);
   }
 });
+
+// Preprocess LaTeX math formulas and HTML into readable conversational speech
+function preprocessTextForSpeech(raw) {
+  if (!raw) return '';
+  let txt = raw.replace(/<[^>]+>/g, ' ');
+  txt = txt.replace(/\\text\{([^}]+)\}/g, '$1');
+  txt = txt.replace(/\\mathcal\{O\}\(N\^2\)/g, 'order N squared complexity');
+  txt = txt.replace(/\\mathcal\{O\}\(N\)/g, 'linear order N complexity');
+  txt = txt.replace(/\\mathcal\{V\}_\{\\text\{causal\}\}/g, 'causal verification function');
+  txt = txt.replace(/\\phi\(x\)/g, 'phi of x');
+  txt = txt.replace(/\\text\{softmax\}/g, 'softmax function');
+  txt = txt.replace(/\$\$[\s\S]*?\$\$/g, ' equation breakdown ');
+  txt = txt.replace(/\$([^$]+)\$/g, ' $1 ');
+  txt = txt.replace(/&amp;/g, ' and ');
+  txt = txt.replace(/&#8217;/g, "'");
+  txt = txt.replace(/&#8212;/g, ' dash ');
+  txt = txt.replace(/[\r\n]+/g, ' ');
+  return txt.trim();
+}
+
+// ==========================================
+// Web Audio Text-To-Speech (TTS) Dispatch Player Engine
+// ==========================================
+const SubstackTTSPlayer = {
+  synth: window.speechSynthesis,
+  utterance: null,
+  articles: [],
+  currentIndex: 0,
+  isPlaying: false,
+  isPaused: false,
+  sentences: [],
+  currentSentenceIdx: 0,
+  voices: [],
+  selectedVoice: null,
+  rate: 1.0,
+  pitch: 1.0,
+  volume: 1.0,
+  autoPlayNext: true,
+
+  init() {
+    this.articles = typeof ALL_SUBSTACK_ARTICLES !== 'undefined' ? ALL_SUBSTACK_ARTICLES : [];
+    this.loadVoices();
+    if (this.synth && this.synth.onvoiceschanged !== undefined) {
+      this.synth.onvoiceschanged = () => this.loadVoices();
+    }
+    
+    this.bindEvents();
+    this.initWaveforms();
+    this.renderQueue();
+    this.updateUI();
+  },
+
+  loadVoices() {
+    if (!this.synth) return;
+    this.voices = this.synth.getVoices();
+    const voiceSelect = document.getElementById('ttsVoiceSelect');
+    const heroVoiceSelect = document.getElementById('ttsHeroVoiceSelect');
+
+    const populate = (selectEl) => {
+      if (!selectEl) return;
+      const currentVal = selectEl.value;
+      selectEl.innerHTML = '';
+
+      const englishVoices = this.voices.filter(v => v.lang && v.lang.startsWith('en'));
+      const listToUse = englishVoices.length > 0 ? englishVoices : this.voices;
+
+      listToUse.forEach((v, idx) => {
+        const opt = document.createElement('option');
+        opt.value = v.voiceURI;
+        opt.textContent = `${v.name} (${v.lang})`;
+        if (v.default || idx === 0) {
+          opt.selected = true;
+        }
+        selectEl.appendChild(opt);
+      });
+
+      if (currentVal && Array.from(selectEl.options).some(o => o.value === currentVal)) {
+        selectEl.value = currentVal;
+      }
+
+      if (selectEl.value) {
+        this.selectedVoice = this.voices.find(v => v.voiceURI === selectEl.value) || null;
+      }
+    };
+
+    populate(voiceSelect);
+    populate(heroVoiceSelect);
+  },
+
+  bindEvents() {
+    const playPauseBtn = document.getElementById('ttsPlayPauseBtn');
+    const prevBtn = document.getElementById('ttsPrevBtn');
+    const nextBtn = document.getElementById('ttsNextBtn');
+    const rewindBtn = document.getElementById('ttsRewindBtn');
+    const forwardBtn = document.getElementById('ttsForwardBtn');
+    const stopBtn = document.getElementById('ttsStopBtn');
+    const speedSelect = document.getElementById('ttsSpeedSelect');
+    const voiceSelect = document.getElementById('ttsVoiceSelect');
+    const progressContainer = document.getElementById('ttsProgressBarContainer');
+    const queueToggleBtn = document.getElementById('ttsQueueToggleBtn');
+    const closeQueueBtn = document.getElementById('ttsCloseQueueBtn');
+    const barCloseBtn = document.getElementById('ttsBarCloseBtn');
+    const autoPlayNextToggle = document.getElementById('ttsAutoPlayNextToggle');
+    const shuffleQueueBtn = document.getElementById('ttsShuffleQueueBtn');
+
+    const heroPlayBtn = document.getElementById('ttsHeroPlayBtn');
+    const heroSpeedSelect = document.getElementById('ttsHeroSpeedSelect');
+    const heroVoiceSelect = document.getElementById('ttsHeroVoiceSelect');
+
+    if (playPauseBtn) playPauseBtn.addEventListener('click', () => this.togglePlayPause());
+    if (heroPlayBtn) heroPlayBtn.addEventListener('click', () => this.togglePlayPause());
+    if (prevBtn) prevBtn.addEventListener('click', () => this.prev());
+    if (nextBtn) nextBtn.addEventListener('click', () => this.next());
+    if (rewindBtn) rewindBtn.addEventListener('click', () => this.rewind10());
+    if (forwardBtn) forwardBtn.addEventListener('click', () => this.forward10());
+    if (stopBtn) stopBtn.addEventListener('click', () => this.stop());
+
+    if (speedSelect) {
+      speedSelect.addEventListener('change', (e) => {
+        this.rate = parseFloat(e.target.value);
+        if (heroSpeedSelect) heroSpeedSelect.value = e.target.value;
+        if (this.isPlaying) this.restartCurrentSentence();
+      });
+    }
+
+    if (heroSpeedSelect) {
+      heroSpeedSelect.addEventListener('change', (e) => {
+        this.rate = parseFloat(e.target.value);
+        if (speedSelect) speedSelect.value = e.target.value;
+        if (this.isPlaying) this.restartCurrentSentence();
+      });
+    }
+
+    if (voiceSelect) {
+      voiceSelect.addEventListener('change', (e) => {
+        this.selectedVoice = this.voices.find(v => v.voiceURI === e.target.value) || null;
+        if (heroVoiceSelect) heroVoiceSelect.value = e.target.value;
+        if (this.isPlaying) this.restartCurrentSentence();
+      });
+    }
+
+    if (heroVoiceSelect) {
+      heroVoiceSelect.addEventListener('change', (e) => {
+        this.selectedVoice = this.voices.find(v => v.voiceURI === e.target.value) || null;
+        if (voiceSelect) voiceSelect.value = e.target.value;
+        if (this.isPlaying) this.restartCurrentSentence();
+      });
+    }
+
+    if (progressContainer) {
+      progressContainer.addEventListener('click', (e) => {
+        const rect = progressContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+        this.seekToRatio(ratio);
+      });
+    }
+
+    const queueModal = document.getElementById('ttsQueueModal');
+    if (queueToggleBtn && queueModal) {
+      queueToggleBtn.addEventListener('click', () => {
+        queueModal.classList.toggle('active');
+        this.renderQueue();
+      });
+    }
+    if (closeQueueBtn && queueModal) {
+      closeQueueBtn.addEventListener('click', () => queueModal.classList.remove('active'));
+    }
+
+    if (barCloseBtn) {
+      barCloseBtn.addEventListener('click', () => {
+        const bar = document.getElementById('ttsAudioDispatchBar');
+        if (bar) bar.classList.toggle('minimized');
+      });
+    }
+
+    if (autoPlayNextToggle) {
+      autoPlayNextToggle.addEventListener('click', () => {
+        this.autoPlayNext = !this.autoPlayNext;
+        autoPlayNextToggle.classList.toggle('active', this.autoPlayNext);
+        autoPlayNextToggle.innerHTML = `<i class="fas fa-sync-alt"></i> Continuous: ${this.autoPlayNext ? 'ON' : 'OFF'}`;
+      });
+    }
+
+    if (shuffleQueueBtn) {
+      shuffleQueueBtn.addEventListener('click', () => {
+        this.currentIndex = Math.floor(Math.random() * this.articles.length);
+        this.playArticle(this.currentIndex);
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const tag = e.target.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+      if (e.code === 'Space' && (this.isPlaying || this.isPaused)) {
+        e.preventDefault();
+        this.togglePlayPause();
+      } else if (e.code === 'ArrowLeft' && e.shiftKey && (this.isPlaying || this.isPaused)) {
+        e.preventDefault();
+        this.prev();
+      } else if (e.code === 'ArrowRight' && e.shiftKey && (this.isPlaying || this.isPaused)) {
+        e.preventDefault();
+        this.next();
+      } else if (e.code === 'ArrowLeft' && (this.isPlaying || this.isPaused)) {
+        e.preventDefault();
+        this.rewind10();
+      } else if (e.code === 'ArrowRight' && (this.isPlaying || this.isPaused)) {
+        e.preventDefault();
+        this.forward10();
+      }
+    });
+  },
+
+  playChimeIntro() {
+    if (typeof HooshaAudioEngine !== 'undefined' && HooshaAudioEngine.initContext) {
+      HooshaAudioEngine.initContext();
+      if (HooshaAudioEngine.audioCtx) {
+        try {
+          const ctx = HooshaAudioEngine.audioCtx;
+          const now = ctx.currentTime;
+          const notes = [523.25, 659.25, 783.99];
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.06, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.25);
+          });
+        } catch (e) {
+          console.warn('TTS Chime Intro error:', e);
+        }
+      }
+    }
+  },
+
+  prepareSentences(article, index) {
+    const rawSentences = [];
+    const title = decodeHTMLEntities(article.title || '');
+    const cat = article.categoryName || 'Substack Journal';
+    const readTime = article.readTime || '8 min read';
+    
+    rawSentences.push(`Hoosha AI Audio Dispatch. Playing essay ${index + 1} of ${this.articles.length}. Title: ${title}. Category: ${cat}. Read time: ${readTime}.`);
+
+    const snippet = preprocessTextForSpeech(decodeHTMLEntities(article.snippet || ''));
+    if (snippet) {
+      rawSentences.push(`Abstract: ${snippet}`);
+    }
+
+    let rawContent = '';
+    if (article.id && typeof articlesDatabase !== 'undefined' && articlesDatabase[article.id]) {
+      rawContent = articlesDatabase[article.id].content || '';
+    } else {
+      rawContent = generateSubstackArticleModalHTML(article);
+    }
+
+    const cleanContent = preprocessTextForSpeech(rawContent);
+    const parts = cleanContent.split(/(?<=[.!?])\s+/);
+    parts.forEach(p => {
+      const s = p.trim();
+      if (s.length > 5) {
+        rawSentences.push(s);
+      }
+    });
+
+    return rawSentences;
+  },
+
+  playArticle(index, startSentenceIdx = 0) {
+    if (!this.synth) {
+      alert('Speech Synthesis API is not supported in your browser.');
+      return;
+    }
+
+    if (index < 0 || index >= this.articles.length) index = 0;
+    this.currentIndex = index;
+    const article = this.articles[this.currentIndex];
+    if (!article) return;
+
+    this.stopSynthOnly();
+    this.playChimeIntro();
+
+    this.sentences = this.prepareSentences(article, this.currentIndex);
+    this.currentSentenceIdx = Math.min(startSentenceIdx, this.sentences.length - 1);
+    this.isPlaying = true;
+    this.isPaused = false;
+
+    const bar = document.getElementById('ttsAudioDispatchBar');
+    if (bar) {
+      bar.classList.remove('minimized');
+      bar.style.display = 'block';
+    }
+
+    this.speakCurrentSentence();
+    this.updateUI();
+  },
+
+  stopSynthOnly() {
+    if (this.synth) {
+      this.synth.cancel();
+    }
+  },
+
+  speakCurrentSentence() {
+    if (!this.isPlaying || this.currentSentenceIdx >= this.sentences.length) {
+      if (this.currentSentenceIdx >= this.sentences.length && this.isPlaying) {
+        this.onEssayEnded();
+      }
+      return;
+    }
+
+    this.stopSynthOnly();
+
+    const textToSpeak = this.sentences[this.currentSentenceIdx];
+    this.utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+    if (this.selectedVoice) {
+      this.utterance.voice = this.selectedVoice;
+    }
+    this.utterance.rate = this.rate;
+    this.utterance.pitch = this.pitch;
+    this.utterance.volume = this.volume;
+
+    this.utterance.onend = () => {
+      if (this.isPlaying && !this.isPaused) {
+        this.currentSentenceIdx++;
+        this.speakCurrentSentence();
+        this.updateProgressUI();
+      }
+    };
+
+    this.utterance.onerror = (e) => {
+      console.warn('TTS utterance error:', e);
+      if (this.isPlaying && !this.isPaused) {
+        this.currentSentenceIdx++;
+        this.speakCurrentSentence();
+      }
+    };
+
+    this.synth.speak(this.utterance);
+    this.updateTranscriptUI(textToSpeak);
+    this.updateProgressUI();
+  },
+
+  restartCurrentSentence() {
+    if (this.isPlaying) {
+      this.speakCurrentSentence();
+    }
+  },
+
+  togglePlayPause() {
+    if (!this.isPlaying && !this.isPaused) {
+      this.playArticle(this.currentIndex);
+      return;
+    }
+
+    if (this.isPaused) {
+      this.isPaused = false;
+      this.isPlaying = true;
+      if (this.synth.paused) {
+        this.synth.resume();
+      } else {
+        this.speakCurrentSentence();
+      }
+    } else if (this.isPlaying) {
+      this.isPaused = true;
+      this.isPlaying = false;
+      if (this.synth.speaking) {
+        this.synth.pause();
+      }
+    }
+    this.updateUI();
+  },
+
+  stop() {
+    this.isPlaying = false;
+    this.isPaused = false;
+    this.stopSynthOnly();
+    this.currentSentenceIdx = 0;
+    this.updateUI();
+  },
+
+  next() {
+    const nextIdx = (this.currentIndex + 1) % this.articles.length;
+    this.playArticle(nextIdx);
+  },
+
+  prev() {
+    const prevIdx = (this.currentIndex - 1 + this.articles.length) % this.articles.length;
+    this.playArticle(prevIdx);
+  },
+
+  rewind10() {
+    if (!this.sentences.length) return;
+    this.currentSentenceIdx = Math.max(0, this.currentSentenceIdx - 2);
+    this.speakCurrentSentence();
+  },
+
+  forward10() {
+    if (!this.sentences.length) return;
+    this.currentSentenceIdx = Math.min(this.sentences.length - 1, this.currentSentenceIdx + 2);
+    this.speakCurrentSentence();
+  },
+
+  seekToRatio(ratio) {
+    if (!this.sentences.length) return;
+    const targetIdx = Math.floor(ratio * (this.sentences.length - 1));
+    this.currentSentenceIdx = Math.max(0, Math.min(this.sentences.length - 1, targetIdx));
+    if (this.isPlaying || this.isPaused) {
+      this.isPlaying = true;
+      this.isPaused = false;
+      this.speakCurrentSentence();
+    }
+  },
+
+  onEssayEnded() {
+    this.stopSynthOnly();
+    this.isPlaying = false;
+    this.isPaused = false;
+    this.updateUI();
+
+    if (this.autoPlayNext) {
+      setTimeout(() => {
+        this.next();
+      }, 1000);
+    }
+  },
+
+  updateTranscriptUI(text) {
+    const heroTranscript = document.getElementById('ttsHeroTranscriptText');
+    if (heroTranscript) {
+      heroTranscript.textContent = text || 'Listening to Audio Dispatch...';
+    }
+  },
+
+  updateProgressUI() {
+    const progressBar = document.getElementById('ttsProgressBar');
+    const heroProgressBar = document.getElementById('ttsHeroProgressBar');
+    const currentTimeEl = document.getElementById('ttsCurrentTime');
+    const totalTimeEl = document.getElementById('ttsTotalTime');
+    const heroCurrentTimeEl = document.getElementById('ttsHeroCurrentTime');
+    const heroTotalTimeEl = document.getElementById('ttsHeroTotalTime');
+
+    const totalSentences = this.sentences.length || 1;
+    const pct = ((this.currentSentenceIdx / totalSentences) * 100).toFixed(1);
+
+    if (progressBar) progressBar.style.width = `${pct}%`;
+    if (heroProgressBar) heroProgressBar.style.width = `${pct}%`;
+
+    const wordsTotal = this.sentences.reduce((acc, s) => acc + s.split(' ').length, 0);
+    const estTotalSec = Math.round((wordsTotal / 150) * 60 / (this.rate || 1));
+    const elapsedSec = Math.round((this.currentSentenceIdx / totalSentences) * estTotalSec);
+
+    const fmt = (s) => {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+    };
+
+    if (currentTimeEl) currentTimeEl.textContent = fmt(elapsedSec);
+    if (totalTimeEl) totalTimeEl.textContent = fmt(estTotalSec);
+    if (heroCurrentTimeEl) heroCurrentTimeEl.textContent = fmt(elapsedSec);
+    if (heroTotalTimeEl) heroTotalTimeEl.textContent = fmt(estTotalSec);
+  },
+
+  updateUI() {
+    const article = this.articles[this.currentIndex] || {};
+    
+    const titleEl = document.getElementById('ttsBarTitle');
+    const catEl = document.getElementById('ttsBarCategory');
+    const indexEl = document.getElementById('ttsBarIndex');
+    const playBtn = document.getElementById('ttsPlayPauseBtn');
+
+    const heroTitleEl = document.getElementById('ttsHeroTitle');
+    const heroCatEl = document.getElementById('ttsHeroCategory');
+    const heroPlayBtn = document.getElementById('ttsHeroPlayBtn');
+
+    const isPlayActive = this.isPlaying && !this.isPaused;
+
+    if (titleEl) titleEl.textContent = article.title || 'Substack Audio Dispatch';
+    if (catEl) catEl.textContent = article.categoryName || 'Research';
+    if (indexEl) indexEl.textContent = `Essay ${this.currentIndex + 1} of ${this.articles.length}`;
+
+    if (heroTitleEl) heroTitleEl.textContent = article.title || 'Substack Audio Dispatch Player';
+    if (heroCatEl) heroCatEl.textContent = article.categoryName || 'Research Essay';
+
+    if (playBtn) {
+      playBtn.innerHTML = isPlayActive ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+      playBtn.title = isPlayActive ? 'Pause Playback' : 'Play Audio Dispatch';
+    }
+
+    if (heroPlayBtn) {
+      heroPlayBtn.innerHTML = isPlayActive ? '<i class="fas fa-pause"></i> Pause Audio' : '<i class="fas fa-play"></i> Play Audio Dispatch';
+    }
+
+    document.querySelectorAll('.substack-card').forEach((card) => {
+      const cardArtIndex = Number(card.getAttribute('data-article-index'));
+      const btn = card.querySelector('.btn-play-tts');
+
+      if (cardArtIndex === this.currentIndex && isPlayActive) {
+        card.classList.add('playing-active');
+        if (btn) {
+          btn.classList.add('playing');
+          btn.innerHTML = '<i class="fas fa-pause-circle"></i> Pause';
+        }
+      } else {
+        card.classList.remove('playing-active');
+        if (btn) {
+          btn.classList.remove('playing');
+          btn.innerHTML = '<i class="fas fa-headphones"></i> Listen (TTS)';
+        }
+      }
+    });
+
+    this.updateProgressUI();
+    this.renderQueue();
+  },
+
+  renderQueue() {
+    const queueList = document.getElementById('ttsQueueList');
+    if (!queueList) return;
+
+    queueList.innerHTML = '';
+    this.articles.forEach((art, idx) => {
+      const item = document.createElement('div');
+      const isActive = idx === this.currentIndex;
+      const isPlayActive = isActive && this.isPlaying && !this.isPaused;
+
+      item.className = `tts-queue-item ${isActive ? 'active' : ''}`;
+      item.innerHTML = `
+        <div class="tts-item-left">
+          <span class="tts-item-index">${idx + 1}</span>
+          <div class="tts-item-details">
+            <span class="tts-item-title">${art.title}</span>
+            <div class="tts-item-meta">
+              <span><i class="fas fa-tag"></i> ${art.categoryName || 'Research'}</span>
+              <span><i class="fas fa-clock"></i> ${art.readTime || '8 min read'}</span>
+            </div>
+          </div>
+        </div>
+        <button class="tts-item-play-btn" title="${isPlayActive ? 'Pause' : 'Play Now'}">
+          <i class="fas ${isPlayActive ? 'fa-pause' : 'fa-play'}"></i>
+        </button>
+      `;
+
+      item.addEventListener('click', () => {
+        if (isActive) {
+          this.togglePlayPause();
+        } else {
+          this.playArticle(idx);
+        }
+      });
+
+      queueList.appendChild(item);
+    });
+  },
+
+  initWaveforms() {
+    const canvasBar = document.getElementById('ttsWaveformCanvas');
+    const canvasHero = document.getElementById('ttsHeroWaveformCanvas');
+    const canvases = [canvasBar, canvasHero].filter(Boolean);
+
+    if (canvases.length === 0) return;
+
+    let time = 0;
+    const render = () => {
+      time += 0.05;
+      const active = this.isPlaying && !this.isPaused;
+
+      canvases.forEach(c => {
+        const ctx = c.getContext('2d');
+        if (!ctx) return;
+        const w = c.width;
+        const h = c.height;
+
+        ctx.clearRect(0, 0, w, h);
+
+        const numBars = c === canvasBar ? 16 : 48;
+        const barWidth = w / numBars;
+
+        for (let i = 0; i < numBars; i++) {
+          let heightFactor = 0.15;
+          if (active) {
+            heightFactor = Math.abs(Math.sin(time * 2 + i * 0.4)) * 0.7 + Math.random() * 0.15;
+          } else {
+            heightFactor = Math.abs(Math.sin(time * 0.5 + i * 0.2)) * 0.15 + 0.05;
+          }
+
+          const barHeight = Math.max(3, h * heightFactor);
+          const x = i * barWidth;
+          const y = (h - barHeight) / 2;
+
+          const grad = ctx.createLinearGradient(0, y, 0, y + barHeight);
+          grad.addColorStop(0, '#00f0ff');
+          grad.addColorStop(1, '#8a2be2');
+
+          ctx.fillStyle = grad;
+          ctx.fillRect(x + 1, y, barWidth - 2, barHeight);
+        }
+      });
+
+      requestAnimationFrame(render);
+    };
+
+    render();
+  }
+};
+
+window.playSubstackTTS = function(index) {
+  SubstackTTSPlayer.playArticle(index);
+};
 
 async function loadSubstackArticlesGrid() {
   const gridEl = document.getElementById('substackArticlesGrid');
@@ -1677,7 +2292,6 @@ async function loadSubstackArticlesGrid() {
 
   let currentArticles = ALL_SUBSTACK_ARTICLES;
 
-  // Try to fetch latest articles.json dynamically
   try {
     const resp = await fetch('articles.json');
     if (resp.ok) {
@@ -1703,6 +2317,9 @@ async function loadSubstackArticlesGrid() {
   } catch (e) {
     console.log('Using compiled Substack article data fallback:', e);
   }
+
+  // Update TTS player articles reference
+  SubstackTTSPlayer.articles = currentArticles;
 
   let activeCategory = 'all';
   let searchQuery = '';
@@ -1731,10 +2348,14 @@ async function loadSubstackArticlesGrid() {
         </div>
       `;
     } else {
-      filtered.forEach((art, index) => {
+      filtered.forEach((art) => {
+        const fullIndex = currentArticles.indexOf(art);
         const card = document.createElement('div');
-        card.className = 'substack-card fade-up visible';
+        const isPlayActive = SubstackTTSPlayer.currentIndex === fullIndex && SubstackTTSPlayer.isPlaying && !SubstackTTSPlayer.isPaused;
+
+        card.className = `substack-card fade-up visible ${isPlayActive ? 'playing-active' : ''}`;
         card.setAttribute('data-category', art.category);
+        card.setAttribute('data-article-index', fullIndex);
         
         card.innerHTML = `
           <div>
@@ -1758,14 +2379,11 @@ async function loadSubstackArticlesGrid() {
               <span class="stat-pill"><i class="fas fa-clock"></i> ${art.readTime}</span>
             </div>
             <div class="substack-card-actions">
-              <button class="btn-read-modal-inline" data-article-index="${currentArticles.indexOf(art)}">
+              <button class="btn-play-tts ${isPlayActive ? 'playing' : ''}" data-tts-index="${fullIndex}" onclick="event.stopPropagation(); window.playSubstackTTS(${fullIndex});" title="Listen to Audio Podcast">
+                <i class="fas ${isPlayActive ? 'fa-pause-circle' : 'fa-headphones'}"></i> ${isPlayActive ? 'Pause' : 'Listen (TTS)'}
+              </button>
+              <button class="btn-read-modal-inline" data-article-index="${fullIndex}">
                 <i class="fas fa-book-reader"></i> Read
-              </button>
-              <button class="btn-cite-sub" data-article-id="${art.id}" title="Generate BibTeX Citation" onclick="event.stopPropagation(); openBibtexModal('${art.id}');">
-                <i class="fas fa-quote-right"></i> Cite
-              </button>
-              <button class="btn-pdf-sub" data-article-id="${art.id}" title="Export PDF Download" onclick="event.stopPropagation(); exportArticlePDF('${art.id}');">
-                <i class="fas fa-file-pdf"></i> PDF
               </button>
               <a href="${art.link}" target="_blank" class="btn-external-sub" title="Open original essay on Substack" onclick="event.stopPropagation();">
                 <i class="fas fa-external-link-alt"></i>
@@ -1774,9 +2392,8 @@ async function loadSubstackArticlesGrid() {
           </div>
         `;
 
-        // Click anywhere on card or read button opens inline reading modal
         card.addEventListener('click', (e) => {
-          if (e.target.closest('.btn-external-sub') || e.target.closest('.btn-cite-sub') || e.target.closest('.btn-pdf-sub')) return;
+          if (e.target.closest('.btn-external-sub') || e.target.closest('.btn-play-tts')) return;
           openArticleModal(art);
         });
 
@@ -3213,7 +3830,7 @@ class SpotlightEngine {
         const zooSec = document.getElementById('modelZooSection') || document.getElementById('ecosystem');
         if (zooSec) zooSec.scrollIntoView({ behavior: 'smooth' });
       } else {
-        window.location.href = `platform.html#model-${item.modelId}`;
+        window.location.href = `models.html#model-${item.modelId}`;
       }
     } else if (item.type === 'kernel') {
       const kernelTab = document.querySelector(`.kernel-tab[data-kernel="${item.kernelKey}"]`);
@@ -3976,12 +4593,15 @@ function initEpistemicUncertaintyProbe() {
   analyzePrompt();
 }
 
-// Initialize Spotlight, Audio, Vector Solver, and Uncertainty Probe on DOM Load
+// Initialize Spotlight, Audio, Vector Solver, Uncertainty Probe, and Web Audio TTS Player on DOM Load
 document.addEventListener('DOMContentLoaded', () => {
   HooshaAudioEngine.updateToggleUI();
   window.spotlightEngine = new SpotlightEngine();
   initCFMVectorFieldSolver();
   initEpistemicUncertaintyProbe();
+  if (typeof SubstackTTSPlayer !== 'undefined') {
+    SubstackTTSPlayer.init();
+  }
 });
 
 

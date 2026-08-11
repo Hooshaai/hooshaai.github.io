@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hoosha AI | Substack Research Journal & Open Access Publications</title>
-  <meta name="description" content="Explore all 20 Hoosha AI Substack research publications, continuous-time generative modeling papers, linear attention breakthroughs, and cognitive scaling architectures with BibTeX citations and PDF exports.">
+  <title>Hoosha AI | Substack Research Hub & Audio Dispatch</title>
+  <meta name="description" content="Explore Hoosha AI's 20 Substack research dispatches on Linear Attention, Grounded Causal Verification, Post-Training Cognitive Scaling, and Biological Constraints with native Web Audio TTS podcast dispatches.">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,69 +19,7 @@
 
   <link rel="stylesheet" href="style.css">
   <style>
-    body { background-color: #030712; }
-    .research-hero {
-      padding: 120px 0 60px 0;
-      text-align: center;
-      position: relative;
-    }
-    .research-hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 1rem;
-      background: rgba(0, 240, 255, 0.1);
-      border: 1px solid var(--cyan);
-      border-radius: 50px;
-      color: var(--cyan);
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-    }
-    .research-hero-title {
-      font-size: clamp(2.2rem, 5vw, 3.5rem);
-      font-weight: 700;
-      line-height: 1.15;
-      margin-bottom: 1rem;
-      background: linear-gradient(135deg, #ffffff 0%, #a5f3fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .research-hero-subtitle {
-      font-size: 1.1rem;
-      color: var(--text-muted);
-      max-width: 800px;
-      margin: 0 auto 2.5rem auto;
-      line-height: 1.6;
-    }
-    .research-stats-row {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-    }
-    .research-stat-card {
-      background: rgba(10, 15, 30, 0.7);
-      border: 1px solid rgba(0, 240, 255, 0.2);
-      border-radius: 12px;
-      padding: 1rem 1.75rem;
-      text-align: center;
-      backdrop-filter: blur(10px);
-    }
-    .research-stat-num {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--cyan);
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .research-stat-label {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 0.2rem;
-    }
+    body { background-color: #030712; padding-top: 100px; padding-bottom: 120px; }
   </style>
 </head>
 <body>
@@ -96,10 +34,7 @@
     </a>
     <div class="nav-links">
       <a href="index.html"><i class="fas fa-home"></i> Home</a>
-      <a href="research.html" class="active" style="color: var(--cyan);"><i class="fas fa-newspaper"></i> Research Journal</a>
-      <a href="models.html"><i class="fas fa-cube"></i> Models</a>
-      <a href="labs.html"><i class="fas fa-flask"></i> Learning Labs</a>
-      <a href="ecosystem.html"><i class="fas fa-network-wired"></i> Ecosystem</a>
+      <a href="research.html" class="active" style="color: var(--cyan);"><i class="fas fa-podcast"></i> Research & Audio Hub</a>
       <a href="platform.html"><i class="fas fa-terminal"></i> Platform</a>
       <a href="admin.html" style="color: #ef4444 !important;"><i class="fas fa-shield-alt"></i> Admin</a>
       <button class="spotlight-nav-btn" id="spotlightNavBtn" title="Search Everything (Cmd+K)">
@@ -122,169 +57,102 @@
         <button class="spotlight-close-btn" id="spotlightCloseBtn" title="Close Search">&times;</button>
       </div>
 
-      <div class="spotlight-filters">
-        <button class="spotlight-filter-btn active" data-category="all">
-          <i class="fas fa-layer-group"></i> All <span class="spotlight-badge-count" id="count-all">33</span>
-        </button>
-        <button class="spotlight-filter-btn" data-category="article">
-          <i class="fas fa-newspaper"></i> Articles <span class="spotlight-badge-count" id="count-article">20</span>
-        </button>
-        <button class="spotlight-filter-btn" data-category="model">
-          <i class="fas fa-cube"></i> Models <span class="spotlight-badge-count" id="count-model">6</span>
-        </button>
-        <button class="spotlight-filter-btn" data-category="kernel">
-          <i class="fas fa-microchip"></i> Kernels <span class="spotlight-badge-count" id="count-kernel">4</span>
-        </button>
-        <button class="spotlight-filter-btn" data-category="repo">
-          <i class="fab fa-github"></i> Repos <span class="spotlight-badge-count" id="count-repo">3</span>
-        </button>
+      <div class="spotlight-filter-bar">
+        <button class="spotlight-chip active" data-filter="all">All (20)</button>
+        <button class="spotlight-chip" data-filter="linear-attention">Linear Attention</button>
+        <button class="spotlight-chip" data-filter="verification">Verification & RSI</button>
+        <button class="spotlight-chip" data-filter="cognition">Cognition</button>
+        <button class="spotlight-chip" data-filter="consciousness">Consciousness</button>
       </div>
 
-      <div class="spotlight-results-body" id="spotlightResultsBody">
-        <!-- Dynamic search results rendered here -->
-      </div>
-
-      <div class="spotlight-footer">
-        <div class="spotlight-footer-tips">
-          <span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span>
-          <span><kbd>↵</kbd> Select</span>
-          <span><kbd>ESC</kbd> Close</span>
-        </div>
-        <div class="spotlight-footer-brand">
-          <i class="fas fa-brain"></i> Hoosha Spotlight Engine
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Substack Article Reader Modal -->
-  <div id="articleModal" class="modal-overlay article-modal-overlay">
-    <div class="article-modal-content">
-      <div class="article-modal-topbar">
-        <div class="article-modal-breadcrumbs">
-          <span class="series-badge" id="articleCategoryBadge">Substack Article</span>
-          <span class="article-modal-reading-time" id="articleReadTime"><i class="fas fa-book-open"></i> 12 min read</span>
-        </div>
-        <div class="article-modal-actions">
-          <button class="icon-btn" id="decreaseFontBtn" title="Decrease font size">A-</button>
-          <button class="icon-btn" id="increaseFontBtn" title="Increase font size">A+</button>
-          <button class="btn-sub-action" id="modalCiteBibtexBtn" title="Generate BibTeX Citation"><i class="fas fa-quote-right"></i> Cite</button>
-          <button class="btn-sub-action" id="modalExportPdfBtn" title="Export PDF Download"><i class="fas fa-file-pdf"></i> PDF</button>
-          <a href="#" target="_blank" id="externalArticleLink" class="btn-sub-link" title="Open original essay on Substack">
-            <i class="fas fa-external-link-alt"></i> Substack
-          </a>
-          <button class="close-modal" id="closeArticleModal">&times;</button>
-        </div>
-      </div>
-      <div class="article-modal-body" id="articleBody">
-        <header class="article-header">
-          <div class="article-meta-bar">
-            <span id="articleDate" class="article-date">Hoosha AI Journal</span>
-            <span class="meta-dot">•</span>
-            <span id="articleWordCount" class="article-word-count">3,500 words</span>
-          </div>
-          <h1 id="articleTitle" class="article-title">Article Title</h1>
-          <p id="articleSubtitle" class="article-subtitle">Subtitle content goes here...</p>
-          <div class="article-author-card">
-            <img src="https://raw.githubusercontent.com/tahamajs/tahamajs.github.io/main/assets/avatar.jpg" alt="Mohammad Taha Majlesi" class="author-avatar">
-            <div class="author-info">
-              <span class="author-name">Mohammad Taha Majlesi</span>
-              <span class="author-role">Co-Founder & Lead AI Architect @ Hoosha AI</span>
-            </div>
-          </div>
-        </header>
-        
-        <article id="articleContent" class="article-markdown-body">
-          <!-- Article content dynamically rendered here -->
-        </article>
-
-        <!-- In-Modal Substack Subscription CTA -->
-        <div class="article-subscription-box">
-          <div class="sub-box-content">
-            <i class="fas fa-paper-plane sub-box-icon"></i>
-            <h3>Subscribe to Hoosha AI Research Journal</h3>
-            <p>Get technical breakthroughs, mathematical derivations, and open-source models sent directly to your inbox.</p>
-            <form class="substack-form modal-sub-form" action="https://hooshaai.substack.com/subscribe" method="get" target="_blank">
-              <div class="sub-input-group">
-                <i class="fas fa-envelope input-icon"></i>
-                <input type="email" name="email" placeholder="Enter your email address..." required class="sub-email-input">
-                <button type="submit" class="btn btn-primary sub-submit-btn">
-                  Subscribe Free <i class="fas fa-arrow-right"></i>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- BibTeX Citation Generator Modal -->
-  <div id="bibtexModal" class="modal-overlay">
-    <div class="modal-content bibtex-modal-content">
-      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 0.6rem;">
-          <i class="fas fa-quote-right" style="color: #c084fc; font-size: 1.4rem;"></i>
-          <h2 style="font-size: 1.3rem; margin: 0;">BibTeX Citation Generator</h2>
-        </div>
-        <button class="close-modal" id="closeBibtexModal">&times;</button>
-      </div>
-      <p id="bibtexArticleTitle" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.4; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;">
-        Citation for selected research article.
-      </p>
-      <div class="bibtex-code-container" style="position: relative; margin-top: 1rem; background: #080c18; border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 8px; padding: 1.2rem;">
-        <pre><code id="bibtexCodeText" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #a5f3fc; white-space: pre-wrap; word-break: break-word;"></code></pre>
-        <button id="copyBibtexBtn" class="btn-copy-bibtex" title="Copy BibTeX code to clipboard" style="position: absolute; top: 10px; right: 10px; background: rgba(147, 51, 234, 0.2); border: 1px solid #c084fc; color: #c084fc; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-family: 'Space Grotesk', sans-serif; font-weight: 600; transition: all 0.2s ease;">
-          <i class="fas fa-copy"></i> Copy BibTeX
-        </button>
-      </div>
-      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
-        <button id="downloadBibFileBtn" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-          <i class="fas fa-download"></i> Download .bib File
-        </button>
-        <button id="closeBibtexModalBottom" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
-          Done
-        </button>
+      <div class="spotlight-results-body" id="spotlightResultsList">
+        <!-- Dynamically rendered -->
       </div>
     </div>
   </div>
 
   <main class="container">
-    <!-- Research Hero -->
-    <section class="research-hero">
-      <div class="research-hero-badge">
-        <i class="fas fa-book-open"></i> OPEN ACCESS AI RESEARCH LIBRARY
-      </div>
-      <h1 class="research-hero-title">Substack Journal Publications & Technical Reports</h1>
-      <p class="research-hero-subtitle">
-        Explore all 20 peer-reviewed dispatches from Hoosha AI. Featuring linear attention mathematical proofs, grounded causal verification engines, and cognitive scaling architectures with instant BibTeX citations and PDF exports.
+    
+    <!-- Hero Header -->
+    <header style="text-align: center; margin-bottom: 3rem;" class="fade-up">
+      <span class="series-badge" style="background: rgba(0, 240, 255, 0.15); color: var(--cyan); border-color: rgba(0, 240, 255, 0.4); margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-podcast"></i> Web Audio Speech Synthesis & Podcast Portal
+      </span>
+      <h1 style="font-size: 2.8rem; font-family: 'Space Grotesk', sans-serif; color: #ffffff; margin-bottom: 1rem;">
+        Substack Research Library & Audio Dispatch
+      </h1>
+      <p style="color: var(--text-muted); max-width: 800px; margin: 0 auto 2rem; font-size: 1.1rem; line-height: 1.6;">
+        Listen to high-precision audio podcasts of all 20 Substack dispatches generated directly in your browser with real-time Web Audio API waveform visualization, sentence scrubbing, and customizable speech models.
       </p>
+    </header>
 
-      <div class="research-stats-row">
-        <div class="research-stat-card">
-          <div class="research-stat-num">20</div>
-          <div class="research-stat-label">Substack Articles</div>
+    <!-- Master Audio Dispatch Hero Control Card -->
+    <section class="research-tts-hero-card fade-up">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <span id="ttsHeroCategory" class="tts-cat-badge" style="font-size: 0.8rem; padding: 0.25rem 0.6rem;">Linear Attention</span>
+          <h2 id="ttsHeroTitle" style="font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; color: #ffffff; margin-top: 0.5rem;">
+            Scaling Transformers: How Linear Attention is Reshaping Cross-Task AI
+          </h2>
         </div>
-        <div class="research-stat-card">
-          <div class="research-stat-num">50,000+</div>
-          <div class="research-stat-label">Words Published</div>
+        <button id="ttsHeroPlayBtn" class="btn btn-primary" style="padding: 0.85rem 1.6rem; font-size: 1rem; gap: 0.6rem;">
+          <i class="fas fa-play"></i> Play Audio Dispatch
+        </button>
+      </div>
+
+      <!-- Real-time Animated Waveform Visualizer -->
+      <div class="hero-tts-waveform-wrap">
+        <canvas id="ttsHeroWaveformCanvas" width="1200" height="70" class="hero-tts-waveform-canvas"></canvas>
+      </div>
+
+      <!-- Live Sentence Transcript Box -->
+      <div class="hero-tts-transcript-box">
+        <i class="fas fa-quote-left"></i>
+        <span id="ttsHeroTranscriptText">Click "Play Audio Dispatch" to start listening to the essay podcast directly in browser...</span>
+      </div>
+
+      <!-- Hero Audio Progress & Controls Bar -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 1rem; flex: 1; min-width: 280px;">
+          <span id="ttsHeroCurrentTime" class="tts-time">0:00</span>
+          <div id="ttsHeroProgressContainer" class="tts-progress-bar-container" style="height: 8px;">
+            <div id="ttsHeroProgressBar" class="tts-progress-bar"></div>
+          </div>
+          <span id="ttsHeroTotalTime" class="tts-time">0:00</span>
         </div>
-        <div class="research-stat-card">
-          <div class="research-stat-num">100%</div>
-          <div class="research-stat-label">BibTeX & PDF Export</div>
+
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div class="tts-select-group">
+            <i class="fas fa-tachometer-alt"></i>
+            <select id="ttsHeroSpeedSelect" class="tts-select">
+              <option value="0.75">0.75x</option>
+              <option value="1.0" selected>1.0x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+              <option value="1.75">1.75x</option>
+              <option value="2.0">2.0x</option>
+            </select>
+          </div>
+
+          <div class="tts-select-group">
+            <i class="fas fa-user-astronaut"></i>
+            <select id="ttsHeroVoiceSelect" class="tts-select tts-voice-select">
+              <option value="">Default Voice</option>
+            </select>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Substack Research Library Section -->
-    <section class="substack-library-wrapper fade-up visible" id="substack-library" style="margin-bottom: 5rem;">
+    <!-- Substack 20 Articles Feed Grid Section -->
+    <section class="substack-library-wrapper fade-up" id="substack-library">
       <div class="series-header" style="justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
         <div>
           <span class="series-badge" style="background: rgba(255, 103, 25, 0.15); color: #ff6719; border-color: rgba(255, 103, 25, 0.4);">
-            <i class="fas fa-rss"></i> Substack Feed Library
+            <i class="fas fa-rss"></i> Peer-Reviewed Publications
           </span>
           <h3 class="series-title" style="margin-top: 0.5rem;">All 20 Substack Research Publications</h3>
-          <p class="series-desc">Auto-synced peer-reviewed essays, linear attention breakdowns, and post-training cognitive scaling papers.</p>
+          <p class="series-desc">Continuous technical deep-dives on sub-quadratic attention, causal verification, and post-training scaling.</p>
         </div>
         <div style="display: flex; align-items: center; gap: 0.75rem;">
           <span id="substackArticleCountBadge" class="series-count" style="font-size: 0.95rem; padding: 0.5rem 1rem; background: rgba(0, 240, 255, 0.1); border: 1px solid var(--cyan); color: var(--cyan);">
@@ -297,7 +165,7 @@
       <div class="substack-controls-bar">
         <div class="substack-search-box">
           <i class="fas fa-search search-icon"></i>
-          <input type="text" id="substackSearchInput" placeholder="Search 20 Substack articles by title, snippet, date, or keyword (e.g. Linear Attention, Causal, Consciousness)..." autocomplete="off" spellcheck="false">
+          <input type="text" id="substackSearchInput" placeholder="Search 20 Substack articles by title, snippet, or keyword..." autocomplete="off" spellcheck="false">
           <button id="substackSearchClear" class="search-clear-btn" style="display:none;" title="Clear search">&times;</button>
         </div>
 
@@ -315,35 +183,157 @@
             <i class="fas fa-brain"></i> Post-Training & Cognition (5)
           </button>
           <button class="substack-tab" data-category="consciousness">
-            <i class="fas fa-microchip"></i> Consciousness & Open-Ended (4)
+            <i class="fas fa-microchip"></i> Consciousness (4)
           </button>
         </div>
       </div>
 
-      <!-- Substack Articles High-Visibility Grid -->
+      <!-- Substack Articles Grid -->
       <div id="substackArticlesGrid" class="substack-articles-grid">
         <!-- Dynamically populated 20 articles on page load -->
       </div>
     </section>
+
   </main>
 
-  <footer class="footer">
-    <div class="footer-container">
+  <!-- Substack Article Reader Modal -->
+  <div id="articleModal" class="modal-overlay article-modal-overlay">
+    <div class="article-modal-content">
+      <div class="article-modal-topbar">
+        <div class="article-modal-breadcrumbs">
+          <span class="series-badge" id="articleCategoryBadge">Substack Essay</span>
+          <span class="article-modal-reading-time" id="articleReadTime"><i class="fas fa-book-open"></i> 8 min read</span>
+        </div>
+        <div class="article-modal-actions">
+          <button class="icon-btn" id="decreaseFontBtn" title="Decrease font size">A-</button>
+          <button class="icon-btn" id="increaseFontBtn" title="Increase font size">A+</button>
+          <a href="#" target="_blank" id="externalArticleLink" class="btn-sub-link" title="Open original essay on Substack">
+            <i class="fas fa-external-link-alt"></i> Substack
+          </a>
+          <button class="close-modal" id="closeArticleModal">&times;</button>
+        </div>
+      </div>
+      <div class="article-modal-body" id="articleBody">
+        <header class="article-header">
+          <div class="article-meta-bar">
+            <span id="articleDate" class="article-date">Hoosha AI Journal</span>
+            <span class="meta-dot">•</span>
+            <span id="articleWordCount" class="article-word-count">2,000 words</span>
+          </div>
+          <h1 id="articleTitle" class="article-title">Article Title</h1>
+          <p id="articleSubtitle" class="article-subtitle">Subtitle content goes here...</p>
+        </header>
+        
+        <article id="articleContent" class="article-markdown-body">
+          <!-- Article content dynamically rendered here -->
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <!-- Persistent Floating Bottom Audio Player Bar -->
+  <div id="ttsAudioDispatchBar" class="tts-dispatch-bar" style="display: none;">
+    <div class="tts-bar-content">
+      <div class="tts-bar-info">
+        <canvas id="ttsWaveformCanvas" width="75" height="34" class="tts-waveform-canvas"></canvas>
+        <div class="tts-essay-meta">
+          <span class="tts-now-playing-tag"><i class="fas fa-podcast"></i> AUDIO DISPATCH</span>
+          <div id="ttsBarTitle" class="tts-bar-title" title="View Article Detail Modal">Scaling Transformers...</div>
+          <div class="tts-bar-subinfo">
+            <span id="ttsBarCategory" class="tts-cat-badge">Linear Attention</span>
+            <span id="ttsBarIndex" class="tts-index-badge">Essay 1 of 20</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tts-bar-controls-center">
+        <div class="tts-buttons-row">
+          <button id="ttsPrevBtn" class="tts-btn" title="Previous Essay (Shift + Left)"><i class="fas fa-step-backward"></i></button>
+          <button id="ttsRewindBtn" class="tts-btn" title="Rewind 10s (Left Arrow)"><i class="fas fa-undo-alt"></i></button>
+          <button id="ttsPlayPauseBtn" class="tts-btn tts-play-main-btn" title="Play/Pause (Spacebar)"><i class="fas fa-play"></i></button>
+          <button id="ttsForwardBtn" class="tts-btn" title="Forward 10s (Right Arrow)"><i class="fas fa-redo-alt"></i></button>
+          <button id="ttsNextBtn" class="tts-btn" title="Next Essay (Shift + Right)"><i class="fas fa-step-forward"></i></button>
+          <button id="ttsStopBtn" class="tts-btn" title="Stop Playback"><i class="fas fa-stop"></i></button>
+        </div>
+
+        <div class="tts-progress-row">
+          <span id="ttsCurrentTime" class="tts-time">0:00</span>
+          <div id="ttsProgressBarContainer" class="tts-progress-bar-container" title="Click to scrub audio">
+            <div id="ttsProgressBar" class="tts-progress-bar"></div>
+          </div>
+          <span id="ttsTotalTime" class="tts-time">0:00</span>
+        </div>
+      </div>
+
+      <div class="tts-bar-options">
+        <div class="tts-select-group">
+          <i class="fas fa-tachometer-alt"></i>
+          <select id="ttsSpeedSelect" class="tts-select" title="Speed">
+            <option value="0.75">0.75x</option>
+            <option value="1.0" selected>1.0x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="1.75">1.75x</option>
+            <option value="2.0">2.0x</option>
+          </select>
+        </div>
+
+        <div class="tts-select-group">
+          <i class="fas fa-user-astronaut"></i>
+          <select id="ttsVoiceSelect" class="tts-select tts-voice-select" title="Voice Model">
+            <option value="">Default Voice</option>
+          </select>
+        </div>
+
+        <button id="ttsQueueToggleBtn" class="tts-btn tts-queue-btn" title="Playlist Queue">
+          <i class="fas fa-list-ol"></i> <span class="queue-count-badge">20</span>
+        </button>
+
+        <button id="ttsBarCloseBtn" class="tts-btn tts-close-btn" title="Minimize Bar">&times;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Substack Audio Playlist Queue Modal -->
+  <div id="ttsQueueModal" class="tts-queue-modal-overlay">
+    <div class="tts-queue-container">
+      <div class="tts-queue-header">
+        <div class="tts-queue-title-wrap">
+          <i class="fas fa-podcast tts-queue-icon"></i>
+          <div>
+            <h3>Substack Audio Dispatch Queue</h3>
+            <p>Listen to all 20 Substack Essays as an Audio Podcast</p>
+          </div>
+        </div>
+        <div class="tts-queue-actions">
+          <button id="ttsAutoPlayNextToggle" class="btn-queue-toggle active" title="Toggle Continuous Playback">
+            <i class="fas fa-sync-alt"></i> Continuous: ON
+          </button>
+          <button id="ttsShuffleQueueBtn" class="btn-queue-toggle" title="Shuffle Queue">
+            <i class="fas fa-random"></i> Shuffle
+          </button>
+          <button id="ttsCloseQueueBtn" class="close-modal">&times;</button>
+        </div>
+      </div>
+      <div class="tts-queue-body" id="ttsQueueList">
+        <!-- Dynamically rendered queue items -->
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
       <div class="footer-brand">
-        <i class="fas fa-brain footer-logo"></i>
-        <span>Hoosha AI</span>
-        <p>Continuous-Time Generative Systems & Synthetic Intelligence</p>
+        <i class="fas fa-brain"></i> Hoosha AI Lab
       </div>
-      <div class="footer-links">
-        <a href="index.html">Main Hub</a>
-        <a href="research.html">Research Library</a>
-        <a href="platform.html">AI Platform</a>
-        <a href="https://hooshaai.substack.com" target="_blank">Substack Journal</a>
-        <a href="https://github.com/tahamajs/hooshaai.github.io" target="_blank">GitHub</a>
+      <div class="social-links">
+        <a href="https://hooshaai.substack.com" target="_blank"><i class="fas fa-envelope"></i> Substack Journal</a>
+        <a href="https://github.com/tahamajs" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+        <a href="mailto:hooshaai@gmail.com"><i class="fas fa-paper-plane"></i> Contact</a>
       </div>
-      <div class="footer-copy">
-        <p>&copy; 2026 Hoosha AI Research Lab. Open access research under MIT / CC-BY 4.0.</p>
-      </div>
+    </div>
+    <div class="copyright">
+      &copy; 2026 Hoosha AI Research Lab. All rights reserved.
     </div>
   </footer>
 
