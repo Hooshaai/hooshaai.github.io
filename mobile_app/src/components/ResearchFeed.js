@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,13 +10,31 @@ import {
   Modal,
   SafeAreaView,
   Share,
-  Alert
+  Alert,
+  RefreshControl,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ArticleDetailModal from './ArticleDetailModal';
 
+// Dynamic import with robust in-memory fallback for AsyncStorage
+let AsyncStorage;
+try {
+  AsyncStorage = require('@react-native-async-storage/async-storage').default || require('@react-native-async-storage/async-storage');
+} catch (e) {
+  const memoryCache = new Map();
+  AsyncStorage = {
+    getItem: async (key) => memoryCache.get(key) || null,
+    setItem: async (key, val) => { memoryCache.set(key, String(val)); return null; },
+    removeItem: async (key) => { memoryCache.delete(key); return null; },
+    clear: async () => { memoryCache.clear(); return null; },
+  };
+}
 
-const INITIAL_ARTICLES = [
+export const ARTICLES_CACHE_KEY = '@hoosha_substack_articles_v1';
+export const LAST_SYNC_KEY = '@hoosha_last_sync_timestamp';
+
+export const INITIAL_ARTICLES = [
   {
     id: '1',
     title: 'Scaling Transformers: How Linear Attention is Reshaping Cross-Task AI',
@@ -107,21 +125,80 @@ const INITIAL_ARTICLES = [
 const CATEGORIES = ['All', 'Linear Attention', 'State Space', 'Hardware', 'Transformers', 'Multimodal'];
 
 export default function ResearchFeed() {
-  const [articles, setArticles] = useState(INITIAL_ARTICLES);
+  const [articles, setArticles] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedArticle, setSelectedArticle] = useState(null);
 
+  // AsyncStorage Offline Caching States
+  const [isLoadingCache, setIsLoadingCache] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState(null);
+
+  // Load articles from AsyncStorage on mount
+  const loadArticlesFromCache = useCallback(async () => {
+    setIsLoadingCache(true);
+    try {
+      const cachedData = await AsyncStorage.getItem(ARTICLES_CACHE_KEY);
+      const syncTime = await AsyncStorage.getItem(LAST_SYNC_KEY);
+
+      if (cachedData) {
+        const parsed = JSON.parse(cachedData);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setArticles(parsed);
+        } else {
+          setArticles(INITIAL_ARTICLES);
+          await AsyncStorage.setItem(ARTICLES_CACHE_KEY, JSON.stringify(INITIAL_ARTICLES));
+        }
+      } else {
+        // Initial seed into AsyncStorage for offline availability
+        setArticles(INITIAL_ARTICLES);
+        await AsyncStorage.setItem(ARTICLES_CACHE_KEY, JSON.stringify(INITIAL_ARTICLES));
+        const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        await AsyncStorage.setItem(LAST_SYNC_KEY, nowStr);
+        setLastSyncTime(nowStr);
+      }
+
+      if (syncTime) {
+        setLastSyncTime(syncTime);
+      }
+    } catch (error) {
+      console.error('[AsyncStorage] Error loading Substack articles cache:', error);
+      setArticles(INITIAL_ARTICLES);
+    } finally {
+      setIsLoadingCache(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadArticlesFromCache();
+  }, [loadArticlesFromCache]);
+
+  // Persist updated articles array back to AsyncStorage
+  const saveArticlesToCache = async (updatedArticles) => {
+    setArticles(updatedArticles);
+    try {
+      await AsyncStorage.setItem(ARTICLES_CACHE_KEY, JSON.stringify(updatedArticles));
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      await AsyncStorage.setItem(LAST_SYNC_KEY, nowStr);
+      setLastSyncTime(nowStr);
+    } catch (error) {
+      console.error('[AsyncStorage] Error persisting Substack articles:', error);
+    }
+  };
+
   const toggleBookmark = (id) => {
-    setArticles(prev =>
-      prev.map(art => art.id === id ? { ...art, isBookmarked: !art.isBookmarked } : art)
+    const updated = articles.map(art =>
+      art.id === id ? { ...art, isBookmarked: !art.isBookmarked } : art
     );
+    saveArticlesToCache(updated);
   };
 
   const handleLike = (id) => {
-    setArticles(prev =>
-      prev.map(art => art.id === id ? { ...art, likes: art.likes + 1 } : art)
+    const updated = articles.map(art =>
+      art.id === id ? { ...art, likes: art.likes + 1 } : art
     );
+    saveArticlesToCache(updated);
   };
 
   const handleShare = async (article) => {
@@ -132,6 +209,26 @@ export default function ResearchFeed() {
       });
     } catch (error) {
       Alert.alert('Share', `Sharing: ${article.title}`);
+    }
+  };
+
+  // Manual or pull-to-refresh cache sync handler
+  const handleRefreshCache = async () => {
+    setIsRefreshing(true);
+    try {
+      const dataToSave = articles.length > 0 ? articles : INITIAL_ARTICLES;
+      await AsyncStorage.setItem(ARTICLES_CACHE_KEY, JSON.stringify(dataToSave));
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      await AsyncStorage.setItem(LAST_SYNC_KEY, nowStr);
+      setLastSyncTime(nowStr);
+      Alert.alert(
+        "Offline Cache Updated",
+        `Stored ${dataToSave.length} Substack articles in local AsyncStorage for offline reading.`
+      );
+    } catch (err) {
+      Alert.alert("Cache Error", "Could not sync offline cache to AsyncStorage.");
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -150,8 +247,27 @@ export default function ResearchFeed() {
           <Text style={styles.brandTitle}>HOOSHA AI</Text>
           <Text style={styles.headerSubtitle}>Frontier Research & Papers</Text>
         </View>
-        <TouchableOpacity style={styles.badgeContainer}>
-          <Text style={styles.badgeText}>v1.0 LIVE</Text>
+        <TouchableOpacity style={styles.badgeContainer} onPress={handleRefreshCache}>
+          <Ionicons name="cloud-done-outline" size={12} color="#38BDF8" style={{ marginRight: 4 }} />
+          <Text style={styles.badgeText}>OFFLINE CACHE</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Offline Status Bar Banner */}
+      <View style={styles.offlineBanner}>
+        <View style={styles.offlineBannerLeft}>
+          <View style={styles.offlineDot} />
+          <Ionicons name="cloud-offline-outline" size={15} color="#38BDF8" />
+          <View style={{ flexShrink: 1 }}>
+            <Text style={styles.offlineBannerTitle}>AsyncStorage Offline Cache Active</Text>
+            <Text style={styles.offlineBannerSub}>
+              {articles.length} Substack papers cached locally {lastSyncTime ? `• Last sync ${lastSyncTime}` : ''}
+            </Text>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.syncBtn} onPress={handleRefreshCache}>
+          <Ionicons name="refresh-outline" size={14} color="#38BDF8" />
+          <Text style={styles.syncBtnText}>Sync</Text>
         </TouchableOpacity>
       </View>
 
@@ -192,71 +308,90 @@ export default function ResearchFeed() {
         </ScrollView>
       </View>
 
-      {/* Articles Feed */}
-      <FlatList
-        data={filteredArticles}
-        keyExtractor={item => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            activeOpacity={0.85}
-            onPress={() => setSelectedArticle(item)}
-          >
-            <View style={styles.cardHeader}>
-              <View style={styles.categoryBadge}>
-                <Text style={styles.categoryBadgeText}>{item.category}</Text>
+      {/* Articles Feed with Offline Pull-To-Refresh */}
+      {isLoadingCache ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#38BDF8" />
+          <Text style={styles.loadingText}>Loading Substack articles from AsyncStorage...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredArticles}
+          keyExtractor={item => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefreshCache}
+              tintColor="#38BDF8"
+              colors={['#38BDF8']}
+            />
+          }
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.card}
+              activeOpacity={0.85}
+              onPress={() => setSelectedArticle(item)}
+            >
+              <View style={styles.cardHeader}>
+                <View style={styles.categoryBadge}>
+                  <Text style={styles.categoryBadgeText}>{item.category}</Text>
+                </View>
+                <View style={styles.cardHeaderRight}>
+                  <Ionicons name="checkmark-circle-outline" size={13} color="#10B981" style={{ marginRight: 4 }} />
+                  <Text style={styles.metaText}>{item.pubDate} • {item.readTime}</Text>
+                </View>
               </View>
-              <Text style={styles.metaText}>{item.pubDate} • {item.readTime}</Text>
+
+              <Text style={styles.cardTitle}>{item.title}</Text>
+              <Text style={styles.cardSnippet} numberOfLines={2}>{item.snippet}</Text>
+
+              <View style={styles.cardFooter}>
+                <View style={styles.footerLeft}>
+                  <Text style={styles.wordCountText}>{item.wordCount}</Text>
+                  <Text style={styles.cachedBadgeText}>• Offline Ready</Text>
+                </View>
+
+                <View style={styles.footerActions}>
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    onPress={() => handleLike(item.id)}
+                  >
+                    <Ionicons name="heart-outline" size={16} color="#F43F5E" />
+                    <Text style={styles.actionText}>{item.likes}</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    onPress={() => toggleBookmark(item.id)}
+                  >
+                    <Ionicons
+                      name={item.isBookmarked ? "bookmark" : "bookmark-outline"}
+                      size={16}
+                      color={item.isBookmarked ? "#38BDF8" : "#94A3B8"}
+                    />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    onPress={() => handleShare(item)}
+                  >
+                    <Ionicons name="share-social-outline" size={16} color="#94A3B8" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons name="document-text-outline" size={48} color="#475569" />
+              <Text style={styles.emptyTitle}>No Papers Found</Text>
+              <Text style={styles.emptySubtitle}>Try adjusting your search query or topic filter.</Text>
             </View>
-
-            <Text style={styles.cardTitle}>{item.title}</Text>
-            <Text style={styles.cardSnippet} numberOfLines={2}>{item.snippet}</Text>
-
-            <View style={styles.cardFooter}>
-              <View style={styles.footerLeft}>
-                <Text style={styles.wordCountText}>{item.wordCount}</Text>
-              </View>
-
-              <View style={styles.footerActions}>
-                <TouchableOpacity
-                  style={styles.actionBtn}
-                  onPress={() => handleLike(item.id)}
-                >
-                  <Ionicons name="heart-outline" size={16} color="#F43F5E" />
-                  <Text style={styles.actionText}>{item.likes}</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.actionBtn}
-                  onPress={() => toggleBookmark(item.id)}
-                >
-                  <Ionicons
-                    name={item.isBookmarked ? "bookmark" : "bookmark-outline"}
-                    size={16}
-                    color={item.isBookmarked ? "#38BDF8" : "#94A3B8"}
-                  />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.actionBtn}
-                  onPress={() => handleShare(item)}
-                >
-                  <Ionicons name="share-social-outline" size={16} color="#94A3B8" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="document-text-outline" size={48} color="#475569" />
-            <Text style={styles.emptyTitle}>No Papers Found</Text>
-            <Text style={styles.emptySubtitle}>Try adjusting your search query or topic filter.</Text>
-          </View>
-        }
-      />
+          }
+        />
+      )}
 
       {/* Article Detail Modal (Substack Reader + KaTeX Math Rendering) */}
       <ArticleDetailModal
@@ -298,15 +433,88 @@ const styles = StyleSheet.create({
   badgeContainer: {
     backgroundColor: '#1E293B',
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#334155',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   badgeText: {
     color: '#38BDF8',
     fontSize: 11,
     fontWeight: '700',
+  },
+  offlineBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(56, 189, 248, 0.08)',
+    borderColor: 'rgba(56, 189, 248, 0.25)',
+    borderWidth: 1,
+    marginHorizontal: 20,
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  offlineBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flex: 1,
+  },
+  offlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#10B981',
+  },
+  offlineBannerTitle: {
+    color: '#F8FAFC',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  offlineBannerSub: {
+    color: '#94A3B8',
+    fontSize: 11,
+  },
+  syncBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
+    marginLeft: 8,
+  },
+  syncBtnText: {
+    color: '#38BDF8',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
+    gap: 12,
+  },
+  loadingText: {
+    color: '#94A3B8',
+    fontSize: 13,
+  },
+  cardHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cachedBadgeText: {
+    color: '#10B981',
+    fontSize: 11,
+    fontWeight: '600',
+    marginLeft: 6,
   },
   searchContainer: {
     flexDirection: 'row',

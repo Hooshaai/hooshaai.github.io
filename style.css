@@ -3883,3 +3883,98 @@ footer {
     padding: 1.25rem;
   }
 }
+
+/* ==========================================
+   BibTeX Citation Modal & PDF Export Styling
+   ========================================== */
+.btn-cite-sub, .btn-pdf-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  background: rgba(147, 51, 234, 0.12);
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  border-radius: 6px;
+  color: #c084fc;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-pdf-sub {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+}
+
+.btn-cite-sub:hover {
+  background: #9333ea;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(147, 51, 234, 0.4);
+}
+
+.btn-pdf-sub:hover {
+  background: #ef4444;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-sub-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(0, 240, 255, 0.1);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 6px;
+  color: var(--cyan);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-sub-action:hover {
+  background: var(--cyan);
+  color: #030712;
+}
+
+.bibtex-modal-content {
+  max-width: 650px;
+  width: 90%;
+  background: rgba(10, 15, 30, 0.95);
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(147, 51, 234, 0.2);
+  padding: 2rem;
+  color: #f8fafc;
+}
+
+.bibtex-code-container pre {
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Printable PDF Styling */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .article-modal-body, .article-modal-body * {
+    visibility: visible;
+  }
+  .article-modal-body {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color: #000 !important;
+    background: #fff !important;
+  }
+}
+

@@ -26,8 +26,9 @@ app_name = 'api'
 urlpatterns = [
     # OpenAPI Schema & Swagger Documentation Views
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('docs/', SpectacularSwaggerView.as_view(url_name='api:schema'), name='swagger-ui'),
-    path('redoc/', SpectacularRedocView.as_view(url_name='api:schema'), name='redoc'),
+    path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+
 
     # Authentication Endpoints
     path('auth/register/', RegisterAPIView.as_view(), name='auth-register'),

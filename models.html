@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hoosha AI | Open Models & Checkpoints</title>
+  <meta name="description" content="Hoosha AI Model Zoo & Weights Registry. Explore 6 open-weight model checkpoints including Hoosha-DiffAttn-70B, Hoosha-LinearMamba-32B, and Hoosha-CFM-Flow.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  
+  <!-- KaTeX CDN Support -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .models-hero {
+      padding-top: 140px;
+      padding-bottom: 50px;
+      text-align: center;
+    }
+    .models-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 2rem;
+      margin-bottom: 5rem;
+    }
+    .model-card-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.2rem;
+      backdrop-filter: blur(16px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .model-card-box:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 12px 35px rgba(0, 240, 255, 0.25);
+      transform: translateY(-6px);
+    }
+    .model-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .model-param-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.12);
+      padding: 0.35rem 0.8rem;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+    }
+    .model-type-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .model-card-box h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      color: #fff;
+      margin-bottom: 0.75rem;
+    }
+    .model-card-box p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .model-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      background: rgba(3, 7, 18, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .model-spec-item {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+    .model-spec-label {
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+    .model-spec-val {
+      color: #fff;
+      font-weight: 600;
+    }
+    .model-card-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Neural Canvas Background -->
+  <canvas id="neuralCanvas"></canvas>
+
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand" style="text-decoration: none; color: inherit;">
+      <i class="fas fa-brain brand-icon"></i>
+      <span>Hoosha AI</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html"><i class="fas fa-home"></i> Home</a>
+      <a href="research.html"><i class="fas fa-newspaper"></i> Research Journal</a>
+      <a href="models.html" class="active" style="color: var(--cyan);"><i class="fas fa-cube"></i> Models</a>
+      <a href="labs.html"><i class="fas fa-flask"></i> Learning Labs</a>
+      <a href="ecosystem.html"><i class="fas fa-network-wired"></i> Ecosystem</a>
+      <a href="platform.html"><i class="fas fa-terminal"></i> Platform</a>
+      <a href="admin.html" style="color: #ef4444 !important;"><i class="fas fa-shield-alt"></i> Admin</a>
+      <button class="spotlight-nav-btn" id="spotlightNavBtn" title="Search Everything (Cmd+K)">
+        <i class="fas fa-search"></i> <span>Search</span> <kbd class="nav-kbd">⌘K</kbd>
+      </button>
+      <button class="sound-toggle-btn" id="soundToggleBtn" title="Toggle Futuristic Sound Effects">
+        <i class="fas fa-volume-up"></i> <span class="sound-status-text">Audio</span>
+      </button>
+      <a href="#" class="btn-login" id="navLoginBtn"><i class="fas fa-user-circle"></i> Portal Access</a>
+    </div>
+  </nav>
+
+  <!-- Spotlight Command Palette Modal -->
+  <div id="spotlightModal" class="spotlight-modal-overlay">
+    <div class="spotlight-modal-container">
+      <div class="spotlight-search-header">
+        <i class="fas fa-search spotlight-search-icon"></i>
+        <input type="text" id="spotlightSearchInput" class="spotlight-search-input" placeholder="Search 6 model checkpoints, weights, parameters... (Cmd+K)" autocomplete="off" spellcheck="false">
+        <kbd class="spotlight-esc-kbd">ESC</kbd>
+        <button class="spotlight-close-btn" id="spotlightCloseBtn" title="Close Search">&times;</button>
+      </div>
+
+      <div class="spotlight-filters">
+        <button class="spotlight-filter-btn active" data-category="all">
+          <i class="fas fa-layer-group"></i> All <span class="spotlight-badge-count" id="count-all">33</span>
+        </button>
+        <button class="spotlight-filter-btn" data-category="article">
+          <i class="fas fa-newspaper"></i> Articles <span class="spotlight-badge-count" id="count-article">20</span>
+        </button>
+        <button class="spotlight-filter-btn" data-category="model">
+          <i class="fas fa-cube"></i> Models <span class="spotlight-badge-count" id="count-model">6</span>
+        </button>
+        <button class="spotlight-filter-btn" data-category="kernel">
+          <i class="fas fa-microchip"></i> Kernels <span class="spotlight-badge-count" id="count-kernel">4</span>
+        </button>
+        <button class="spotlight-filter-btn" data-category="repo">
+          <i class="fab fa-github"></i> Repos <span class="spotlight-badge-count" id="count-repo">3</span>
+        </button>
+      </div>
+
+      <div class="spotlight-results-body" id="spotlightResultsBody">
+        <!-- Dynamic search results rendered here -->
+      </div>
+
+      <div class="spotlight-footer">
+        <div class="spotlight-footer-tips">
+          <span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span>
+          <span><kbd>↵</kbd> Select</span>
+          <span><kbd>ESC</kbd> Close</span>
+        </div>
+        <div class="spotlight-footer-brand">
+          <i class="fas fa-brain"></i> Hoosha Spotlight Engine
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal-overlay">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div class="modal-header">
+        <i class="fas fa-fingerprint auth-icon"></i>
+        <h2 id="authTitle">Create Account</h2>
+        <p>Join the Hoosha AI Research Platform</p>
+      </div>
+      <form id="authForm">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" id="authEmail" placeholder="researcher@university.edu" required>
+        </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" id="authPassword" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary auth-submit" style="width: 100%; justify-content: center; margin-top: 1rem;">
+          Authenticate
+        </button>
+      </form>
+      <div class="modal-footer">
+        <p id="authToggleText">Already have an access key? <a href="#" id="toggleAuthMode">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <!-- Models Hero Section -->
+    <header class="models-hero fade-up">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span> OPEN WEIGHTS & MODEL ZOO
+      </div>
+      <h1 class="hero-title" style="font-size: 3.5rem;">Open Models & Checkpoints</h1>
+      <p class="hero-subtitle" style="max-width: 800px; margin: 0 auto 2rem auto;">
+        Explore our family of open-weight frontier model checkpoints trained on sub-quadratic linear attention, differential noise cancellation, and continuous flow matching.
+      </p>
+    </header>
+
+    <!-- Models Grid Section -->
+    <section class="fade-up">
+      <div class="models-grid-container">
+
+        <!-- Model 1 -->
+        <div class="model-card-box">
+          <div>
+            <div class="model-badge-row">
+              <span class="model-param-badge">70B PARAMETERS</span>
+              <span class="model-type-tag"><i class="fas fa-microchip"></i> Differential Attention</span>
+            </div>
+            <h3>Hoosha-DiffAttn-70B</h3>
+            <p>Frontier 70-Billion parameter foundation model equipped with Triton differential noise cancellation attention heads and 128k context length.</p>
+            <div class="model-specs-grid">
+              <div class="model-spec-item">
+                <span class="model-spec-label">Context Window</span>
+                <span class="model-spec-val">131,072 Tokens</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">MMLU Score</span>
+                <span class="model-spec-val">88.4%</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">License</span>
+                <span class="model-spec-val">Apache 2.0</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">Format</span>
+                <span class="model-spec-val">SafeTensors FP8</span>
+              </div>
+            </div>
+          </div>
+          <div class="model-card-actions">
+            <a href="platform.html#model-diffattn-70b" class="btn btn-primary" style="flex: 1; justify-content: center;">
+              <i class="fas fa-play"></i> Launch Sandbox
+            </a>
+            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
+              <i class="fas fa-smile-beam"></i> Weights
+            </a>
+          </div>
+        </div>
+
+        <!-- Model 2 -->
+        <div class="model-card-box">
+          <div>
+            <div class="model-badge-row">
+              <span class="model-param-badge" style="color: var(--purple); border-color: rgba(138,43,226,0.3); background: rgba(138,43,226,0.12);">32B PARAMETERS</span>
+              <span class="model-type-tag"><i class="fas fa-bolt"></i> Mamba-2 Hybrid</span>
+            </div>
+            <h3>Hoosha-LinearMamba-32B</h3>
+            <p>Sub-quadratic hybrid architecture combining selective state-space Mamba-2 layers with linear attention blocks for infinite sequence processing.</p>
+            <div class="model-specs-grid">
+              <div class="model-spec-item">
+                <span class="model-spec-label">Context Window</span>
+                <span class="model-spec-val">Infinite (Linear)</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">KV-Cache Savings</span>
+                <span class="model-spec-val">94.2%</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">License</span>
+                <span class="model-spec-val">Apache 2.0</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">Format</span>
+                <span class="model-spec-val">SafeTensors BF16</span>
+              </div>
+            </div>
+          </div>
+          <div class="model-card-actions">
+            <a href="platform.html#model-linearmamba-32b" class="btn btn-primary" style="flex: 1; justify-content: center;">
+              <i class="fas fa-play"></i> Launch Sandbox
+            </a>
+            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
+              <i class="fas fa-smile-beam"></i> Weights
+            </a>
+          </div>
+        </div>
+
+        <!-- Model 3 -->
+        <div class="model-card-box">
+          <div>
+            <div class="model-badge-row">
+              <span class="model-param-badge" style="color: #10b981; border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.12);">7B PARAMETERS</span>
+              <span class="model-type-tag"><i class="fas fa-wave-square"></i> Flow Matching ODE</span>
+            </div>
+            <h3>Hoosha-CFM-Flow-Audio</h3>
+            <p>Continuous-time generative flow matching model mapping source Gaussian noise to target speech data distributions via deterministic ODE trajectories.</p>
+            <div class="model-specs-grid">
+              <div class="model-spec-item">
+                <span class="model-spec-label">ODE Steps</span>
+                <span class="model-spec-val">4 - 16 Steps</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">Sampling NFE</span>
+                <span class="model-spec-val">10 NFE</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">License</span>
+                <span class="model-spec-val">MIT Open</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">Format</span>
+                <span class="model-spec-val">PyTorch / GGUF</span>
+              </div>
+            </div>
+          </div>
+          <div class="model-card-actions">
+            <a href="platform.html#model-cfm-flow" class="btn btn-primary" style="flex: 1; justify-content: center;">
+              <i class="fas fa-play"></i> Launch Sandbox
+            </a>
+            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
+              <i class="fas fa-smile-beam"></i> Weights
+            </a>
+          </div>
+        </div>
+
+        <!-- Model 4 -->
+        <div class="model-card-box">
+          <div>
+            <div class="model-badge-row">
+              <span class="model-param-badge" style="color: #f59e0b; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.12);">14B PARAMETERS</span>
+              <span class="model-type-tag"><i class="fas fa-brain"></i> GRPO RL Reasoner</span>
+            </div>
+            <h3>Hoosha-RLVR-Reason-14B</h3>
+            <p>Post-training reasoning checkpoint optimized via Group Relative Policy Optimization (GRPO), eliminating the Critic neural network for mathematical proofs.</p>
+            <div class="model-specs-grid">
+              <div class="model-spec-item">
+                <span class="model-spec-label">MATH Benchmark</span>
+                <span class="model-spec-val">84.1%</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">GSM8K Score</span>
+                <span class="model-spec-val">95.6%</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">License</span>
+                <span class="model-spec-val">Apache 2.0</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">Format</span>
+                <span class="model-spec-val">SafeTensors FP8</span>
+              </div>
+            </div>
+          </div>
+          <div class="model-card-actions">
+            <a href="platform.html#model-rlvr-reason-14b" class="btn btn-primary" style="flex: 1; justify-content: center;">
+              <i class="fas fa-play"></i> Launch Sandbox
+            </a>
+            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
+              <i class="fas fa-smile-beam"></i> Weights
+            </a>
+          </div>
+        </div>
+
+        <!-- Model 5 -->
+        <div class="model-card-box">
+          <div>
+            <div class="model-badge-row">
+              <span class="model-param-badge" style="color: #ec4899; border-color: rgba(236,72,153,0.3); background: rgba(236,72,153,0.12);">8B PARAMETERS</span>
+              <span class="model-type-tag"><i class="fas fa-atom"></i> IIT $\Phi$ Integrated Info</span>
+            </div>
+            <h3>Hoosha-IIT-AM-V1</h3>
+            <p>Experimental synthetic cognitive architecture incorporating Integrated Information Theory (IIT $\Phi$) as structural inductive biases for attention routing.</p>
+            <div class="model-specs-grid">
+              <div class="model-spec-item">
+                <span class="model-spec-label">Integration $\Phi$</span>
+                <span class="model-spec-val">High Coherence</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">System-2 Latency</span>
+                <span class="model-spec-val">14 ms</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">License</span>
+                <span class="model-spec-val">Research Open</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">Format</span>
+                <span class="model-spec-val">PyTorch Checkpoint</span>
+              </div>
+            </div>
+          </div>
+          <div class="model-card-actions">
+            <a href="platform.html#model-iit-am-v1" class="btn btn-primary" style="flex: 1; justify-content: center;">
+              <i class="fas fa-play"></i> Launch Sandbox
+            </a>
+            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
+              <i class="fas fa-smile-beam"></i> Weights
+            </a>
+          </div>
+        </div>
+
+        <!-- Model 6 -->
+        <div class="model-card-box">
+          <div>
+            <div class="model-badge-row">
+              <span class="model-param-badge" style="color: #3b82f6; border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.12);">1.5B PARAMETERS</span>
+              <span class="model-type-tag"><i class="fas fa-link"></i> Sub-Quadratic Rec</span>
+            </div>
+            <h3>Hoosha-SubQuad-Rec</h3>
+            <p>Ultra-efficient sub-quadratic sequence recommendation model for long-term item trajectory prediction and bidirectional user modeling.</p>
+            <div class="model-specs-grid">
+              <div class="model-spec-item">
+                <span class="model-spec-label">Sequence Length</span>
+                <span class="model-spec-val">1,000,000+ Items</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">Inference Speed</span>
+                <span class="model-spec-val">0.4 ms/seq</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">License</span>
+                <span class="model-spec-val">Apache 2.0</span>
+              </div>
+              <div class="model-spec-item">
+                <span class="model-spec-label">Format</span>
+                <span class="model-spec-val">ONNX / TensorRT</span>
+              </div>
+            </div>
+          </div>
+          <div class="model-card-actions">
+            <a href="platform.html#model-subquad-rec" class="btn btn-primary" style="flex: 1; justify-content: center;">
+              <i class="fas fa-play"></i> Launch Sandbox
+            </a>
+            <a href="https://huggingface.co" target="_blank" class="btn btn-outline" title="Open HuggingFace Weights">
+              <i class="fas fa-smile-beam"></i> Weights
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="nav-brand">
+          <i class="fas fa-brain brand-icon"></i>
+          <span>Hoosha AI</span>
+        </div>
+        <p>Advancing continuous-time generative modeling, differential attention, sub-quadratic sequence architectures, and epistemic verification.</p>
+      </div>
+
+      <div class="footer-links">
+        <h4>Site Navigation</h4>
+        <ul>
+          <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+          <li><a href="research.html"><i class="fas fa-newspaper"></i> Research Journal</a></li>
+          <li><a href="models.html"><i class="fas fa-cube"></i> Models</a></li>
+          <li><a href="labs.html"><i class="fas fa-flask"></i> Learning Labs</a></li>
+          <li><a href="ecosystem.html"><i class="fas fa-network-wired"></i> Ecosystem</a></li>
+          <li><a href="platform.html"><i class="fas fa-terminal"></i> Platform Dashboard</a></li>
+          <li><a href="admin.html" style="color: #ef4444;"><i class="fas fa-shield-alt"></i> Executive Admin</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Research Track</h4>
+        <ul>
+          <li><a href="https://hooshaai.substack.com" target="_blank"><i class="fab fa-substack"></i> Substack Journal</a></li>
+          <li><a href="https://github.com" target="_blank"><i class="fab fa-github"></i> Open Source Repos</a></li>
+          <li><a href="https://huggingface.co" target="_blank"><i class="fas fa-smile-beam"></i> HuggingFace Hub</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Hoosha AI Research Laboratory. All rights reserved. Open-access research & open-weight model initiative.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

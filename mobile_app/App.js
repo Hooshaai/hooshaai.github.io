@@ -1,15 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import ResearchFeed from './src/components/ResearchFeed';
+import ResearchFeed, { INITIAL_ARTICLES, ARTICLES_CACHE_KEY, LAST_SYNC_KEY } from './src/components/ResearchFeed';
 import SandboxView from './src/components/SandboxView';
 import ModelZooView from './src/components/ModelZooView';
 import ProfileView from './src/components/ProfileView';
 import ArticleDetailModal from './src/components/ArticleDetailModal';
 import InteractiveSimulatorModal from './src/components/InteractiveSimulatorModal';
+
+// Dynamic import with robust in-memory fallback for AsyncStorage
+let AsyncStorage;
+try {
+  AsyncStorage = require('@react-native-async-storage/async-storage').default || require('@react-native-async-storage/async-storage');
+} catch (e) {
+  const memoryCache = new Map();
+  AsyncStorage = {
+    getItem: async (key) => memoryCache.get(key) || null,
+    setItem: async (key, val) => { memoryCache.set(key, String(val)); return null; },
+    removeItem: async (key) => { memoryCache.delete(key); return null; },
+    clear: async () => { memoryCache.clear(); return null; },
+  };
+}
+
+// Global hook to ensure Substack articles are pre-cached in AsyncStorage for 100% offline access
+function useOfflineCacheWarmup() {
+  useEffect(() => {
+    async function initCache() {
+      try {
+        const cached = await AsyncStorage.getItem(ARTICLES_CACHE_KEY);
+        if (!cached) {
+          await AsyncStorage.setItem(ARTICLES_CACHE_KEY, JSON.stringify(INITIAL_ARTICLES));
+          const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          await AsyncStorage.setItem(LAST_SYNC_KEY, timestamp);
+        }
+      } catch (err) {
+        console.error('[App] Failed to warm up AsyncStorage cache:', err);
+      }
+    }
+    initCache();
+  }, []);
+}
 
 // Try loading React Navigation if available, with smooth custom tab fallback
 let NavigationContainer, createBottomTabNavigator;
@@ -21,6 +54,7 @@ try {
 }
 
 function CustomTabApp() {
+  useOfflineCacheWarmup();
   const [activeTab, setActiveTab] = useState('research');
 
   const renderActiveScreen = () => {
@@ -115,6 +149,7 @@ if (createBottomTabNavigator && NavigationContainer) {
   const Tab = createBottomTabNavigator();
 
   function ReactNavigationApp() {
+    useOfflineCacheWarmup();
     return (
       <NavigationContainer>
         <Tab.Navigator
