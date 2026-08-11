@@ -31,6 +31,7 @@
     </div>
     <div class="nav-links">
       <a href="#research">Research</a>
+      <a href="#learning-labs">Learning Labs</a>
       <a href="#ecosystem">Ecosystem</a>
       <a href="#open-source">Open Source</a>
       <a href="#journal">Journal</a>
@@ -483,6 +484,446 @@
       </div>
     </section>
 
+    <!-- Interactive AI Learning Labs & Simulations Section -->
+    <section class="learning-labs fade-up" id="learning-labs">
+      <div class="learning-labs-header">
+        <span class="section-badge"><i class="fas fa-flask"></i> INTERACTIVE RESEARCH LABS</span>
+        <h2 class="section-title">Interactive AI Learning Labs & Simulations</h2>
+        <p class="section-subtitle">
+          Step directly inside Hoosha AI's research breakthroughs. Experiment with real-time visual simulations, 
+          adjust mathematical hyperparameters, and explore the intuition behind continuous-time generative modeling, 
+          policy alignment algorithms, and differential attention noise cancellation.
+        </p>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="labs-tab-navigation">
+        <button class="lab-tab-btn active" data-lab="lab-cfm">
+          <i class="fas fa-water"></i> 1. CFM vs Diffusion SDE Trajectory Solver
+        </button>
+        <button class="lab-tab-btn" data-lab="lab-grpo">
+          <i class="fas fa-scale-balanced"></i> 2. GRPO Group Reward & KL Visualizer
+        </button>
+        <button class="lab-tab-btn" data-lab="lab-diffattn">
+          <i class="fas fa-wave-square"></i> 3. Differential Attention Waveform Visualizer
+        </button>
+      </div>
+
+      <!-- Module 1: Continuous Flow Matching vs Diffusion SDE -->
+      <div class="lab-content-panel active" id="lab-cfm">
+        <div class="lab-card">
+          <div class="lab-card-header">
+            <div class="lab-card-title">
+              <i class="fas fa-water"></i>
+              <span>Module 1: Continuous Flow Matching vs Diffusion SDE Trajectory Solver</span>
+            </div>
+            <span class="lab-badge"><i class="fas fa-microchip"></i> Vector ODE / SDE Integrator</span>
+          </div>
+
+          <p class="section-subtitle" style="margin-bottom: 1.25rem; text-align: left; font-size: 0.95rem;">
+            Compare straight-line Optimal Transport ODE vector fields in Continuous Flow Matching (CFM) against curved, stochastic Brownian paths in Diffusion SDEs (VP-SDE). Drag control anchors or adjust trajectory steps to see real-time vector field dynamics.
+          </p>
+
+          <!-- Interactive Controls Bar -->
+          <div class="lab-controls-bar">
+            <div class="lab-control-group">
+              <label><i class="fas fa-project-diagram"></i> Algorithm:</label>
+              <select class="lab-select" id="labCfmSolverType">
+                <option value="cfm">Continuous Flow Matching (OT-ODE)</option>
+                <option value="sde">Diffusion SDE (VP Stochastic Brownian)</option>
+                <option value="sub-vp">Sub-VP SDE (Variance Preserving)</option>
+              </select>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-stopwatch"></i> Trajectory Steps (N):</label>
+              <input type="range" class="lab-range" id="labCfmStepsSlider" min="4" max="100" step="2" value="10" style="width: 80px;">
+              <span id="labCfmStepsVal" style="color: var(--cyan); font-weight: bold; width: 28px;">10</span>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-bolt"></i> Noise σ:</label>
+              <input type="range" class="lab-range" id="labCfmNoiseSlider" min="0.0" max="1.0" step="0.05" value="0.15" style="width: 70px;">
+              <span id="labCfmNoiseVal" style="color: var(--purple); font-weight: bold; width: 34px;">0.15</span>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-users"></i> Particles:</label>
+              <input type="range" class="lab-range" id="labCfmParticleSlider" min="40" max="300" step="10" value="160" style="width: 70px;">
+              <span id="labCfmParticleVal" style="color: #10b981; font-weight: bold; width: 32px;">160</span>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-bookmark"></i> Preset:</label>
+              <select class="lab-select" id="labCfmPresetSelect">
+                <option value="ot-bimodal">OT Bimodal Flow</option>
+                <option value="concentric">Concentric Shells</option>
+                <option value="saddle">Saddle Vector Field</option>
+                <option value="hoosha-h">Hoosha AI 'H' Target</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-left: auto;">
+              <button class="lab-btn" id="labCfmTogglePlay"><i class="fas fa-pause"></i> Pause</button>
+              <button class="lab-btn" id="labCfmStepBtn"><i class="fas fa-step-forward"></i> Step</button>
+              <button class="lab-btn lab-btn-purple" id="labCfmToggleQuiver"><i class="fas fa-arrows-alt"></i> Quiver</button>
+              <button class="lab-btn" id="labCfmResetBtn"><i class="fas fa-redo"></i> Reset</button>
+            </div>
+          </div>
+
+          <!-- Real-time Metrics Pills -->
+          <div class="lab-metrics-row">
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Path Straightness Score</span>
+              <span class="lab-metric-val" id="labCfmStraightnessVal" style="color: #10b981;">98.6%</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Transport Cost W₂</span>
+              <span class="lab-metric-val" id="labCfmOtCostVal">0.0248</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Velocity L₂ Loss</span>
+              <span class="lab-metric-val" id="labCfmLossVal" style="color: var(--purple);">0.0315</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Sampling Speedup</span>
+              <span class="lab-metric-val" id="labCfmSpeedupVal" style="color: var(--cyan);">10x (10 Steps)</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Active Control Anchors</span>
+              <span class="lab-metric-val" id="labCfmAnchorCountVal">6 Anchors</span>
+            </div>
+          </div>
+
+          <!-- Simulation Canvas -->
+          <div class="lab-canvas-container">
+            <canvas id="labCfmCanvas" class="lab-canvas" width="1000" height="440"></canvas>
+          </div>
+
+          <!-- Mathematical Intuition Breakdown -->
+          <div class="lab-math-panel">
+            <div class="lab-math-header">
+              <i class="fas fa-square-root-variable"></i>
+              <span>Mathematical Intuition: Continuous Flow Matching vs Stochastic Diffusion</span>
+            </div>
+
+            <div class="lab-math-grid">
+              <div class="lab-math-card">
+                <h4><i class="fas fa-arrow-right-long"></i> 1. Linear Flow Trajectories & Vector Fields</h4>
+                <p class="lab-math-desc">
+                  Flow Matching replaces noisy simulation paths with linear interpolation between source noise $x_0 \sim p_0$ and target data $x_1 \sim q$:
+                </p>
+                <div class="lab-math-equation">
+                  $$x_t = (1 - t) x_0 + t x_1 \implies v_t(x_t) = \frac{d x_t}{d t} = x_1 - x_0$$
+                </div>
+                <p class="lab-math-desc">
+                  The target velocity vector field $v_t(x_t)$ is constant along each linear sample trajectory $x_0 \to x_1$.
+                </p>
+              </div>
+
+              <div class="lab-math-card">
+                <h4><i class="fas fa-bullseye"></i> 2. Simulation-Free Loss Objective</h4>
+                <p class="lab-math-desc">
+                  Instead of integrating expensive SDE paths during training, CFM trains a neural network $v_\theta(x_t, t)$ using regression:
+                </p>
+                <div class="lab-math-equation">
+                  $$\mathcal{L}_{\text{CFM}}(\theta) = \mathbb{E}_{t, q(x_0, x_1)} \left\| v_\theta(x_t, t) - (x_1 - x_0) \right\|^2$$
+                </div>
+                <p class="lab-math-desc">
+                  Optimal Transport (OT) alignment minimizes total displacement energy $\int_0^1 \|v_t\|^2 dt$.
+                </p>
+              </div>
+
+              <div class="lab-math-card">
+                <h4><i class="fas fa-random"></i> 3. Why Diffusion SDEs Are Slower</h4>
+                <p class="lab-math-desc">
+                  Traditional VP-Diffusion relies on Brownian motion stochastic differential equations:
+                </p>
+                <div class="lab-math-equation">
+                  $$d x_t = -\frac{1}{2}\beta(t) x_t d t + \sqrt{\beta(t)} d W_t$$
+                </div>
+                <p class="lab-math-desc">
+                  Stochastic noise $dW_t$ introduces curved trajectories, requiring 50–100 ODE steps to avoid discretization drift. CFM achieves straight ODE paths in 4–10 steps.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 2: GRPO Policy Alignment Group Reward & KL Visualizer -->
+      <div class="lab-content-panel" id="lab-grpo">
+        <div class="lab-card">
+          <div class="lab-card-header">
+            <div class="lab-card-title">
+              <i class="fas fa-scale-balanced"></i>
+              <span>Module 2: GRPO Policy Alignment Group Reward & KL Penalty Visualizer</span>
+            </div>
+            <span class="lab-badge"><i class="fas fa-brain"></i> Reasoning Policy RL Integrator</span>
+          </div>
+
+          <p class="section-subtitle" style="margin-bottom: 1.25rem; text-align: left; font-size: 0.95rem;">
+            Explore Group Relative Policy Optimization (GRPO), used in frontier reasoning models. GRPO eliminates the Critic neural network by sampling candidate groups $\{o_1, \dots, o_G\}$ per prompt $q$, normalizing relative rewards into advantages $A_i$, and enforcing reference model KL divergence bounds.
+          </p>
+
+          <!-- Interactive Controls Bar -->
+          <div class="lab-controls-bar">
+            <div class="lab-control-group">
+              <label><i class="fas fa-layer-group"></i> Group Size (G):</label>
+              <select class="lab-select" id="labGrpoGroupSelect">
+                <option value="4">G = 4</option>
+                <option value="8">G = 8</option>
+                <option value="16" selected>G = 16</option>
+                <option value="32">G = 32</option>
+              </select>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-shield-alt"></i> KL Penalty (β):</label>
+              <input type="range" class="lab-range" id="labGrpoKlSlider" min="0.00" max="0.35" step="0.01" value="0.04" style="width: 80px;">
+              <span id="labGrpoKlVal" style="color: var(--purple); font-weight: bold; width: 36px;">0.04</span>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-scissors"></i> Clip (ε):</label>
+              <input type="range" class="lab-range" id="labGrpoClipSlider" min="0.10" max="0.30" step="0.02" value="0.20" style="width: 70px;">
+              <span id="labGrpoClipVal" style="color: var(--cyan); font-weight: bold; width: 34px;">0.20</span>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-graduation-cap"></i> Task Preset:</label>
+              <select class="lab-select" id="labGrpoTaskPreset">
+                <option value="gsm8k">GSM8K Math Proofs</option>
+                <option value="humaneval">HumanEval Python Synthesis</option>
+                <option value="logic">Multi-Step Deductive Logic</option>
+                <option value="bimodal">Bimodal Reward Noise</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-left: auto;">
+              <button class="lab-btn" id="labGrpoStepBtn"><i class="fas fa-play"></i> Sample & Step</button>
+              <button class="lab-btn lab-btn-purple" id="labGrpoAutoBtn"><i class="fas fa-sync"></i> Auto-Train</button>
+              <button class="lab-btn" id="labGrpoResetBtn"><i class="fas fa-redo"></i> Reset</button>
+            </div>
+          </div>
+
+          <!-- Real-time Metrics Pills -->
+          <div class="lab-metrics-row">
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Mean Group Reward r̄</span>
+              <span class="lab-metric-val" id="labGrpoMeanRewardVal" style="color: #10b981;">+0.842</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Group Reward Std σᵣ</span>
+              <span class="lab-metric-val" id="labGrpoStdRewardVal">0.215</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Policy Loss L_CLIP</span>
+              <span class="lab-metric-val" id="labGrpoPolicyLossVal" style="color: var(--cyan);">0.142</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">KL Penalty (-β D_KL)</span>
+              <span class="lab-metric-val" id="labGrpoKlPenaltyVal" style="color: var(--purple);">-0.018</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">GPU VRAM Memory Savings</span>
+              <span class="lab-metric-val" id="labGrpoVramVal" style="color: #10b981;">52% (No Critic)</span>
+            </div>
+          </div>
+
+          <!-- Simulation Canvas -->
+          <div class="lab-canvas-container">
+            <canvas id="labGrpoCanvas" class="lab-canvas" width="1000" height="440"></canvas>
+          </div>
+
+          <!-- Mathematical Intuition Breakdown -->
+          <div class="lab-math-panel">
+            <div class="lab-math-header">
+              <i class="fas fa-square-root-variable"></i>
+              <span>Mathematical Intuition: Group Relative Policy Optimization (GRPO)</span>
+            </div>
+
+            <div class="lab-math-grid">
+              <div class="lab-math-card">
+                <h4><i class="fas fa-balance-scale"></i> 1. Group Advantage Normalization</h4>
+                <p class="lab-math-desc">
+                  Instead of estimating expected value $V(s)$ with a Critic neural network, GRPO calculates advantages $A_i$ directly from $G$ sampled outputs for prompt $q$:
+                </p>
+                <div class="lab-math-equation">
+                  $$A_i = \frac{r_i - \text{mean}(\{r_1, \dots, r_G\})}{\text{std}(\{r_1, \dots, r_G\}) + \delta}$$
+                </div>
+                <p class="lab-math-desc">
+                  Outputs scoring above the group baseline get positive advantage ($A_i > 0$), while below-average outputs get penalized ($A_i < 0$).
+                </p>
+              </div>
+
+              <div class="lab-math-card">
+                <h4><i class="fas fa-bullseye"></i> 2. Clipped Surrogate Objective</h4>
+                <p class="lab-math-desc">
+                  The policy $\pi_\theta$ is updated via PPO-style clipped surrogate objective across all candidates in the group:
+                </p>
+                <div class="lab-math-equation">
+                  $$\mathcal{J}_{\text{CLIP}}(\theta) = \frac{1}{G} \sum_{i=1}^G \min\left( \frac{\pi_\theta(o_i|q)}{\pi_{\text{old}}(o_i|q)} A_i, \text{clip}\left(\frac{\pi_\theta(o_i|q)}{\pi_{\text{old}}(o_i|q)}, 1-\epsilon, 1+\epsilon\right) A_i \right)$$
+                </div>
+                <p class="lab-math-desc">
+                  Clipping ratio bounds prevent destabilizingly large parameter steps during policy gradient updates.
+                </p>
+              </div>
+
+              <div class="lab-math-card">
+                <h4><i class="fas fa-lock"></i> 3. Reference Model KL Regularization</h4>
+                <p class="lab-math-desc">
+                  To keep reasoning generations coherent and prevent policy collapse, a per-token KL divergence penalty is applied:
+                </p>
+                <div class="lab-math-equation">
+                  $$\mathcal{J}_{\text{GRPO}}(\theta) = \mathcal{J}_{\text{CLIP}}(\theta) - \beta D_{\text{KL}}(\pi_\theta || \pi_{\text{ref}})$$
+                </div>
+                <p class="lab-math-desc">
+                  $$D_{\text{KL}}(\pi_\theta || \pi_{\text{ref}}) = \frac{\pi_{\text{ref}}(o_i|q)}{\pi_\theta(o_i|q)} - \log \frac{\pi_{\text{ref}}(o_i|q)}{\pi_\theta(o_i|q)} - 1$$
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Module 3: Differential Attention Noise Cancellation Waveform Visualizer -->
+      <div class="lab-content-panel" id="lab-diffattn">
+        <div class="lab-card">
+          <div class="lab-card-header">
+            <div class="lab-card-title">
+              <i class="fas fa-wave-square"></i>
+              <span>Module 3: Differential Attention Noise Cancellation Waveform Visualizer</span>
+            </div>
+            <span class="lab-badge"><i class="fas fa-bolt"></i> Active Context Filter</span>
+          </div>
+
+          <p class="section-subtitle" style="margin-bottom: 1.25rem; text-align: left; font-size: 0.95rem;">
+            Visualize how Differential Attention ($\text{DiffAttn}$) acts like active noise-canceling headphones in transformer architectures. By computing two separate attention maps ($A_1$ and $A_2$) and subtracting them with scalar $\lambda$, background noise across context tokens is eliminated!
+          </p>
+
+          <!-- Interactive Controls Bar -->
+          <div class="lab-controls-bar">
+            <div class="lab-control-group">
+              <label><i class="fas fa-sliders-h"></i> Cancellation λ:</label>
+              <input type="range" class="lab-range" id="labDiffLambdaSlider" min="0.00" max="1.00" step="0.02" value="0.75" style="width: 85px;">
+              <span id="labDiffLambdaVal" style="color: var(--cyan); font-weight: bold; width: 36px;">0.75</span>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-align-left"></i> Context Length N:</label>
+              <select class="lab-select" id="labDiffContextSelect">
+                <option value="1024">1k Tokens</option>
+                <option value="8192">8k Tokens</option>
+                <option value="32768">32k Tokens</option>
+                <option value="131072" selected>128k Ultra-Context</option>
+              </select>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-volume-down"></i> Input SNR:</label>
+              <input type="range" class="lab-range" id="labDiffSnrSlider" min="-10" max="20" step="1" value="2" style="width: 70px;">
+              <span id="labDiffSnrVal" style="color: var(--purple); font-weight: bold; width: 38px;">+2 dB</span>
+            </div>
+
+            <div class="lab-control-group">
+              <label><i class="fas fa-crosshairs"></i> Pattern Preset:</label>
+              <select class="lab-select" id="labDiffPatternPreset">
+                <option value="needle">Needle in a Haystack (128k)</option>
+                <option value="multihop">Multi-Hop Context Query</option>
+                <option value="noisy-web">Noisy RAG Web Document</option>
+                <option value="syntax">Syntactic Code Dependency</option>
+              </select>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-left: auto;">
+              <button class="lab-btn" id="labDiffSweepBtn"><i class="fas fa-play"></i> Signal Sweep</button>
+              <button class="lab-btn lab-btn-purple" id="labDiffZeroBtn"><i class="fas fa-toggle-on"></i> Toggle λ=0</button>
+              <button class="lab-btn" id="labDiffResetBtn"><i class="fas fa-redo"></i> Reset</button>
+            </div>
+          </div>
+
+          <!-- Real-time Metrics Pills -->
+          <div class="lab-metrics-row">
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Effective SNR Boost</span>
+              <span class="lab-metric-val" id="labDiffSnrBoostVal" style="color: #10b981;">+18.4 dB</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Context Noise Floor</span>
+              <span class="lab-metric-val" id="labDiffNoiseFloorVal" style="color: var(--cyan);">2.1% (vs 38.5% Softmax)</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Attention Entropy H(A)</span>
+              <span class="lab-metric-val" id="labDiffEntropyVal" style="color: var(--purple);">1.42 bits</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Needle Retrieval (128k)</span>
+              <span class="lab-metric-val" id="labDiffRetrievalVal" style="color: #10b981;">99.8%</span>
+            </div>
+            <div class="lab-metric-pill">
+              <span class="lab-metric-label">Active Filter State</span>
+              <span class="lab-metric-val" id="labDiffFilterStateVal">DiffAttn (λ=0.75)</span>
+            </div>
+          </div>
+
+          <!-- Simulation Canvas -->
+          <div class="lab-canvas-container">
+            <canvas id="labDiffCanvas" class="lab-canvas" width="1000" height="440"></canvas>
+          </div>
+
+          <!-- Mathematical Intuition Breakdown -->
+          <div class="lab-math-panel">
+            <div class="lab-math-header">
+              <i class="fas fa-square-root-variable"></i>
+              <span>Mathematical Intuition: Differential Attention Architecture</span>
+            </div>
+
+            <div class="lab-math-grid">
+              <div class="lab-math-card">
+                <h4><i class="fas fa-minus-circle"></i> 1. Scaled Attention Subtraction</h4>
+                <p class="lab-math-desc">
+                  Differential Attention projects input features $X$ into two separate query-key head pairs $(Q_1, K_1)$ and $(Q_2, K_2)$ and subtracts their softmax maps:
+                </p>
+                <div class="lab-math-equation">
+                  $$\text{DiffAttn}(X) = \left( \text{softmax}\left(\frac{Q_1 K_1^T}{\sqrt{d}}\right) - \lambda \cdot \text{softmax}\left(\frac{Q_2 K_2^T}{\sqrt{d}}\right) \right) V$$
+                </div>
+                <p class="lab-math-desc">
+                  Map $A_1$ captures signal + noise, while map $A_2$ acts as a noise estimator. Subtraction cancels background attention activation.
+                </p>
+              </div>
+
+              <div class="lab-math-card">
+                <h4><i class="fas fa-filter"></i> 2. Spatial High-Pass Noise Filter</h4>
+                <p class="lab-math-desc">
+                  In standard softmax $\text{softmax}(QK^T / \sqrt{d})$, probability mass spreads across thousands of irrelevant background tokens in long context windows:
+                </p>
+                <div class="lab-math-equation">
+                  $$\lim_{N \to \infty} \sum_{i \in \text{noise}} \text{softmax}(Q K_i^T / \sqrt{d}) \approx 1 - \epsilon_{\text{signal}}$$
+                </div>
+                <p class="lab-math-desc">
+                  DiffAttn forces noise token attention scores to zero ($A_{1,i} - \lambda A_{2,i} \approx 0$), preserving signal focus even at 128k context lengths.
+                </p>
+              </div>
+
+              <div class="lab-math-card">
+                <h4><i class="fas fa-chart-line"></i> 3. Attention Entropy Minimization</h4>
+                <p class="lab-math-desc">
+                  The concentration of attention on true signal tokens is quantified by Attention Entropy $H(A)$:
+                </p>
+                <div class="lab-math-equation">
+                  $$H(A) = -\sum_{j=1}^N A_j \log_2 A_j$$
+                </div>
+                <p class="lab-math-desc">
+                  Lower entropy indicates sharp, noise-free retrieval without attention saturation or context hallucination.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="open-source" id="open-source">
       <h2 class="section-title">Open Source Repositories</h2>
       <div class="repo-grid">
@@ -587,41 +1028,57 @@
         </div>
       </div>
 
-      <div class="series-card fade-up" style="margin-top: 2rem;">
+      <div class="series-card fade-up" style="margin-top: 2rem; border-color: rgba(59, 130, 246, 0.3);">
         <div class="series-header">
-          <span class="series-badge" style="color: var(--purple); background: rgba(138, 43, 226, 0.1); border-color: var(--purple);">🌊 Flow Matching</span>
-          <span class="series-count">2 Chapters</span>
+          <span class="series-badge" style="color: #3b82f6; background: rgba(59, 130, 246, 0.1); border-color: #3b82f6;">🎯 GRPO Alignment</span>
+          <span class="series-count">3 Chapters</span>
         </div>
-        <h3 class="series-title">Continuous Flow Matching & ODE Trajectories</h3>
-        <p class="series-desc">Mathematical foundations of Conditional Flow Matching (CFM) and simulation-free ODE velocity alignment.</p>
+        <h3 class="series-title">GRPO Alignment & Reinforcement Learning</h3>
+        <p class="series-desc">Group Relative Policy Optimization for mathematical reasoning, reward modeling, and distributed RLVR scaling.</p>
 
-        <div class="chapter-row" data-article-id="flow-part1">
+        <div class="chapter-row" data-article-id="grpo-part1">
           <div class="chapter-meta">
-            <span class="part-badge" style="color: var(--purple);">Part 1</span>
+            <span class="part-badge" style="color: #3b82f6;">Part 1</span>
             <div class="chapter-info">
-              <h4>Flow Matching vs Diffusion SDEs: Velocity Vector Fields</h4>
-              <span class="read-time"><i class="fas fa-book-open"></i> 14 min read · 4,210 words · KaTeX math enabled</span>
+              <h4>Group Relative Policy Optimization Foundations</h4>
+              <span class="read-time"><i class="fas fa-book-open"></i> 15 min read · 4,150 words · KaTeX math enabled</span>
             </div>
           </div>
           <div class="chapter-actions">
             <button class="btn-read-modal"><i class="fas fa-book-reader"></i> Read Full Essay</button>
-            <a href="https://hooshaai.substack.com/p/flow-matching-vs-diffusion" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
+            <a href="https://hooshaai.substack.com/p/grpo-alignment-part-1" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
               <i class="fas fa-external-link-alt"></i>
             </a>
           </div>
         </div>
 
-        <div class="chapter-row" data-article-id="flow-part2">
+        <div class="chapter-row" data-article-id="grpo-part2">
           <div class="chapter-meta">
-            <span class="part-badge" style="color: var(--purple);">Part 2</span>
+            <span class="part-badge" style="color: #3b82f6;">Part 2</span>
             <div class="chapter-info">
-              <h4>Optimal Transport Straight Paths for Fast ODE Integration</h4>
-              <span class="read-time"><i class="fas fa-book-open"></i> 19 min read · 5,890 words · KaTeX math enabled</span>
+              <h4>Group Advantage Normalization & KL Clipping</h4>
+              <span class="read-time"><i class="fas fa-book-open"></i> 14 min read · 3,820 words · KaTeX math enabled</span>
             </div>
           </div>
           <div class="chapter-actions">
             <button class="btn-read-modal"><i class="fas fa-book-reader"></i> Read Full Essay</button>
-            <a href="https://hooshaai.substack.com/p/optimal-transport-flow-matching" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
+            <a href="https://hooshaai.substack.com/p/grpo-alignment-part-2" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="chapter-row" data-article-id="grpo-part3">
+          <div class="chapter-meta">
+            <span class="part-badge" style="color: #3b82f6;">Part 3</span>
+            <div class="chapter-info">
+              <h4>Distributed Multi-GPU Execution & Scalable RLVR</h4>
+              <span class="read-time"><i class="fas fa-book-open"></i> 18 min read · 5,200 words · KaTeX math enabled</span>
+            </div>
+          </div>
+          <div class="chapter-actions">
+            <button class="btn-read-modal"><i class="fas fa-book-reader"></i> Read Full Essay</button>
+            <a href="https://hooshaai.substack.com/p/grpo-alignment-part-3" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
               <i class="fas fa-external-link-alt"></i>
             </a>
           </div>
@@ -644,15 +1101,54 @@
         </div>
       </div>
 
-      <!-- Live Synced Substack Articles Container (Auto-populated from data.json) -->
-      <div id="syncedArticlesContainer" class="series-card fade-up" style="margin-top: 2rem; display: none;">
-        <div class="series-header">
-          <span class="series-badge" style="color: #10b981; background: rgba(16, 185, 129, 0.1); border-color: #10b981;"><i class="fas fa-sync-alt fa-spin"></i> Live RSS Sync</span>
-          <span id="syncedArticlesCount" class="series-count">0 Articles</span>
+      <!-- Dedicated High-Visibility Substack Research Library Section -->
+      <div class="substack-library-wrapper fade-up" id="substack-library" style="margin-top: 3rem;">
+        <div class="series-header" style="justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <span class="series-badge" style="background: rgba(255, 103, 25, 0.15); color: #ff6719; border-color: rgba(255, 103, 25, 0.4);">
+              <i class="fas fa-rss"></i> Substack Feed Library
+            </span>
+            <h3 class="series-title" style="margin-top: 0.5rem;">All 20 Substack Research Publications</h3>
+            <p class="series-desc">Auto-synced peer-reviewed essays, linear attention breakdowns, and post-training cognitive scaling papers.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <span id="substackArticleCountBadge" class="series-count" style="font-size: 0.95rem; padding: 0.5rem 1rem; background: rgba(0, 240, 255, 0.1); border: 1px solid var(--cyan); color: var(--cyan);">
+              Showing 20 of 20 Essays
+            </span>
+          </div>
         </div>
-        <h3 class="series-title">Latest Substack Publications</h3>
-        <p class="series-desc">Automatically synced feed entries parsed directly from Substack RSS.</p>
-        <div id="syncedArticlesList"></div>
+
+        <!-- Search & Filter Controls Bar -->
+        <div class="substack-controls-bar">
+          <div class="substack-search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="substackSearchInput" placeholder="Search 20 Substack articles by title, snippet, date, or keyword (e.g. Linear Attention, Causal, Consciousness)..." autocomplete="off" spellcheck="false">
+            <button id="substackSearchClear" class="search-clear-btn" style="display:none;" title="Clear search">&times;</button>
+          </div>
+
+          <div class="substack-tabs-row" id="substackFilterTabs">
+            <button class="substack-tab active" data-category="all">
+              <i class="fas fa-layer-group"></i> All (20)
+            </button>
+            <button class="substack-tab" data-category="linear-attention">
+              <i class="fas fa-bolt"></i> Linear Attention (6)
+            </button>
+            <button class="substack-tab" data-category="verification">
+              <i class="fas fa-shield-alt"></i> Verification & RSI (5)
+            </button>
+            <button class="substack-tab" data-category="cognition">
+              <i class="fas fa-brain"></i> Post-Training & Cognition (5)
+            </button>
+            <button class="substack-tab" data-category="consciousness">
+              <i class="fas fa-microchip"></i> Consciousness & Open-Ended (4)
+            </button>
+          </div>
+        </div>
+
+        <!-- Substack Articles High-Visibility Grid -->
+        <div id="substackArticlesGrid" class="substack-articles-grid">
+          <!-- Dynamically populated 20 articles on page load -->
+        </div>
       </div>
 
       <div style="text-align: center; margin-top: 3rem;">

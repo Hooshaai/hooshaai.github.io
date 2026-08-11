@@ -10,6 +10,7 @@ import {
   Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import InteractiveSimulatorModal from './InteractiveSimulatorModal';
 
 const CODE_PRESETS = [
   {
@@ -37,6 +38,8 @@ const CODE_PRESETS = [
 
 export default function SandboxView() {
   const [activeTab, setActiveTab] = useState('simulator'); // 'simulator' | 'calculator' | 'interpreter'
+  const [showSimModal, setShowSimModal] = useState(false);
+  const [simModalMode, setSimModalMode] = useState('cfm'); // 'cfm' | 'rag'
 
   // Simulator state
   const [seqLength, setSeqLength] = useState(32768); // 32k
@@ -223,6 +226,38 @@ export default function SandboxView() {
                 </View>
               </View>
             </View>
+
+            {/* Launch Advanced Interactive Simulators Banner */}
+            <View style={styles.simLaunchCard}>
+              <Text style={styles.simLaunchHeader}>Launch Physics & Epistemic Simulators</Text>
+              <Text style={styles.simLaunchSub}>
+                Run interactive Continuous Flow Matching ODE particle streams and evaluate RAG epistemic uncertainty bounds.
+              </Text>
+
+              <View style={styles.simBtnRow}>
+                <TouchableOpacity
+                  style={styles.launchSimBtnPrimary}
+                  onPress={() => {
+                    setSimModalMode('cfm');
+                    setShowSimModal(true);
+                  }}
+                >
+                  <Ionicons name="git-network" size={16} color="#0B0F19" />
+                  <Text style={styles.launchSimBtnPrimaryText}>CFM ODE Flow</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.launchSimBtnSecondary}
+                  onPress={() => {
+                    setSimModalMode('rag');
+                    setShowSimModal(true);
+                  }}
+                >
+                  <Ionicons name="shield-checkmark" size={16} color="#38BDF8" />
+                  <Text style={styles.launchSimBtnSecondaryText}>RAG Uncertainty</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         )}
 
@@ -360,6 +395,13 @@ export default function SandboxView() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Interactive Simulator Modal */}
+      <InteractiveSimulatorModal
+        visible={showSimModal}
+        onClose={() => setShowSimModal(false)}
+        initialSimMode={simModalMode}
+      />
     </SafeAreaView>
   );
 }
@@ -680,5 +722,61 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'monospace',
     lineHeight: 18,
+  },
+  simLaunchCard: {
+    backgroundColor: '#151C2C',
+    borderRadius: 16,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#212C42',
+    marginTop: 14,
+  },
+  simLaunchHeader: {
+    color: '#F8FAFC',
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  simLaunchSub: {
+    color: '#94A3B8',
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 14,
+  },
+  simBtnRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  launchSimBtnPrimary: {
+    flex: 1,
+    backgroundColor: '#38BDF8',
+    paddingVertical: 12,
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+  },
+  launchSimBtnPrimaryText: {
+    color: '#0B0F19',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  launchSimBtnSecondary: {
+    flex: 1,
+    backgroundColor: '#0B0F19',
+    paddingVertical: 12,
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderColor: '#38BDF8',
+  },
+  launchSimBtnSecondaryText: {
+    color: '#38BDF8',
+    fontSize: 13,
+    fontWeight: '700',
   },
 });

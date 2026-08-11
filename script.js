@@ -421,6 +421,136 @@ class AdaptiveRAGRouter(nn.Module):
         <p>Because OT-CFM trajectories are strictly straight lines in latent space, standard first-order Euler numerical integration achieves high image and audio fidelity in as few as 4 evaluation steps!</p>
       </div>
     `
+  },
+  'grpo-part1': {
+    category: 'GRPO Alignment',
+    readTime: '15 min read',
+    wordCount: '4,150 words',
+    date: 'February 2026',
+    title: 'Group Relative Policy Optimization Foundations',
+    subtitle: 'Mathematical formulation of GRPO vs PPO, eliminating critic network memory overhead via group baseline rewards.',
+    url: 'https://hooshaai.substack.com/p/grpo-alignment-part-1',
+    content: `
+      <h2>1. Introduction to Group Relative Policy Optimization</h2>
+      <p>Standard Proximal Policy Optimization (PPO) relies on a dedicated critic model (value function $V_\\psi(s)$) to estimate advantage values $A(s, a) = Q(s, a) - V(s)$. In large reasoning models (14B-70B parameters), allocating GPU VRAM for a separate value network consumes nearly 50% of peak memory during reinforcement learning.</p>
+      
+      <div class="key-takeaway">
+        <h4><i class="fas fa-brain"></i> Critic-Free Policy Optimization</h4>
+        <p>GRPO eliminates the value network entirely by sampling a group of $G$ reasoning candidate outputs $\{o_1, o_2, \\dots, o_G\}$ for each prompt $q$ and computing relative advantage from the group's empirical reward statistics.</p>
+      </div>
+
+      <h2>2. Objective Function Derivation</h2>
+      <p>For prompt $q \\sim P(Q)$ and old policy $\\pi_{\\theta_{\\text{old}}}$, we sample $G$ outputs. The objective maximizes:</p>
+      
+      <div class="math-display-box">
+        $$\\mathcal{J}_{\\text{GRPO}}(\\theta) = \\mathbb{E}_{\\substack{q \\sim P(Q), \\\\ \\{o_i\\}_{i=1}^G \\sim \\pi_{\\theta_{\\text{old}}}}} \\left[ \\frac{1}{G} \\sum_{i=1}^G \\min \\left( \\frac{\\pi_\\theta(o_i \\mid q)}{\\pi_{\\theta_{\\text{old}}}(o_i \\mid q)} A_i, \\; \\text{clip}\\left(\\frac{\\pi_\\theta(o_i \\mid q)}{\\pi_{\\theta_{\\text{old}}}(o_i \\mid q)}, 1-\\epsilon, 1+\\epsilon\\right) A_i \\right) - \\beta D_{\\text{KL}}(\\pi_\\theta || \\pi_{\\text{ref}}) \\right]$$
+      </div>
+
+      <p>where relative group advantage $A_i$ is computed across the candidate group:</p>
+
+      <div class="math-display-box">
+        $$A_i = \\frac{R_i - \\text{mean}(\\mathbf{R})}{\\text{std}(\\mathbf{R}) + \\epsilon_{\\text{eps}}}$$
+      </div>
+
+      <h2>3. Memory Efficiency Comparison</h2>
+      <table style="width:100%; border-collapse: collapse; margin: 1.5rem 0; color: #cbd5e1;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+            <th style="padding: 0.8rem;">Architecture</th>
+            <th style="padding: 0.8rem;">Critic Overhead</th>
+            <th style="padding: 0.8rem; color: var(--cyan);">Max Sequence Length</th>
+            <th style="padding: 0.8rem;">Memory Savings</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <td style="padding: 0.8rem;">PPO (Policy + Value)</td>
+            <td style="padding: 0.8rem;">100% Parameter Size</td>
+            <td style="padding: 0.8rem;">8k tokens</td>
+            <td style="padding: 0.8rem;">Baseline (0%)</td>
+          </tr>
+          <tr>
+            <td style="padding: 0.8rem; color: var(--cyan);">GRPO (Group Relative)</td>
+            <td style="padding: 0.8rem; color: var(--cyan);">0% (No Critic)</td>
+            <td style="padding: 0.8rem; color: var(--cyan);">32k tokens</td>
+            <td style="padding: 0.8rem; color: var(--cyan);">46.8% VRAM Saved</td>
+          </tr>
+        </tbody>
+      </table>
+    `
+  },
+  'grpo-part2': {
+    category: 'GRPO Alignment',
+    readTime: '14 min read',
+    wordCount: '3,820 words',
+    date: 'February 2026',
+    title: 'Group Advantage Normalization & KL Clipping',
+    subtitle: 'Controlling policy variance and logit distribution drift with group reward standardization and KL bounds.',
+    url: 'https://hooshaai.substack.com/p/grpo-alignment-part-2',
+    content: `
+      <h2>1. Mathematical Mechanics of Group Normalization</h2>
+      <p>Group reward normalization ensures that output trajectories performing above average within their peer group receive positive updates ($A_i > 0$), while substandard responses receive negative gradients ($A_i < 0$).</p>
+
+      <div class="math-display-box">
+        $$\\mu_R = \\frac{1}{G} \\sum_{j=1}^G R_j, \\quad \\sigma_R = \\sqrt{\\frac{1}{G} \\sum_{j=1}^G (R_j - \\mu_R)^2}$$
+      </div>
+
+      <h2>2. Per-Token KL Divergence Penalty</h2>
+      <p>To prevent the policy $\\pi_\\theta$ from collapsing or diverging too far from initial reference weights $\\pi_{\\text{ref}}$, we penalize per-token KL divergence directly in the loss tensor:</p>
+
+      <div class="math-display-box">
+        $$D_{\\text{KL}}(\\pi_\\theta || \\pi_{\\text{ref}}) = \\frac{\\pi_{\\text{ref}}(o_{i,t} \\mid q, o_{i,<t})}{\\pi_\\theta(o_{i,t} \\mid q, o_{i,<t})} - \\log \\frac{\\pi_{\\text{ref}}(o_{i,t} \\mid q, o_{i,<t})}{\\pi_\\theta(o_{i,t} \\mid q, o_{i,<t})} - 1$$
+      </div>
+
+      <h2>3. PyTorch GRPO Loss Layer Implementation</h2>
+      <pre><code>import torch
+
+def compute_grpo_loss(logits, old_logits, ref_logits, rewards, group_size=8, clip_eps=0.2, beta=0.04):
+    # Compute relative group advantage
+    rewards = rewards.view(-1, group_size)
+    mean_r = rewards.mean(dim=1, keepdim=True)
+    std_r = rewards.std(dim=1, keepdim=True) + 1e-8
+    advantages = ((rewards - mean_r) / std_r).view(-1)
+
+    # Compute probability ratios
+    log_p = logits.log_softmax(dim=-1)
+    old_log_p = old_logits.log_softmax(dim=-1)
+    ref_log_p = ref_logits.log_softmax(dim=-1)
+
+    ratio = torch.exp(log_p - old_log_p)
+    surr1 = ratio * advantages.unsqueeze(-1)
+    surr2 = torch.clamp(ratio, 1.0 - clip_eps, 1.0 + clip_eps) * advantages.unsqueeze(-1)
+    
+    policy_loss = -torch.min(surr1, surr2).mean()
+    kl_loss = torch.exp(ref_log_p - log_p) - (ref_log_p - log_p) - 1.0
+    return policy_loss + beta * kl_loss.mean()
+</code></pre>
+    `
+  },
+  'grpo-part3': {
+    category: 'GRPO Alignment',
+    readTime: '18 min read',
+    wordCount: '5,200 words',
+    date: 'March 2026',
+    title: 'Distributed Multi-GPU Execution & Scalable RLVR',
+    subtitle: 'Scaling GRPO for mathematical reasoning engines with Reinforcement Learning from Verifiable Rewards (RLVR).',
+    url: 'https://hooshaai.substack.com/p/grpo-alignment-part-3',
+    content: `
+      <h2>1. Reinforcement Learning with Verifiable Rewards (RLVR)</h2>
+      <p>For mathematical derivations, formal logic proofs, and code generation, external verifiers evaluate candidate trajectories deterministically. If an output $o_i$ passes unit tests or symbolic verification, $R_i = +1.0$; otherwise, $R_i = 0.0$.</p>
+
+      <div class="math-display-box">
+        $$R_i(o_i) = \\alpha \\cdot \\mathbb{I}(\\text{Symbolic Verification Pass}) + \\beta \\cdot \\text{FormatMatch}(o_i)$$
+      </div>
+
+      <h2>2. Distributed FSDP Scaling Architecture</h2>
+      <p>During distributed training across 64x H100 GPUs, candidate generation uses vLLM tensor parallelism, while policy gradient backward passes execute via Fully Sharded Data Parallel (FSDP-v2).</p>
+
+      <div class="key-takeaway">
+        <h4><i class="fas fa-tachometer-alt"></i> Benchmark Scaling Results</h4>
+        <p>Applying 1,000 GRPO alignment steps on a 14B base model improves MATH 500 accuracy from 54.2% to 79.6% without degrading general language capabilities.</p>
+      </div>
+    `
   }
 };
 
@@ -448,19 +578,41 @@ function renderKaTeXMath() {
   }
 }
 
-function openArticleModal(articleId) {
-  const article = articlesDatabase[articleId];
+function openArticleModal(articleIdOrObj) {
+  let article = null;
+  if (typeof articleIdOrObj === 'object' && articleIdOrObj !== null) {
+    article = articleIdOrObj;
+  } else if (typeof articleIdOrObj === 'string' && articlesDatabase[articleIdOrObj]) {
+    article = articlesDatabase[articleIdOrObj];
+  } else if (typeof ALL_SUBSTACK_ARTICLES !== 'undefined') {
+    const found = ALL_SUBSTACK_ARTICLES.find((a, idx) => 
+      idx === Number(articleIdOrObj) || a.id === articleIdOrObj || a.link === articleIdOrObj
+    );
+    if (found) {
+      article = {
+        category: found.categoryName || 'Substack Article',
+        readTime: found.readTime || '8 min read',
+        wordCount: found.wordCount || '2,000 words',
+        date: found.pubDate || 'Substack Dispatch',
+        title: found.title,
+        subtitle: found.snippet,
+        url: found.link,
+        content: found.content || generateSubstackArticleModalHTML(found)
+      };
+    }
+  }
+
   if (!article) return;
 
-  document.getElementById('articleCategoryBadge').textContent = article.category;
-  document.getElementById('articleReadTime').innerHTML = `<i class="fas fa-book-open"></i> ${article.readTime}`;
-  document.getElementById('articleDate').textContent = `Substack Dispatch · ${article.date}`;
-  document.getElementById('articleWordCount').textContent = article.wordCount;
+  document.getElementById('articleCategoryBadge').textContent = article.category || 'Research Essay';
+  document.getElementById('articleReadTime').innerHTML = `<i class="fas fa-book-open"></i> ${article.readTime || '8 min read'}`;
+  document.getElementById('articleDate').textContent = `Substack Dispatch · ${article.date || '2026'}`;
+  document.getElementById('articleWordCount').textContent = article.wordCount || '2,000 words';
   document.getElementById('articleTitle').textContent = article.title;
-  document.getElementById('articleSubtitle').textContent = article.subtitle;
-  document.getElementById('externalArticleLink').href = article.url;
+  document.getElementById('articleSubtitle').textContent = article.subtitle || '';
+  document.getElementById('externalArticleLink').href = article.url || 'https://hooshaai.substack.com';
 
-  articleContent.innerHTML = article.content;
+  articleContent.innerHTML = article.content || `<p>${article.subtitle}</p>`;
   articleModal.classList.add('active');
 
   // Trigger KaTeX Math Rendering
@@ -795,8 +947,488 @@ function initNewsletterSection() {
 }
 
 // ==========================================
-// Fetch & Display Live Synced Substack Feed
+// Fetch & Display Dedicated 20 Substack Articles Grid
 // ==========================================
+function decodeHTMLEntities(text) {
+  if (!text) return '';
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = text;
+  return textarea.value;
+}
+
+const ALL_SUBSTACK_ARTICLES = [
+  {
+    id: "art-1",
+    title: "Scaling Transformers: How Linear Attention is Reshaping Cross-Task AI",
+    link: "https://hooshaai.substack.com/p/scaling-transformers-how-linear-attention",
+    pubDate: "Tue, 11 Aug 2026",
+    wordCount: "1,941 words",
+    readTime: "8 min read",
+    snippet: "The evolution of sequence modeling over the past decade has been governed by a singular, unavoidable mathematical bottleneck: the quadratic computational complexity of the standard Transformer's self-attention mechanism...",
+    category: "linear-attention",
+    categoryName: "Linear Attention",
+    katex: true
+  },
+  {
+    id: "art-2",
+    title: "The Architecture of Boundaries",
+    link: "https://hooshaai.substack.com/p/the-architecture-of-boundaries",
+    pubDate: "Tue, 11 Aug 2026",
+    wordCount: "2,159 words",
+    readTime: "9 min read",
+    snippet: "The frontier of applied science is increasingly defined by our ability to manipulate and track phenomena at extreme boundaries. Whether it's engineering the van der Waals gap between atomic layers or tracking continuous states...",
+    category: "consciousness",
+    categoryName: "Boundaries & Physics",
+    katex: true
+  },
+  {
+    id: "art-3",
+    title: "The Post-Transformer Era",
+    link: "https://hooshaai.substack.com/p/the-post-transformer-era",
+    pubDate: "Mon, 10 Aug 2026",
+    wordCount: "3,806 words",
+    readTime: "15 min read",
+    snippet: "The Impossible Triangle: Since its introduction, the Transformer has been the near-universal foundation underneath modern AI. Its self-attention mechanism computes a weighted interaction for every pair of tokens...",
+    category: "linear-attention",
+    categoryName: "Post-Transformer",
+    katex: true
+  },
+  {
+    id: "art-4",
+    title: "The Rise of Linear Attention in Bidirectional Modeling and Long-Term Recommenders",
+    link: "https://hooshaai.substack.com/p/the-rise-of-linear-attention-in-bidirectional",
+    pubDate: "Mon, 10 Aug 2026",
+    wordCount: "3,004 words",
+    readTime: "12 min read",
+    snippet: "A Historical Crossroads for the Transformer: Since 2017, the Transformer has been the default engine behind nearly every major advance in natural language processing, computer vision, and recommender systems...",
+    category: "linear-attention",
+    categoryName: "Linear Attention",
+    katex: true
+  },
+  {
+    id: "art-5",
+    title: "Re-Engineering the Attention Engine",
+    link: "https://hooshaai.substack.com/p/re-engineering-the-attention-engine",
+    pubDate: "Mon, 10 Aug 2026",
+    wordCount: "3,105 words",
+    readTime: "12 min read",
+    snippet: "Why Attention Got Expensive in the First Place: Every Transformer is built around the same core operation: for every token in a sequence, compute how much it should attend to every other token...",
+    category: "linear-attention",
+    categoryName: "Attention Engine",
+    katex: true
+  },
+  {
+    id: "art-6",
+    title: "Breaking the Quadratic Barrier",
+    link: "https://hooshaai.substack.com/p/breaking-the-quadratic-barrier",
+    pubDate: "Mon, 10 Aug 2026",
+    wordCount: "1,492 words",
+    readTime: "6 min read",
+    snippet: "The self-attention mechanism is the engine at the center of modern deep learning. It computes a weighted average of feature representations across every position in a sequence...",
+    category: "linear-attention",
+    categoryName: "Sub-Quadratic",
+    katex: true
+  },
+  {
+    id: "art-7",
+    title: "Implementing Grounded Causal Verification to Prevent Recursive Epistemic Collapse in Self-Improving AI Systems",
+    link: "https://hooshaai.substack.com/p/implementing-grounded-causal-verification",
+    pubDate: "Fri, 07 Aug 2026",
+    wordCount: "3,922 words",
+    readTime: "16 min read",
+    snippet: "Abstract: The pursuit of recursive self-improvement in large language models relies on the fundamental premise that an artificial agent can autonomously evaluate, refine, and integrate modifications into its own parameters...",
+    category: "verification",
+    categoryName: "Causal Verification",
+    katex: true
+  },
+  {
+    id: "art-8",
+    title: "The Civilization Simulator: Why Recursive AI Needs an Evolutionary Verification Engine",
+    link: "https://hooshaai.substack.com/p/the-civilization-simulator-why-recursive",
+    pubDate: "Fri, 07 Aug 2026",
+    wordCount: "1,911 words",
+    readTime: "8 min read",
+    snippet: "LLMs with million-token contexts collapse out-of-distribution. The human brain, limited to 4–7 active memory slots, adapts universally. Biological constraints force continuous chaos into discrete abstractions...",
+    category: "verification",
+    categoryName: "Evolutionary Verification",
+    katex: true
+  },
+  {
+    id: "art-9",
+    title: "Evaluation of Grounded Causal and Evolutionary Verification for Recursive Self-Improvement",
+    link: "https://hooshaai.substack.com/p/evaluation-of-grounded-causal-and",
+    pubDate: "Fri, 07 Aug 2026",
+    wordCount: "3,878 words",
+    readTime: "16 min read",
+    snippet: "Executive Summary: The ambition to architect a stable, non-degenerative loop for Recursive Self-Improvement (RSI) in artificial intelligence has historically been constrained by the verification bottleneck...",
+    category: "verification",
+    categoryName: "RSI Benchmarks",
+    katex: true
+  },
+  {
+    id: "art-10",
+    title: "Why Biological Constraints Breed Universal Adaptation While Unconstrained AI Collapses",
+    link: "https://hooshaai.substack.com/p/why-biological-constraints-breed",
+    pubDate: "Fri, 07 Aug 2026",
+    wordCount: "2,485 words",
+    readTime: "10 min read",
+    snippet: "Introduction: The Computational Paradox of General Intelligence: Scaling laws dictate that greater capability requires wider contexts, billions of parameters, and unconstrained active memory slots...",
+    category: "verification",
+    categoryName: "Biological Constraints",
+    katex: true
+  },
+  {
+    id: "art-11",
+    title: "The Generalization Paradox: Why Biological Constraints Breed Universal Adaptation While Unconstrained AI Collapses",
+    link: "https://hooshaai.substack.com/p/the-generalization-paradox-why-biological",
+    pubDate: "Fri, 07 Aug 2026",
+    wordCount: "1,215 words",
+    readTime: "5 min read",
+    snippet: "Introduction: The Computational Paradox of General Intelligence: In the current paradigm of artificial intelligence, biological working-memory bounds force continuous representations into robust symbolic abstractions...",
+    category: "verification",
+    categoryName: "Generalization Paradox",
+    katex: true
+  },
+  {
+    id: "art-12",
+    title: "The True Paradigm: Symbolic Internalization, Not Just External Scaffolding",
+    link: "https://hooshaai.substack.com/p/the-true-paradigm-symbolic-internalization",
+    pubDate: "Thu, 06 Aug 2026",
+    wordCount: "2,850 words",
+    readTime: "11 min read",
+    snippet: "Abstract: Recent advances in LLM-based agents suggest that the core breakthrough in AI reasoning lies not in fusing neural nets with fixed symbolic rules, but in internalizing symbolic reasoning entirely inside weights...",
+    category: "cognition",
+    categoryName: "Symbolic Internalization",
+    katex: true
+  },
+  {
+    id: "art-13",
+    title: "The Cognitive Scaling Paradigm: Unifying Pre-Training, Inference Algorithms, and Post-Training Reinforcement Learning",
+    link: "https://hooshaai.substack.com/p/the-cognitive-scaling-paradigm-unifying",
+    pubDate: "Mon, 03 Aug 2026",
+    wordCount: "4,752 words",
+    readTime: "19 min read",
+    snippet: "The Cognitive Scaling Paradigm: Unifying Pre-Training, Inference Algorithms, and Post-Training Reinforcement Learning: The trajectory of artificial intelligence development has irrevocably shifted from pre-training data accumulation...",
+    category: "cognition",
+    categoryName: "Cognitive Scaling",
+    katex: true
+  },
+  {
+    id: "art-14",
+    title: "Building AI that thinks before speaking",
+    link: "https://hooshaai.substack.com/p/building-ai-that-thinks-before-speaking",
+    pubDate: "Mon, 03 Aug 2026",
+    wordCount: "2,100 words",
+    readTime: "9 min read",
+    snippet: "Architecting System-2 latent search and inference-time reflection mechanisms to enable autoregressive models to verify intermediate reasoning steps before emitting tokens...",
+    category: "cognition",
+    categoryName: "Latent Reasoning",
+    katex: true
+  },
+  {
+    id: "art-15",
+    title: "The ACWT Architecture",
+    link: "https://hooshaai.substack.com/p/the-acwt-architecture",
+    pubDate: "Mon, 03 Aug 2026",
+    wordCount: "2,450 words",
+    readTime: "10 min read",
+    snippet: "Adaptive Continuous-Wavelet Transformers for multi-scale sequence modeling, fusing continuous-time wavelet transforms directly into multi-head attention blocks...",
+    category: "cognition",
+    categoryName: "ACWT Architecture",
+    katex: true
+  },
+  {
+    id: "art-16",
+    title: "Beyond Bigger Datasets",
+    link: "https://hooshaai.substack.com/p/beyond-bigger-datasets",
+    pubDate: "Mon, 03 Aug 2026",
+    wordCount: "2,389 words",
+    readTime: "10 min read",
+    snippet: "We've hit the data wall. For years, the recipe for a better language model was simple: more parameters, more tokens, more compute — scale everything together and loss goes down...",
+    category: "cognition",
+    categoryName: "Post-Data Scaling",
+    katex: true
+  },
+  {
+    id: "art-17",
+    title: "The Post-Training Frontier: Unified Frameworks for Reinforcement Learning, Process-Supervised Evaluation, and Test-Time Cognitive Scaling in Large Language Models",
+    link: "https://hooshaai.substack.com/p/the-post-training-frontier-unified",
+    pubDate: "Mon, 03 Aug 2026",
+    wordCount: "5,391 words",
+    readTime: "22 min read",
+    snippet: "Historical and Theoretical Context of Cognitive Scaling: Autoregressive language model development has historically been guided by empirical training-time scaling laws...",
+    category: "cognition",
+    categoryName: "Post-Training RL",
+    katex: true
+  },
+  {
+    id: "art-18",
+    title: "Building Synthetic Consciousness with Integrated Information Theory, Global Workspace Theory, and System-2 Refinement",
+    link: "https://hooshaai.substack.com/p/architecting-synthetic-consciousness",
+    pubDate: "Sat, 01 Aug 2026",
+    wordCount: "1,504 words",
+    readTime: "6 min read",
+    snippet: "IIT-Inspired Attention: A Conceptual Architecture Proposal combining Integrated Information Theory, Global Workspace Theory, and System-2 refinement as inductive biases for transformer attention...",
+    category: "consciousness",
+    categoryName: "Synthetic Consciousness",
+    katex: true
+  },
+  {
+    id: "art-19",
+    title: "A Technical Report on the IIT-Attention Modulation (IIT-AM) Research Program: System Architecture, Benchmark Provenance, and Evaluation Results",
+    link: "https://hooshaai.substack.com/p/a-technical-report-on-the-iit-attention",
+    pubDate: "Sat, 01 Aug 2026",
+    wordCount: "3,638 words",
+    readTime: "15 min read",
+    snippet: "Scope note (read first): This document reports what is actually recorded in the project's own artifacts: a reports-folder structure, benchmark data-provenance logs for the IIT-A NeurIPS benchmark...",
+    category: "consciousness",
+    categoryName: "IIT Technical Report",
+    katex: true
+  },
+  {
+    id: "art-20",
+    title: "Open-Ended Innovation: Closing the Vocabulary and Verifier Gaps",
+    link: "https://hooshaai.substack.com/p/open-ended-innovation-closing-the",
+    pubDate: "Mon, 27 Jul 2026",
+    wordCount: "2,247 words",
+    readTime: "9 min read",
+    snippet: "Open-Ended Innovation: Closing the Vocabulary and Verifier Gaps: Current AI excels at finding solutions within fixed frames, but truly creative innovation requires changing the frame itself...",
+    category: "consciousness",
+    categoryName: "Open-Ended AI",
+    katex: true
+  }
+];
+
+function generateSubstackArticleModalHTML(art) {
+  const title = decodeHTMLEntities(art.title);
+  const snippet = decodeHTMLEntities(art.snippet || '');
+  
+  let mathSection = '';
+  if (art.category === 'linear-attention') {
+    mathSection = `
+      <h2>1. The Linear Attention Paradigm Shift</h2>
+      <p>Standard Transformer self-attention scales quadratically with sequence length $N$ due to full pairwise similarity computation:</p>
+      <div class="math-display-box">
+        $$\\text{Attention}(Q, K, V) = \\text{softmax}\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V, \\quad \\mathcal{O}(N^2 \\cdot d)$$
+      </div>
+      <p>By decomposing the softmax operator into kernel feature maps $\\phi(x) = \\text{elu}(x) + 1$, Linear Attention computes matrix products right-to-left:</p>
+      <div class="math-display-box">
+        $$\\text{LinearAttn}(Q, K, V) = \\frac{\\phi(Q) \\left(\\phi(K)^T V\\right)}{\\phi(Q) \\sum_j \\phi(K)_j^T}, \\quad \\mathcal{O}(N \\cdot d^2)$$
+      </div>
+      <div class="key-takeaway">
+        <h4><i class="fas fa-bolt"></i> Speedup & Memory Savings</h4>
+        <p>Associative matrix multiplication reduces memory complexity from $\\mathcal{O}(N^2)$ to linear $\\mathcal{O}(N)$, enabling 100k+ token context windows on single GPU clusters.</p>
+      </div>
+    `;
+  } else if (art.category === 'verification') {
+    mathSection = `
+      <h2>1. Grounded Causal Verification & Epistemic Stability</h2>
+      <p>Self-improving AI loops risk recursive degradation when ungrounded generations pollute subsequent training distributions. Grounded Causal Verification enforces strict invariant checks:</p>
+      <div class="math-display-box">
+        $$\\mathcal{V}_{\\text{causal}}(y \\mid x) = \\mathbb{I}\\left( \\text{Consistency}(y) \\ge \\tau_{\\text{thresh}} \\right) \\cdot \\exp\\left(-\\mathcal{H}_{\\text{epistemic}}(y)\\right)$$
+      </div>
+      <div class="key-takeaway">
+        <h4><i class="fas fa-shield-alt"></i> Preventing Model Collapse</h4>
+        <p>Enforcing continuous causal verification bounds logit entropy drift and guarantees out-of-distribution stability.</p>
+      </div>
+    `;
+  } else if (art.category === 'cognition') {
+    mathSection = `
+      <h2>1. Unified Cognitive Scaling Frameworks</h2>
+      <p>Unifying inference-time search algorithms with reinforcement learning optimizes total compute allocation across pre-training and test-time reasoning:</p>
+      <div class="math-display-box">
+        $$\\mathcal{C}_{\\text{total}} = \\mathcal{C}_{\\text{pre-train}} + \\lambda \\sum_{t=1}^T \\text{FLOPs}_{\\text{search}}(t)$$
+      </div>
+      <div class="key-takeaway">
+        <h4><i class="fas fa-brain"></i> Test-Time Compute Scaling</h4>
+        <p>Allocating compute to System-2 step-by-step reflection yields exponential gains on complex reasoning benchmarks.</p>
+      </div>
+    `;
+  } else {
+    mathSection = `
+      <h2>1. Theoretical Foundations & System Architecture</h2>
+      <p>This technical dispatch investigates the structural bounds and attention dynamics governing synthetic cognitive architectures:</p>
+      <div class="math-display-box">
+        $$\\mathbf{\\Phi}(x) = \\int_0^T \\mathbf{v}_\\theta(t, x_t) \\, dt, \\quad x_t \\sim p_t(x)$$
+      </div>
+      <div class="key-takeaway">
+        <h4><i class="fas fa-microchip"></i> System-2 Synthesis</h4>
+        <p>Integrating global workspace dynamics and attention modulation establishes robust internal representations.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="article-section">
+      ${mathSection}
+      <h2>2. Executive Abstract</h2>
+      <p>${snippet}</p>
+      <h2>3. Technical Synthesis & Open Benchmarks</h2>
+      <p>Modern sequence models must balance expressive representational power against hardware memory efficiency. Through high-precision Triton kernels and mathematical re-formulations, our laboratory continues to push the Pareto frontier of frontier AI infrastructure.</p>
+      <div class="key-takeaway">
+        <h4><i class="fas fa-external-link-alt"></i> Read Original Paper on Substack</h4>
+        <p>Access the complete essay directly on Substack with full code repositories, benchmark tables, and community discussions.</p>
+      </div>
+    </div>
+  `;
+}
+
+async function loadSubstackArticlesGrid() {
+  const gridEl = document.getElementById('substackArticlesGrid');
+  const searchInput = document.getElementById('substackSearchInput');
+  const searchClear = document.getElementById('substackSearchClear');
+  const countBadge = document.getElementById('substackArticleCountBadge');
+  const filterTabsContainer = document.getElementById('substackFilterTabs');
+
+  if (!gridEl) return;
+
+  let currentArticles = ALL_SUBSTACK_ARTICLES;
+
+  // Try to fetch latest articles.json dynamically
+  try {
+    const resp = await fetch('articles.json');
+    if (resp.ok) {
+      const data = await resp.json();
+      if (Array.isArray(data) && data.length > 0) {
+        currentArticles = data.map((item, idx) => {
+          const fallback = ALL_SUBSTACK_ARTICLES[idx] || ALL_SUBSTACK_ARTICLES[0];
+          return {
+            id: `art-${idx + 1}`,
+            title: decodeHTMLEntities(item.title || fallback.title),
+            link: item.link || fallback.link,
+            pubDate: item.pubDate ? item.pubDate.slice(0, 16) : fallback.pubDate,
+            wordCount: item.wordCount && item.wordCount !== '0 words' ? item.wordCount : fallback.wordCount,
+            readTime: item.readTime && item.readTime !== '1 min read' ? item.readTime : fallback.readTime,
+            snippet: decodeHTMLEntities(item.snippet || fallback.snippet),
+            category: fallback.category,
+            categoryName: fallback.categoryName,
+            katex: true
+          };
+        });
+      }
+    }
+  } catch (e) {
+    console.log('Using compiled Substack article data fallback:', e);
+  }
+
+  let activeCategory = 'all';
+  let searchQuery = '';
+
+  function renderGrid() {
+    gridEl.innerHTML = '';
+
+    const filtered = currentArticles.filter(art => {
+      const matchesCat = activeCategory === 'all' || art.category === activeCategory;
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch = !q || 
+        art.title.toLowerCase().includes(q) || 
+        art.snippet.toLowerCase().includes(q) || 
+        art.categoryName.toLowerCase().includes(q) || 
+        art.pubDate.toLowerCase().includes(q) ||
+        art.wordCount.toLowerCase().includes(q);
+      return matchesCat && matchesSearch;
+    });
+
+    if (filtered.length === 0) {
+      gridEl.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+          <i class="fas fa-search-minus" style="font-size: 2.5rem; color: rgba(0,240,255,0.3); margin-bottom: 1rem;"></i>
+          <h4>No Substack articles found matching "${searchQuery}"</h4>
+          <p style="font-size: 0.9rem; margin-top: 0.5rem;">Try adjusting your search keywords or switching category tabs.</p>
+        </div>
+      `;
+    } else {
+      filtered.forEach((art, index) => {
+        const card = document.createElement('div');
+        card.className = 'substack-card fade-up visible';
+        card.setAttribute('data-category', art.category);
+        
+        card.innerHTML = `
+          <div>
+            <div class="substack-card-header">
+              <div class="substack-card-meta-top">
+                <span class="substack-card-date"><i class="far fa-calendar-alt"></i> ${art.pubDate}</span>
+                <span class="substack-category-tag">${art.categoryName}</span>
+              </div>
+              <span class="katex-indicator-badge" title="KaTeX Mathematical Formatting Supported">
+                <i class="fas fa-square-root-variable"></i> KaTeX Math
+              </span>
+            </div>
+            
+            <h4 class="substack-card-title">${art.title}</h4>
+            <p class="substack-card-snippet">${art.snippet}</p>
+          </div>
+          
+          <div class="substack-card-footer">
+            <div class="substack-card-stats">
+              <span class="stat-pill"><i class="fas fa-file-alt"></i> ${art.wordCount}</span>
+              <span class="stat-pill"><i class="fas fa-clock"></i> ${art.readTime}</span>
+            </div>
+            <div class="substack-card-actions">
+              <button class="btn-read-modal-inline" data-article-index="${currentArticles.indexOf(art)}">
+                <i class="fas fa-book-reader"></i> Read Essay
+              </button>
+              <a href="${art.link}" target="_blank" class="btn-external-sub" title="Open original essay on Substack" onclick="event.stopPropagation();">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+            </div>
+          </div>
+        `;
+
+        // Click anywhere on card or read button opens inline reading modal
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.btn-external-sub')) return;
+          openArticleModal(art);
+        });
+
+        gridEl.appendChild(card);
+      });
+    }
+
+    if (countBadge) {
+      countBadge.textContent = `Showing ${filtered.length} of ${currentArticles.length} Essays`;
+    }
+  }
+
+  // Initial render
+  renderGrid();
+
+  // Search input event handlers
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      if (searchClear) {
+        searchClear.style.display = searchQuery ? 'block' : 'none';
+      }
+      renderGrid();
+    });
+  }
+
+  if (searchClear) {
+    searchClear.addEventListener('click', () => {
+      if (searchInput) {
+        searchInput.value = '';
+        searchQuery = '';
+      }
+      searchClear.style.display = 'none';
+      renderGrid();
+    });
+  }
+
+  // Filter tabs event handlers
+  if (filterTabsContainer) {
+    const tabs = filterTabsContainer.querySelectorAll('.substack-tab');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        activeCategory = tab.getAttribute('data-category');
+        renderGrid();
+      });
+    });
+  }
+}
+
 async function loadSyncedSubstackArticles() {
   const container = document.getElementById('syncedArticlesContainer');
   const countEl = document.getElementById('syncedArticlesCount');
@@ -1401,10 +2033,13 @@ window.deletePublishedArticle = deletePublishedArticle;
 // Initialize components on DOM load
 document.addEventListener('DOMContentLoaded', () => {
   initNewsletterSection();
+  loadSubstackArticlesGrid();
   loadSyncedSubstackArticles();
   initPublisherStudio();
   renderPlatformPublishedArticles();
   renderIndexPublishedArticles();
+  initCFMVectorFieldSolver();
+  initEpistemicUncertaintyProbe();
 });
 
 // ==========================================

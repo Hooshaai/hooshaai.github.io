@@ -86,3 +86,96 @@ class TelemetryLogSerializer(serializers.ModelSerializer):
         model = TelemetryLog
         fields = ('id', 'user', 'event_type', 'endpoint', 'ip_address', 'metadata', 'timestamp')
         read_only_fields = ('id', 'timestamp')
+
+
+class CUDACompileSerializer(serializers.Serializer):
+    code = serializers.CharField(
+        required=True,
+        help_text="CUDA C/C++ source code containing global kernels or inline device functions."
+    )
+    arch = serializers.CharField(
+        required=False,
+        default="sm_80",
+        help_text="Target NVIDIA Compute Capability GPU architecture (e.g. sm_75, sm_80, sm_86, sm_90)."
+    )
+    opt_level = serializers.CharField(
+        required=False,
+        default="-O3",
+        help_text="Optimization level flag (-O0, -O1, -O2, -O3)."
+    )
+    nvcc_flags = serializers.ListField(
+        child=serializers.CharField(),
+        required=False,
+        default=list,
+        help_text="Additional custom flags passed directly to nvcc compiler."
+    )
+
+
+class CFMSolveSerializer(serializers.Serializer):
+    x0 = serializers.ListField(
+        child=serializers.FloatField(),
+        required=False,
+        default=lambda: [0.0, 0.0],
+        help_text="Initial state vector x(0) at starting time t0."
+    )
+    x1 = serializers.ListField(
+        child=serializers.FloatField(),
+        required=False,
+        default=lambda: [1.0, 1.0],
+        help_text="Target state vector x(1) at ending time t1."
+    )
+    t_span = serializers.ListField(
+        child=serializers.FloatField(),
+        required=False,
+        default=lambda: [0.0, 1.0],
+        help_text="Time interval bounds [t_start, t_end]."
+    )
+    num_steps = serializers.IntegerField(
+        required=False,
+        default=50,
+        min_value=2,
+        max_value=1000,
+        help_text="Number of ODE solver discrete integration steps."
+    )
+    solver = serializers.ChoiceField(
+        choices=['euler', 'rk4', 'dopri5'],
+        default='rk4',
+        help_text="Numerical ODE integration algorithm."
+    )
+    flow_type = serializers.ChoiceField(
+        choices=['linear', 'harmonic', 'gaussian_vector_field'],
+        default='linear',
+        help_text="Continuous Normalizing Flow velocity field trajectory model."
+    )
+    sigma_min = serializers.FloatField(
+        required=False,
+        default=0.01,
+        help_text="Minimum noise variance threshold for CFM schedule."
+    )
+
+
+class RAGProbeSerializer(serializers.Serializer):
+    query = serializers.CharField(
+        required=True,
+        help_text="Natural language query or probe text for semantic vector search."
+    )
+    top_k = serializers.IntegerField(
+        required=False,
+        default=5,
+        min_value=1,
+        max_value=50,
+        help_text="Maximum number of relevant document chunks to return."
+    )
+    similarity_threshold = serializers.FloatField(
+        required=False,
+        default=0.0,
+        min_value=0.0,
+        max_value=1.0,
+        help_text="Minimum relevance similarity score threshold (0.0 to 1.0)."
+    )
+    include_checkpoints = serializers.BooleanField(
+        required=False,
+        default=True,
+        help_text="Include AI Model Checkpoints in search pool alongside articles."
+    )
+

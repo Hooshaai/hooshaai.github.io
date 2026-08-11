@@ -84,3 +84,55 @@ class HooshaAPITests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(TelemetryLog.objects.filter(event_type='page_view').exists())
+
+    def test_cuda_compile_endpoint(self):
+        url = reverse('api:cuda-compile')
+        data = {
+            'code': '__global__ void add_kernel(float *a, float *b, float *c) { int i = threadIdx.x; c[i] = a[i] + b[i]; }',
+            'arch': 'sm_80',
+            'opt_level': '-O3'
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['success'])
+        self.assertIn('ptx_code', response.data)
+        self.assertIn('add_kernel', response.data['kernel_info']['kernels'])
+
+    def test_cfm_solve_endpoint(self):
+        url = reverse('api:cfm-solve')
+        data = {
+            'x0': [0.0, 0.0],
+            'x1': [1.0, 1.0],
+            't_span': [0.0, 1.0],
+            'num_steps': 20,
+            'solver': 'rk4',
+            'flow_type': 'linear'
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['success'])
+        self.assertEqual(len(response.data['trajectory']), 21)
+        self.assertIn('final_state', response.data)
+
+    def test_rag_probe_endpoint(self):
+        url = reverse('api:rag-probe')
+        data = {
+            'query': 'Test Article',
+            'top_k': 5,
+            'similarity_threshold': 0.0,
+            'include_checkpoints': True
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(response.data['total_matches'], 1)
+        self.assertIn('synthesized_context', response.data)
+
+    def test_swagger_docs_endpoint(self):
+        schema_url = reverse('api:schema')
+        schema_response = self.client.get(schema_url)
+        self.assertEqual(schema_response.status_code, status.HTTP_200_OK)
+
+        docs_url = reverse('api:swagger-ui')
+        docs_response = self.client.get(docs_url)
+        self.assertEqual(docs_response.status_code, status.HTTP_200_OK)
+

@@ -13,6 +13,8 @@ import {
   Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import ArticleDetailModal from './ArticleDetailModal';
+
 
 const INITIAL_ARTICLES = [
   {
@@ -256,76 +258,15 @@ export default function ResearchFeed() {
         }
       />
 
-      {/* Article Detail Modal */}
-      {selectedArticle && (
-        <Modal
-          visible={!!selectedArticle}
-          animationType="slide"
-          transparent={false}
-          onRequestClose={() => setSelectedArticle(null)}
-        >
-          <SafeAreaView style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <TouchableOpacity
-                style={styles.closeBtn}
-                onPress={() => setSelectedArticle(null)}
-              >
-                <Ionicons name="arrow-back" size={24} color="#F8FAFC" />
-              </TouchableOpacity>
-              <Text style={styles.modalHeaderTitle} numberOfLines={1}>Paper Detail</Text>
-              <TouchableOpacity
-                style={styles.closeBtn}
-                onPress={() => handleShare(selectedArticle)}
-              >
-                <Ionicons name="share-outline" size={22} color="#38BDF8" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-              <View style={styles.modalCategoryBadge}>
-                <Text style={styles.categoryBadgeText}>{selectedArticle.category}</Text>
-              </View>
-
-              <Text style={styles.modalTitle}>{selectedArticle.title}</Text>
-
-              <View style={styles.modalMetaRow}>
-                <Text style={styles.modalMetaItem}>Published: {selectedArticle.pubDate}</Text>
-                <Text style={styles.modalMetaDot}>•</Text>
-                <Text style={styles.modalMetaItem}>{selectedArticle.readTime}</Text>
-                <Text style={styles.modalMetaDot}>•</Text>
-                <Text style={styles.modalMetaItem}>{selectedArticle.wordCount}</Text>
-              </View>
-
-              <View style={styles.divider} />
-
-              <Text style={styles.sectionHeading}>Abstract</Text>
-              <Text style={styles.modalAbstract}>{selectedArticle.abstract}</Text>
-
-              <Text style={styles.sectionHeading}>Key Takeaways</Text>
-              {selectedArticle.keyTakeaways.map((takeaway, idx) => (
-                <View key={idx} style={styles.takeawayItem}>
-                  <Ionicons name="checkmark-circle" size={18} color="#38BDF8" style={styles.checkIcon} />
-                  <Text style={styles.takeawayText}>{takeaway}</Text>
-                </View>
-              ))}
-
-              <View style={styles.modalActionCard}>
-                <Text style={styles.actionCardTitle}>Read Full Paper on Substack</Text>
-                <Text style={styles.actionCardSub}>Access complete equations, CUDA code implementations, and full benchmarks.</Text>
-                <TouchableOpacity
-                  style={styles.primaryModalBtn}
-                  onPress={() => {
-                    Alert.alert("Hoosha Research", "Opening hooshaai.substack.com...");
-                  }}
-                >
-                  <Text style={styles.primaryBtnText}>Open Substack Article</Text>
-                  <Ionicons name="open-outline" size={16} color="#0B0F19" />
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          </SafeAreaView>
-        </Modal>
-      )}
+      {/* Article Detail Modal (Substack Reader + KaTeX Math Rendering) */}
+      <ArticleDetailModal
+        visible={!!selectedArticle}
+        article={selectedArticle}
+        onClose={() => setSelectedArticle(null)}
+        onShare={handleShare}
+        onBookmark={toggleBookmark}
+        isBookmarked={selectedArticle ? selectedArticle.isBookmarked : false}
+      />
     </SafeAreaView>
   );
 }

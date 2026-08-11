@@ -1,5 +1,10 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
 
 from .views import (
     RegisterAPIView,
@@ -11,16 +16,29 @@ from .views import (
     CheckpointListAPIView,
     CheckpointDetailAPIView,
     TelemetryLogListCreateAPIView,
+    CUDACompileAPIView,
+    CFMSolveAPIView,
+    RAGProbeAPIView,
 )
 
 app_name = 'api'
 
 urlpatterns = [
+    # OpenAPI Schema & Swagger Documentation Views
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('docs/', SpectacularSwaggerView.as_view(url_name='api:schema'), name='swagger-ui'),
+    path('redoc/', SpectacularRedocView.as_view(url_name='api:schema'), name='redoc'),
+
     # Authentication Endpoints
     path('auth/register/', RegisterAPIView.as_view(), name='auth-register'),
     path('auth/login/', LoginAPIView.as_view(), name='auth-login'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='auth-refresh'),
     path('auth/profile/', UserProfileAPIView.as_view(), name='auth-profile'),
+
+    # Compute & Model Engine Endpoints
+    path('cuda/compile/', CUDACompileAPIView.as_view(), name='cuda-compile'),
+    path('cfm/solve/', CFMSolveAPIView.as_view(), name='cfm-solve'),
+    path('rag/probe/', RAGProbeAPIView.as_view(), name='rag-probe'),
 
     # Subscription Endpoint
     path('subscribe/', SubscribeAPIView.as_view(), name='subscribe'),
@@ -36,3 +54,4 @@ urlpatterns = [
     # Telemetry Log Endpoints
     path('telemetry/', TelemetryLogListCreateAPIView.as_view(), name='telemetry-list-create'),
 ]
+

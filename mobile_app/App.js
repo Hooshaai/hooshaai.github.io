@@ -8,6 +8,8 @@ import ResearchFeed from './src/components/ResearchFeed';
 import SandboxView from './src/components/SandboxView';
 import ModelZooView from './src/components/ModelZooView';
 import ProfileView from './src/components/ProfileView';
+import ArticleDetailModal from './src/components/ArticleDetailModal';
+import InteractiveSimulatorModal from './src/components/InteractiveSimulatorModal';
 
 // Try loading React Navigation if available, with smooth custom tab fallback
 let NavigationContainer, createBottomTabNavigator;
