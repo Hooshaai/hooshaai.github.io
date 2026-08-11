@@ -11,6 +11,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
+  <!-- KaTeX & Marked.js Support for Mathematical Formatting and Markdown -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <link rel="stylesheet" href="style.css">
   <style>
     body { background-color: #030712; padding-top: 100px; padding-bottom: 60px; }
@@ -208,9 +214,78 @@
       box-shadow: 0 0 8px #10b981;
       animation: blink 1.2s infinite alternate;
     }
-    @keyframes blink {
-      0% { opacity: 0.3; }
-      100% { opacity: 1; }
+    /* Custom Styles for Interactive CFM Canvas Solver & Epistemic Probe */
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .chip-btn:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--cyan);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .decision-badge {
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.3s ease;
+    }
+    .decision-badge.direct-pass {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #10b981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+    }
+    .decision-badge.rag-triggered {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid #ef4444;
+      color: #f87171;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+      animation: pulse-border 1.5s infinite alternate;
+    }
+    @keyframes pulse-border {
+      0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+      100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
+    }
+    .token-chip {
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      display: inline-block;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      cursor: default;
+    }
+    .token-chip.certain {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .token-chip.moderate {
+      background: rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+    .token-chip.uncertain {
+      background: rgba(239, 68, 68, 0.25);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.5);
+      font-weight: bold;
     }
   </style>
 </head>
@@ -223,6 +298,12 @@
     </div>
     <div class="nav-links">
       <a href="index.html"><i class="fas fa-arrow-left"></i> Back to Main</a>
+      <button class="spotlight-nav-btn" id="spotlightNavBtn" title="Search Everything (Cmd+K)">
+        <i class="fas fa-search"></i> <span>Search</span> <kbd class="nav-kbd">⌘K</kbd>
+      </button>
+      <button class="sound-toggle-btn" id="soundToggleBtn" title="Toggle Futuristic Sound Effects">
+        <i class="fas fa-volume-up"></i> <span class="sound-status-text">Audio</span>
+      </button>
       <a href="#" class="btn-login" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> End Session</a>
     </div>
   </nav>
@@ -282,6 +363,115 @@
 
     </div>
 
+    <!-- Article Publisher Studio Section -->
+    <div id="publisherStudio" class="publisher-studio-card">
+      <div class="studio-header-bar">
+        <div>
+          <h2 class="studio-title">
+            <i class="fas fa-feather-alt" style="color: var(--cyan);"></i> Article Publisher Studio
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+            Draft, preview, and publish peer-reviewed research articles with Markdown content and LaTeX math equations ($\dots$, $$\dots$$).
+          </p>
+        </div>
+        <div class="studio-badge-group">
+          <span style="background: rgba(0, 240, 255, 0.1); color: var(--cyan); border: 1px solid var(--cyan); padding: 0.35rem 0.85rem; border-radius: 50px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 600;">
+            <i class="fas fa-square-root-variable"></i> KaTeX LaTeX Enabled
+          </span>
+          <span style="background: rgba(138, 43, 226, 0.15); color: #d8b4fe; border: 1px solid var(--purple); padding: 0.35rem 0.85rem; border-radius: 50px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 600;">
+            <i class="fab fa-markdown"></i> Full Markdown
+          </span>
+        </div>
+      </div>
+
+      <form id="articleForm" onsubmit="event.preventDefault();">
+        <input type="hidden" id="editingArticleId" value="">
+        
+        <div class="studio-form-grid">
+          <div class="studio-input-group full-width">
+            <label class="studio-label" for="studioTitle"><i class="fas fa-heading"></i> Article Title</label>
+            <input type="text" id="studioTitle" class="studio-input" placeholder="e.g., Continuous Flow Matching ODEs: Simulation-Free Vector Field Alignments" required>
+          </div>
+
+          <div class="studio-input-group full-width">
+            <label class="studio-label" for="studioSubtitle"><i class="fas fa-align-left"></i> Subtitle / Abstract Summary</label>
+            <input type="text" id="studioSubtitle" class="studio-input" placeholder="e.g., Formulating optimal transport velocity trajectories for fast sampling without SDE noise decay." required>
+          </div>
+
+          <div class="studio-input-group">
+            <label class="studio-label" for="studioTags"><i class="fas fa-tags"></i> Research Tags (Comma Separated)</label>
+            <input type="text" id="studioTags" class="studio-input" placeholder="e.g., Flow Matching, ODE, Generative AI, Optimal Transport">
+          </div>
+
+          <div class="studio-input-group">
+            <label class="studio-label" for="studioAuthor"><i class="fas fa-user-edit"></i> Lead Author Name</label>
+            <input type="text" id="studioAuthor" class="studio-input" placeholder="e.g., Mohammad Taha Majlesi">
+          </div>
+        </div>
+
+        <!-- Markdown & LaTeX Quick Toolbar -->
+        <div class="studio-toolbar">
+          <span style="color: var(--text-muted); font-size: 0.8rem; font-family: 'JetBrains Mono'; margin-right: 0.5rem;">Quick Helpers:</span>
+          <button type="button" class="toolbar-btn" onclick="insertStudioText('**', '**')" title="Bold"><i class="fas fa-bold"></i> Bold</button>
+          <button type="button" class="toolbar-btn" onclick="insertStudioText('*', '*')" title="Italic"><i class="fas fa-italic"></i> Italic</button>
+          <button type="button" class="toolbar-btn" onclick="insertStudioText('### ', '')" title="Heading 3"><i class="fas fa-heading"></i> Heading</button>
+          <button type="button" class="toolbar-btn" onclick="insertStudioText('> ', '')" title="Quote"><i class="fas fa-quote-left"></i> Quote</button>
+          <button type="button" class="toolbar-btn" onclick="insertStudioText('```python\n# Code snippet\n', '\n```')" title="Code Block"><i class="fas fa-code"></i> Code</button>
+          <button type="button" class="toolbar-btn" onclick="insertStudioText('$\\mathcal{L}_{CFM}(\\theta) = \\mathbb{E}[\\|v_t - u_t\\|^2]$', '')" title="Inline Math"><i class="fas fa-square-root-variable"></i> Inline Math</button>
+          <button type="button" class="toolbar-btn" onclick="insertStudioText('$$\\n\\frac{dx}{dt} = v_t(x; \\theta), \\quad x(0) \\sim p_0(x)\\n$$', '')" title="Block Math"><i class="fas fa-calculator"></i> Block Math</button>
+        </div>
+
+        <!-- Editor & Live Preview Workspace -->
+        <div class="studio-workspace">
+          <textarea id="studioContent" class="studio-textarea" placeholder="Draft your research article here in Markdown with LaTeX math...&#10;&#10;### Abstract&#10;Write your mathematical derivations using inline $e^{i\pi} + 1 = 0$ or block math equations:&#10;$$\mathcal{L}(\theta) = \mathbb{E}[\|v_t - u_t\|^2]$$&#10;&#10;> Add blockquotes, python code blocks, and structured sections."></textarea>
+          
+          <div id="studioPreview" class="studio-preview-box article-markdown-body">
+            <div style="color: var(--text-muted); font-style: italic; font-size: 0.9rem;">
+              Live Markdown & LaTeX rendered preview will appear here as you type...
+            </div>
+          </div>
+        </div>
+
+        <div class="studio-action-bar">
+          <div id="studioWordCount" style="color: var(--text-muted); font-size: 0.85rem; font-family: 'JetBrains Mono';">
+            0 words · 0 min read
+          </div>
+          <div style="display: flex; gap: 0.75rem;">
+            <button type="button" id="btnClearStudio" class="run-btn" style="border-color: #ef4444; color: #ef4444;">
+              <i class="fas fa-eraser"></i> Clear Form
+            </button>
+            <button type="button" id="btnSaveDraft" class="run-btn" style="border-color: var(--purple); color: #fff;">
+              <i class="fas fa-save"></i> Save Draft
+            </button>
+            <button type="button" id="btnPublishArticle" class="run-btn" style="background: var(--cyan); color: #000; font-weight: 700; border: none;">
+              <i class="fas fa-paper-plane"></i> Publish Article
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Published Articles Stream Section -->
+    <div style="margin-top: 4rem; margin-bottom: 3rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+          <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; color: #fff; display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fas fa-newspaper" style="color: var(--cyan);"></i> Published Research Papers
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">
+            Articles published by researchers dynamically saved to localStorage and synchronized with the main journal on index.html.
+          </p>
+        </div>
+        <span id="publishedCountBadge" style="font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--cyan); background: rgba(0,240,255,0.1); border: 1px solid var(--cyan); padding: 0.3rem 0.8rem; border-radius: 20px;">
+          0 Articles
+        </span>
+      </div>
+
+      <div id="platformPublishedGrid" class="published-articles-grid">
+        <!-- Dynamically rendered published article cards -->
+      </div>
+    </div>
+
     <!-- Real-Time Benchmark Charts Section -->
     <div style="margin-top: 4rem;">
       <div style="margin-bottom: 2rem;">
@@ -296,6 +486,79 @@
 
       <div class="charts-grid">
         
+        <!-- Interactive Canvas 2D Vector Field Solver Card for Continuous Flow Matching -->
+        <div class="chart-card" id="cfmVectorFieldCard" style="grid-column: 1 / -1; min-height: 540px;">
+          <div class="chart-header">
+            <h3>
+              <i class="fas fa-drafting-compass" style="color: var(--cyan);"></i> Interactive HTML5 Canvas 2D Vector Field Solver (Continuous Flow Matching)
+              <span class="live-indicator"></span>
+            </h3>
+            <div class="chart-controls">
+              <span style="font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono';">ODE Integration:</span>
+              <select class="chart-select" id="cfmVectorSolverSelect">
+                <option value="ot-cfm">OT-CFM (Optimal Transport Straight Path)</option>
+                <option value="rk4">Adaptive RK4 Integration</option>
+                <option value="midpoint">Midpoint Scheme (RK2)</option>
+                <option value="euler">Euler Linear Integration</option>
+              </select>
+              <span style="font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono';">Preset Topology:</span>
+              <select class="chart-select" id="cfmPresetSelect">
+                <option value="ot-bimodal">Dual Target Clusters</option>
+                <option value="concentric">Concentric Rings Flow</option>
+                <option value="saddle">Hyperbolic Saddle Point</option>
+                <option value="hoosha-h">Hoosha 'H' Topology</option>
+              </select>
+              <button class="chart-btn active" id="btnPlayCFMVector"><i class="fas fa-pause"></i> Flow ODE</button>
+              <button class="chart-btn" id="btnResetCFMVector"><i class="fas fa-redo"></i> Reset Anchors</button>
+              <button class="chart-btn active" id="btnToggleFieldVectors"><i class="fas fa-arrows-alt"></i> Quiver Field</button>
+            </div>
+          </div>
+
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0;">
+            <i class="fas fa-hand-pointer" style="color: var(--cyan);"></i> 
+            <strong>Interactive Control:</strong> Drag target anchors (<span style="color: #00f0ff; font-weight: bold;">● Cyan</span>) or source anchors (<span style="color: #f59e0b; font-weight: bold;">● Orange</span>) to warp the velocity field \(v_t(x) = x_1 - x_0\) and ODE particle trajectories in real-time.
+          </p>
+
+          <div class="metric-badge-container">
+            <div class="metric-pill">
+              <span class="metric-label">Active Control Points:</span>
+              <span class="metric-val" id="cfmControlPointsCount">6 Anchors</span>
+            </div>
+            <div class="metric-pill">
+              <span class="metric-label">Trajectory OT Cost \(\mathcal{W}_2\):</span>
+              <span class="metric-val" id="cfmOtCostVal">0.0248</span>
+            </div>
+            <div class="metric-pill">
+              <span class="metric-label">Path Straightness Score:</span>
+              <span class="metric-val" id="cfmStraightnessVal" style="color: #10b981;">98.6%</span>
+            </div>
+            <div class="metric-pill">
+              <span class="metric-label">Velocity L2 Loss:</span>
+              <span class="metric-val" id="cfmVectorLossVal" style="color: var(--purple);">0.0315</span>
+            </div>
+            <div class="metric-pill">
+              <span class="metric-label">Particles Active:</span>
+              <span class="metric-val" id="cfmParticleCountVal" style="color: var(--cyan);">180 ODE Particles</span>
+            </div>
+          </div>
+
+          <div class="canvas-interactive-wrapper" style="position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #030712; border: 1px solid rgba(0, 240, 255, 0.25);">
+            <canvas id="cfmSolverCanvas" width="960" height="420" style="width: 100%; height: 420px; display: block; cursor: crosshair;"></canvas>
+            <!-- Floating Controls Bar -->
+            <div style="position: absolute; bottom: 12px; right: 12px; display: flex; gap: 0.75rem; background: rgba(6, 13, 30, 0.88); backdrop-filter: blur(8px); padding: 0.5rem 0.85rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); flex-wrap: wrap; align-items: center;">
+              <label style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; font-family: 'JetBrains Mono';">
+                Speed (dt):
+                <input type="range" id="cfmSpeedSlider" min="0.002" max="0.02" step="0.001" value="0.008" style="width: 70px;">
+              </label>
+              <label style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; font-family: 'JetBrains Mono';">
+                Particles:
+                <input type="range" id="cfmParticleSlider" min="40" max="350" step="10" value="180" style="width: 70px;">
+              </label>
+              <button class="chart-btn" id="btnAddControlPoint" style="font-size: 0.75rem;"><i class="fas fa-plus"></i> Add Anchor</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Chart 1: Continuous Flow Matching ODE Velocity Field Convergence -->
         <div class="chart-card" style="grid-column: 1 / -1;">
           <div class="chart-header">
@@ -392,6 +655,116 @@
           <div class="canvas-container">
             <canvas id="ragChart"></canvas>
           </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Interactive LLM Epistemic Uncertainty Probe Section -->
+    <div style="margin-top: 4rem;" id="epistemicUncertaintySection">
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 2rem; color: #fff; display: flex; align-items: center; gap: 0.75rem;">
+          <i class="fas fa-brain" style="color: var(--cyan);"></i> Interactive LLM Epistemic Uncertainty Probe
+          <span style="font-size: 0.8rem; background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyan); color: var(--cyan); padding: 0.2rem 0.6rem; border-radius: 20px; font-family: 'JetBrains Mono';">Active Calibration</span>
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.25rem;">
+          Type prompts in real-time to compute token-level logit entropy \(H(p)\), epistemic confidence scores, and automatically trigger selective retrieval (RAG) decisions when uncertainty exceeds threshold \(\tau\).
+        </p>
+      </div>
+
+      <div class="playground-grid" style="grid-template-columns: 1.1fr 0.9fr; gap: 2rem;">
+        
+        <!-- Left Column: Input Prompt Box & Token Heatmap -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3><i class="fas fa-keyboard"></i> Prompt Uncertainty Inspection Sandbox</h3>
+            <div class="chart-controls">
+              <span style="font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono';">Threshold \(\tau\):</span>
+              <input type="range" id="uncertaintyThresholdSlider" min="0.30" max="2.20" step="0.05" value="1.10" class="chart-input" style="width: 80px;">
+              <span id="thresholdValDisplay" style="font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--cyan); font-weight: bold;">1.10 nats</span>
+            </div>
+          </div>
+
+          <!-- Sample Prompt Chips -->
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center; font-family: 'JetBrains Mono';">Presets:</span>
+            <button class="chip-btn" data-prompt="What is the capital city of France and its primary language?"><i class="fas fa-check-circle" style="color: #10b981;"></i> Low Uncertainty (Parametric)</button>
+            <button class="chip-btn" data-prompt="Compare Continuous Flow Matching ODE velocity fields with score-based diffusion SDEs."><i class="fas fa-adjust" style="color: #f59e0b;"></i> Medium Uncertainty</button>
+            <button class="chip-btn" data-prompt="What were the exact Q3 2025 financial revenue metrics for Hoosha AI H100 cluster deployments?"><i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> High Uncertainty (Triggers RAG)</button>
+          </div>
+
+          <!-- Textarea Input Box -->
+          <div style="position: relative;">
+            <textarea id="epistemicPromptInput" class="code-area" style="height: 110px; font-family: 'Inter', sans-serif; font-size: 0.95rem; line-height: 1.5; padding: 1rem; border-color: rgba(0,240,255,0.3);" placeholder="Type any prompt here to analyze epistemic uncertainty, logit entropy, and retrieval decisions in real-time..."></textarea>
+          </div>
+
+          <!-- Real-time Token-by-Token Entropy Heatmap Visualization -->
+          <div style="background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); font-family: 'JetBrains Mono';"><i class="fas fa-fire"></i> Token Logit Entropy Heatmap:</span>
+              <div style="display: flex; gap: 0.8rem; font-size: 0.72rem; font-family: 'JetBrains Mono';">
+                <span style="color: #34d399;">■ Certain (&lt;0.5 nats)</span>
+                <span style="color: #fbbf24;">■ Moderate (0.5-1.2)</span>
+                <span style="color: #fca5a5;">■ High Uncertainty (&gt;1.2)</span>
+              </div>
+            </div>
+            <div id="tokenHeatmapContainer" style="display: flex; flex-wrap: wrap; gap: 0.35rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; min-height: 45px; align-items: center;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Live Uncertainty Telemetry & Selective Retrieval Output -->
+        <div class="chart-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="chart-header">
+              <h3><i class="fas fa-gauge-high"></i> Epistemic Metrics & Decision Gate</h3>
+              <span id="retrievalDecisionBadge" class="decision-badge direct-pass"><i class="fas fa-bolt"></i> PARAMETRIC DIRECT PASS</span>
+            </div>
+
+            <!-- Metric Meters -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+              
+              <div style="background: rgba(0,0,0,0.5); padding: 0.9rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono'; margin-bottom: 0.3rem;">Logit Entropy \(H(p)\)</div>
+                <div id="logitEntropyVal" style="font-size: 1.5rem; font-weight: bold; color: var(--cyan); font-family: 'Space Grotesk';">0.32 nats</div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 0.4rem; overflow: hidden;">
+                  <div id="entropyBar" style="width: 15%; height: 100%; background: var(--cyan); transition: width 0.3s ease, background 0.3s ease;"></div>
+                </div>
+              </div>
+
+              <div style="background: rgba(0,0,0,0.5); padding: 0.9rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-size: 0.78rem; color: var(--text-muted); font-family: 'JetBrains Mono'; margin-bottom: 0.3rem;">Epistemic Confidence</div>
+                <div id="confidenceVal" style="font-size: 1.5rem; font-weight: bold; color: #10b981; font-family: 'Space Grotesk';">94.8%</div>
+                <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-top: 0.4rem; overflow: hidden;">
+                  <div id="confidenceBar" style="width: 94.8%; height: 100%; background: #10b981; transition: width 0.3s ease;"></div>
+                </div>
+              </div>
+
+            </div>
+
+            <div style="margin-top: 1rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <div class="metric-pill" style="flex: 1; min-width: 140px;">
+                <span class="metric-label">Aleatoric Ambiguity:</span>
+                <span class="metric-val" id="aleatoricVal" style="color: #f59e0b;">0.11</span>
+              </div>
+              <div class="metric-pill" style="flex: 1; min-width: 140px;">
+                <span class="metric-label">Top-1 Token Prob:</span>
+                <span class="metric-val" id="topTokenProbVal" style="color: #10b981;">91.4%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selective Retrieval Decision Payload Container -->
+          <div id="retrievalOutputBox" style="margin-top: 1.25rem; background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 1rem; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;">
+            <div style="color: var(--cyan); margin-bottom: 0.5rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fas fa-database"></i> <span id="retrievalBoxTitle">Selective RAG Decision Log</span>
+            </div>
+            <div id="retrievalBoxContent" style="color: #a0aec0; line-height: 1.5; max-height: 140px; overflow-y: auto;">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -1797,5 +2170,90 @@
       });
     }
   </script>
+
+  <!-- Shared Article Reader Modal -->
+  <div id="articleModal" class="modal-overlay article-modal-overlay">
+    <div class="article-modal-content">
+      <div class="article-modal-topbar">
+        <div class="article-modal-breadcrumbs">
+          <span class="series-badge" id="articleCategoryBadge">Research</span>
+          <span class="article-modal-reading-time" id="articleReadTime"><i class="fas fa-book-open"></i> 5 min read</span>
+        </div>
+        <div class="article-modal-actions">
+          <button class="icon-btn" id="decreaseFontBtn" title="Decrease font size">A-</button>
+          <button class="icon-btn" id="increaseFontBtn" title="Increase font size">A+</button>
+          <button class="close-modal" id="closeArticleModal">&times;</button>
+        </div>
+      </div>
+      <div class="article-modal-body" id="articleBody">
+        <header class="article-header">
+          <div class="article-meta-bar">
+            <span id="articleDate" class="article-date">Aug 12, 2026</span>
+            <span class="meta-dot">•</span>
+            <span id="articleWordCount" class="article-word-count">1,200 words</span>
+          </div>
+          <h1 id="articleTitle" class="article-title">Article Title</h1>
+          <p id="articleSubtitle" class="article-subtitle">Subtitle content goes here...</p>
+          <div class="article-author-card">
+            <div class="user-avatar" id="articleAuthorAvatar" style="width: 44px; height: 44px; font-size: 1.1rem; border-radius: 50%; background: var(--cyan); color: #000; display: flex; align-items: center; justify-content: center; font-weight: bold;">M</div>
+            <div class="author-info">
+              <span class="author-name" id="articleAuthorName">Mohammad Taha Majlesi</span>
+              <span class="author-role" id="articleAuthorRole">Co-Founder & Lead AI Architect @ Hoosha AI</span>
+            </div>
+          </div>
+        </header>
+        
+        <article id="articleContent" class="article-markdown-body">
+          <!-- Article content dynamically rendered here -->
+        </article>
+      </div>
+    </div>
+  <!-- Spotlight Command Palette Modal -->
+  <div id="spotlightModal" class="spotlight-modal-overlay">
+    <div class="spotlight-modal-container">
+      <div class="spotlight-search-header">
+        <i class="fas fa-search spotlight-search-icon"></i>
+        <input type="text" id="spotlightSearchInput" class="spotlight-search-input" placeholder="Search 20 Substack articles, model checkpoints, kernels, repos... (Cmd+K)" autocomplete="off" spellcheck="false">
+        <kbd class="spotlight-esc-kbd">ESC</kbd>
+        <button class="spotlight-close-btn" id="spotlightCloseBtn" title="Close Search">&times;</button>
+      </div>
+
+      <div class="spotlight-filters">
+        <button class="spotlight-filter-btn active" data-category="all">
+          <i class="fas fa-layer-group"></i> All <span class="spotlight-badge-count" id="count-all">33</span>
+        </button>
+        <button class="spotlight-filter-btn" data-category="article">
+          <i class="fas fa-newspaper"></i> Articles <span class="spotlight-badge-count" id="count-article">20</span>
+        </button>
+        <button class="spotlight-filter-btn" data-category="model">
+          <i class="fas fa-cube"></i> Models <span class="spotlight-badge-count" id="count-model">6</span>
+        </button>
+        <button class="spotlight-filter-btn" data-category="kernel">
+          <i class="fas fa-microchip"></i> Kernels <span class="spotlight-badge-count" id="count-kernel">4</span>
+        </button>
+        <button class="spotlight-filter-btn" data-category="repo">
+          <i class="fab fa-github"></i> Repos <span class="spotlight-badge-count" id="count-repo">3</span>
+        </button>
+      </div>
+
+      <div class="spotlight-results-body" id="spotlightResultsBody">
+        <!-- Dynamic search results rendered here -->
+      </div>
+
+      <div class="spotlight-footer">
+        <div class="spotlight-footer-tips">
+          <span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span>
+          <span><kbd>↵</kbd> Select</span>
+          <span><kbd>ESC</kbd> Close</span>
+        </div>
+        <div class="spotlight-footer-brand">
+          <i class="fas fa-brain"></i> Hoosha Spotlight Engine
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
+
