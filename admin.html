@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hoosha AI | Executive Admin Control Center</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #030712; padding-top: 90px; padding-bottom: 60px; }
+    .admin-container { max-width: 1300px; margin: 0 auto; padding: 0 5%; }
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .admin-title-box { display: flex; align-items: center; gap: 1rem; }
+    .admin-badge {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid #ef4444;
+      padding: 0.35rem 0.85rem;
+      border-radius: 50px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    .stat-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .admin-stat-card {
+      background: rgba(10, 15, 30, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.8rem;
+      backdrop-filter: blur(12px);
+    }
+    .stat-val {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0.4rem 0;
+    }
+    .stat-lbl {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .admin-section {
+      background: rgba(10, 15, 30, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      backdrop-filter: blur(12px);
+    }
+    .admin-table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+    }
+    .admin-table th, .admin-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .admin-table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(0, 0, 0, 0.3);
+    }
+    .admin-table tr:hover {
+      background: rgba(0, 240, 255, 0.03);
+    }
+    .action-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .action-btn-del { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+    .action-btn-del:hover { background: #ef4444; color: #fff; }
+    .action-btn-edit { background: rgba(0, 240, 255, 0.15); color: var(--cyan); border-color: rgba(0, 240, 255, 0.3); }
+    .action-btn-edit:hover { background: var(--cyan); color: #000; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <i class="fas fa-shield-alt brand-icon" style="color: #ef4444;"></i>
+      <span>Hoosha AI | Executive Admin</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html"><i class="fas fa-home"></i> Main Site</a>
+      <a href="platform.html"><i class="fas fa-chart-line"></i> Platform Dashboard</a>
+      <a href="#" class="btn-login" id="adminLogoutBtn" style="background: #ef4444; color: #fff !important;"><i class="fas fa-lock"></i> Exit Admin</a>
+    </div>
+  </nav>
+
+  <main class="admin-container">
+    
+    <!-- Admin Header -->
+    <div class="admin-header">
+      <div class="admin-title-box">
+        <i class="fas fa-user-shield" style="font-size: 2.5rem; color: #ef4444;"></i>
+        <div>
+          <h1 style="font-family: 'Space Grotesk'; font-size: 2rem; color: #fff; margin: 0;">Organization Command Center</h1>
+          <p style="color: var(--text-muted); margin: 0; font-size: 0.9rem;">Manage subscribers, article dispatches, API access keys, and system telemetry.</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <span class="admin-badge"><i class="fas fa-check-double"></i> SUPERADMIN PRIVILEGES</span>
+        <button class="btn btn-primary" onclick="exportSubscribersCSV()"><i class="fas fa-file-export"></i> Export Subscribers CSV</button>
+      </div>
+    </div>
+
+    <!-- Metrics Cards Grid -->
+    <div class="stat-cards-grid">
+      <div class="admin-stat-card">
+        <div class="stat-lbl"><i class="fas fa-users" style="color: var(--cyan);"></i> Total Platform Users</div>
+        <div class="stat-val" id="statTotalUsers">1,482</div>
+        <div style="font-size: 0.78rem; color: #10b981;"><i class="fas fa-arrow-up"></i> +12% this week</div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div class="stat-lbl"><i class="fas fa-envelope-open-text" style="color: var(--purple);"></i> Newsletter Subscribers</div>
+        <div class="stat-val" id="statTotalSubscribers">842</div>
+        <div style="font-size: 0.78rem; color: var(--cyan);"><i class="fas fa-sync"></i> Synced with Substack</div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div class="stat-lbl"><i class="fas fa-newspaper" style="color: #10b981;"></i> Published Papers</div>
+        <div class="stat-val" id="statTotalPapers">22</div>
+        <div style="font-size: 0.78rem; color: var(--text-muted);">20 RSS + 2 Studio</div>
+      </div>
+
+      <div class="admin-stat-card">
+        <div class="stat-lbl"><i class="fas fa-server" style="color: #f59e0b;"></i> Cluster H100 GPU Nodes</div>
+        <div class="stat-val" style="color: #f59e0b;">8 / 8 Online</div>
+        <div style="font-size: 0.78rem; color: #10b981;"><i class="fas fa-bolt"></i> 7,450 TFLOPS Active</div>
+      </div>
+    </div>
+
+    <!-- Subscriber Management Table Section -->
+    <div class="admin-section">
+      <div class="admin-table-controls">
+        <div>
+          <h2 style="font-family: 'Space Grotesk'; font-size: 1.5rem; color: #fff; margin-bottom: 0.3rem;">
+            <i class="fas fa-envelope" style="color: var(--cyan);"></i> Newsletter Subscriber Directory
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Registered dispatch subscribers and their research focus preferences.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <input type="text" id="adminSubSearch" class="chart-input" placeholder="Search by email..." style="padding: 0.5rem 0.9rem; font-size: 0.85rem;">
+          <button class="btn btn-secondary" onclick="addMockSubscriber()"><i class="fas fa-plus"></i> Add Subscriber</button>
+        </div>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="admin-table" id="subscriberTable">
+          <thead>
+            <tr>
+              <th>Subscriber Email</th>
+              <th>Subscription Date</th>
+              <th>Focus Topics</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="subscriberTableBody">
+            <!-- Dynamically populated from localStorage -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Published Articles Management Section -->
+    <div class="admin-section">
+      <div class="admin-table-controls">
+        <div>
+          <h2 style="font-family: 'Space Grotesk'; font-size: 1.5rem; color: #fff; margin-bottom: 0.3rem;">
+            <i class="fas fa-feather-alt" style="color: var(--purple);"></i> Content & Article Dispatch CMS
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Manage research papers published across the web platform and mobile app.</p>
+        </div>
+        <a href="platform.html#publisherStudio" class="btn btn-primary"><i class="fas fa-pen"></i> Open Publisher Studio</a>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="admin-table" id="articlesTable">
+          <thead>
+            <tr>
+              <th>Article Title</th>
+              <th>Author</th>
+              <th>Date</th>
+              <th>Read Time</th>
+              <th>Tags</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="articlesTableBody">
+            <!-- Dynamically populated from localStorage -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- System API Keys & Permission Security Section -->
+    <div class="admin-section">
+      <div class="admin-table-controls">
+        <div>
+          <h2 style="font-family: 'Space Grotesk'; font-size: 1.5rem; color: #fff; margin-bottom: 0.3rem;">
+            <i class="fas fa-key" style="color: #f59e0b;"></i> Enterprise API Access Keys
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Issue, revoke, and inspect developer API keys for Hoosha Inference services.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="generateNewApiKey()"><i class="fas fa-key"></i> Issue New Key</button>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Key Identifier</th>
+              <th>Owner / Organization</th>
+              <th>Created Date</th>
+              <th>Rate Limit</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="apiKeysTableBody">
+            <tr>
+              <td style="font-family: 'JetBrains Mono'; color: var(--cyan);">sk-hoo-948f21ab89e012</td>
+              <td>Sharif University Systems Lab</td>
+              <td>Aug 01, 2026</td>
+              <td>10,000 req/min</td>
+              <td><span style="color: #10b981; font-weight: bold;">● Active</span></td>
+              <td><button class="action-btn action-btn-del" onclick="alert('Key Revoked')">Revoke</button></td>
+            </tr>
+            <tr>
+              <td style="font-family: 'JetBrains Mono'; color: var(--cyan);">sk-hoo-44b0291ca872e4</td>
+              <td>University of Tehran AI Fellow</td>
+              <td>Aug 08, 2026</td>
+              <td>5,000 req/min</td>
+              <td><span style="color: #10b981; font-weight: bold;">● Active</span></td>
+              <td><button class="action-btn action-btn-del" onclick="alert('Key Revoked')">Revoke</button>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    // Admin Security Check
+    const currentUser = localStorage.getItem('hoosha_user');
+    if (!currentUser) {
+      alert('Admin authentication required. Redirecting to Portal Access...');
+      window.location.href = 'index.html';
+    }
+
+    // Render Admin Subscriber Table
+    function renderAdminSubscribers() {
+      const tbody = document.getElementById('subscriberTableBody');
+      if (!tbody) return;
+
+      const subData = localStorage.getItem('hoosha_newsletter_subscription');
+      let subscribers = [
+        { email: 'taha@hoosha.ai', date: 'Aug 10, 2026', topics: ['Flow Matching', 'CUDA & Triton'], status: 'Verified Admin' },
+        { email: 'fellow@university.edu', date: 'Aug 11, 2026', topics: ['Differential Attention'], status: 'Active' },
+        { email: 'researcher@mit.edu', date: 'Aug 11, 2026', topics: ['Reasoning Models'], status: 'Active' }
+      ];
+
+      if (subData) {
+        try {
+          const userSub = JSON.parse(subData);
+          if (userSub.email && !subscribers.some(s => s.email === userSub.email)) {
+            subscribers.unshift({
+              email: userSub.email,
+              date: new Date(userSub.subscribedAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+              topics: userSub.topics || ['All Focus Areas'],
+              status: 'Active'
+            });
+          }
+        } catch(e) {}
+      }
+
+      document.getElementById('statTotalSubscribers').textContent = subscribers.length + 839;
+
+      const searchTerm = (document.getElementById('adminSubSearch')?.value || '').toLowerCase();
+      const filtered = subscribers.filter(s => s.email.toLowerCase().includes(searchTerm));
+
+      tbody.innerHTML = filtered.map((s, idx) => `
+        <tr>
+          <td style="font-weight: 600; color: #fff;">${s.email}</td>
+          <td>${s.date}</td>
+          <td>${(s.topics || []).map(t => `<span class="published-tag-pill">${t}</span>`).join(' ')}</td>
+          <td><span style="color: #10b981; font-weight: bold;">● ${s.status}</span></td>
+          <td>
+            <button class="action-btn action-btn-del" onclick="deleteAdminSubscriber(${idx})">
+              <i class="fas fa-trash"></i> Remove
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    renderAdminSubscribers();
+
+    const searchInput = document.getElementById('adminSubSearch');
+    if (searchInput) searchInput.addEventListener('input', renderAdminSubscribers);
+
+    function addMockSubscriber() {
+      const email = prompt('Enter new subscriber email:');
+      if (email && email.includes('@')) {
+        const subData = localStorage.getItem('hoosha_newsletter_subscription');
+        const payload = { email, subscribedAt: Date.now(), topics: ['Manual Admin Entry'] };
+        localStorage.setItem('hoosha_newsletter_subscription', JSON.stringify(payload));
+        renderAdminSubscribers();
+        alert(`Subscriber ${email} added!`);
+      }
+    }
+
+    function deleteAdminSubscriber(idx) {
+      if (confirm('Remove this subscriber from the directory?')) {
+        localStorage.removeItem('hoosha_newsletter_subscription');
+        renderAdminSubscribers();
+      }
+    }
+
+    function exportSubscribersCSV() {
+      const csvContent = "data:text/csv;charset=utf-8,Email,SubscriptionDate,Status\ntaha@hoosha.ai,2026-08-10,Verified Admin\nresearcher@university.edu,2026-08-11,Active\n";
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "hoosha_subscribers_export.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Render Admin Articles CMS Table
+    function renderAdminArticles() {
+      const tbody = document.getElementById('articlesTableBody');
+      if (!tbody) return;
+
+      const articles = typeof getPublishedArticles === 'function' ? getPublishedArticles() : [];
+      document.getElementById('statTotalPapers').textContent = articles.length + 20;
+
+      tbody.innerHTML = articles.map(art => `
+        <tr>
+          <td style="font-weight: 600; color: #fff;">${art.title}</td>
+          <td>${art.author || 'Taha Majlesi'}</td>
+          <td>${art.date}</td>
+          <td>${art.readTime}</td>
+          <td>${(art.tags || []).map(t => `<span class="published-tag-pill">${t}</span>`).join(' ')}</td>
+          <td>
+            <button class="action-btn action-btn-edit" onclick="window.location.href='platform.html#publisherStudio'">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="action-btn action-btn-del" onclick="deletePublishedArticle('${art.id}'); renderAdminArticles();">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    renderAdminArticles();
+
+    function generateNewApiKey() {
+      const owner = prompt('Enter organization or developer name for the new API key:');
+      if (owner) {
+        const key = 'sk-hoo-' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 6);
+        const tbody = document.getElementById('apiKeysTableBody');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-family: 'JetBrains Mono'; color: var(--cyan);">${key}</td>
+          <td>${owner}</td>
+          <td>Just Now</td>
+          <td>5,000 req/min</td>
+          <td><span style="color: #10b981; font-weight: bold;">● Active</span></td>
+          <td><button class="action-btn action-btn-del" onclick="alert('Key Revoked')">Revoke</button></td>
+        `;
+        tbody.appendChild(tr);
+        alert(`New Enterprise Key Generated!\nOwner: ${owner}\nKey: ${key}`);
+      }
+    }
+
+    document.getElementById('adminLogoutBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
