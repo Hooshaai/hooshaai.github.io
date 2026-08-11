@@ -111,3 +111,50 @@ document.querySelectorAll('.fade-up, .card, .repo-card').forEach((el) => {
   el.classList.add('fade-up');
   observer.observe(el);
 });
+
+// Authentication Modal Logic
+const modal = document.getElementById('authModal');
+const loginBtn = document.getElementById('navLoginBtn');
+const closeBtn = document.querySelector('.close-modal');
+const toggleMode = document.getElementById('toggleAuthMode');
+const authTitle = document.getElementById('authTitle');
+const authToggleText = document.getElementById('authToggleText');
+const authForm = document.getElementById('authForm');
+let isSignUp = true;
+
+loginBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  modal.classList.add('active');
+});
+
+closeBtn.addEventListener('click', () => {
+  modal.classList.remove('active');
+});
+
+window.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.classList.remove('active');
+  }
+});
+
+toggleMode.addEventListener('click', (e) => {
+  e.preventDefault();
+  isSignUp = !isSignUp;
+  if (isSignUp) {
+    authTitle.textContent = 'Create Account';
+    authToggleText.innerHTML = 'Already have an access key? <a href="#" id="toggleAuthMode">Sign In</a>';
+  } else {
+    authTitle.textContent = 'Portal Access';
+    authToggleText.innerHTML = 'Need research access? <a href="#" id="toggleAuthMode">Request Account</a>';
+  }
+  // Re-attach listener to new toggle link
+  document.getElementById('toggleAuthMode').addEventListener('click', arguments.callee);
+});
+
+authForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = document.getElementById('authEmail').value;
+  // Simulate authentication & save session
+  localStorage.setItem('hoosha_user', email);
+  window.location.href = 'platform.html';
+});

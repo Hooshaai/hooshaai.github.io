@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hoosha AI | Research Platform</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #030712; padding-top: 100px; }
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2rem;
+    }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .user-avatar {
+      width: 50px;
+      height: 50px;
+      background: var(--cyan);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .sandbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+    }
+    .sandbox-card {
+      background: rgba(10, 15, 30, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .sandbox-card h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      color: var(--cyan);
+    }
+    .terminal-window {
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #0f0;
+      min-height: 150px;
+      margin-bottom: 1rem;
+    }
+    .run-btn {
+      background: transparent;
+      border: 1px solid var(--purple);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.3s;
+    }
+    .run-btn:hover {
+      background: var(--purple);
+      box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <i class="fas fa-brain brand-icon"></i>
+      <span>Hoosha AI | Platform</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html"><i class="fas fa-arrow-left"></i> Back to Main</a>
+      <a href="#" class="btn-login" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> End Session</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="dashboard-header">
+      <div>
+        <h1 class="hero-title" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Research Sandbox</h1>
+        <p class="hero-subtitle" style="margin-bottom: 0;">Access active model checkpoints and inference environments.</p>
+      </div>
+      <div class="user-profile">
+        <div class="user-avatar" id="avatarInitials">U</div>
+        <div>
+          <div style="font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--cyan);">Authenticated as:</div>
+          <div id="userEmail" style="font-weight: 600;">researcher@hoosha.ai</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sandbox-grid">
+      
+      <!-- Flow Matching Simulator -->
+      <div class="sandbox-card">
+        <h3><i class="fas fa-water"></i> CFM Trajectory Solver</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Simulate Continuous Flow Matching ODE steps on latent noise.</p>
+        <div class="terminal-window" id="term1">
+          root@hoosha-gpu-1:~# ready for inference...
+        </div>
+        <button class="run-btn" onclick="runSimulation('term1', 'Solving ODE paths (N=50)...\nVector field aligned.\nGenerated samples in 0.43s.')">
+          <i class="fas fa-play"></i> Run CFM Simulation
+        </button>
+      </div>
+
+      <!-- Adaptive RAG Query -->
+      <div class="sandbox-card">
+        <h3><i class="fas fa-database"></i> Adaptive RAG Probe</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Test knowledge boundaries and selective retrieval policies.</p>
+        <div class="terminal-window" id="term2">
+          root@hoosha-gpu-2:~# awaiting query...
+        </div>
+        <button class="run-btn" onclick="runSimulation('term2', 'Query: What is the entropy threshold?\nEvaluating knowledge boundary...\nThreshold: 0.82. Retrieval SKIPPED.\nResponse generated directly.')">
+          <i class="fas fa-play"></i> Send Test Query
+        </button>
+      </div>
+
+      <!-- API Key Manager -->
+      <div class="sandbox-card">
+        <h3><i class="fas fa-key"></i> Developer API Keys</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Generate keys for the Hoosha AI Inference endpoints.</p>
+        <div class="terminal-window" style="color: var(--cyan); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+          sk-hoo-******************
+        </div>
+        <button class="run-btn" style="border-color: var(--cyan);" onclick="alert('API Key copied to clipboard! (simulated)')">
+          <i class="fas fa-copy"></i> Generate & Copy Key
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Auth Check
+    const user = localStorage.getItem('hoosha_user');
+    if (!user) {
+      window.location.href = 'index.html';
+    } else {
+      document.getElementById('userEmail').textContent = user;
+      document.getElementById('avatarInitials').textContent = user.charAt(0).toUpperCase();
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('hoosha_user');
+      window.location.href = 'index.html';
+    });
+
+    function runSimulation(termId, outputText) {
+      const term = document.getElementById(termId);
+      term.innerHTML += '<br/><span style="color:#fff;">> executing...</span><br/>';
+      setTimeout(() => {
+        term.innerHTML += `<span style="color:var(--cyan);">${outputText.replace(/\n/g, '<br/>')}</span><br/>`;
+        term.scrollTop = term.scrollHeight;
+      }, 800);
+    }
+  </script>
+</body>
+</html>
