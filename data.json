@@ -1,0 +1,126 @@
+{
+  "last_updated": "2026-08-11T22:30:37.653841Z",
+  "feed_url": "https://hooshaai.substack.com/feed",
+  "articles": [
+    {
+      "title": "Scaling Transformers: How Linear Attention is Reshaping Cross-Task AI",
+      "link": "https://hooshaai.substack.com/p/scaling-transformers-how-linear-attention",
+      "date": "Tue, 11 Aug 2026 00:28:09 GMT",
+      "desc": "Breaking the Quadratic Bottleneck in Recommender Systems and Bidirectional Modeling"
+    },
+    {
+      "title": "The Architecture of Boundaries",
+      "link": "https://hooshaai.substack.com/p/the-architecture-of-boundaries",
+      "date": "Tue, 11 Aug 2026 00:17:23 GMT",
+      "desc": "Navigating 2D Spintronics, Quasiconformal Geometry, and Infrared Kinematics"
+    },
+    {
+      "title": "The Post-Transformer Era",
+      "link": "https://hooshaai.substack.com/p/the-post-transformer-era",
+      "date": "Mon, 10 Aug 2026 23:30:44 GMT",
+      "desc": "A Deep Dive into Sub-Quadratic Sequence Models"
+    },
+    {
+      "title": "The Rise of Linear Attention in Bidirectional Modeling and Long-Term Recommenders",
+      "link": "https://hooshaai.substack.com/p/the-rise-of-linear-attention-in-bidirectional",
+      "date": "Mon, 10 Aug 2026 23:23:04 GMT",
+      "desc": "How LinRec and LION Are Rewriting the Rules for Sequences That Refuse to Stay Short"
+    },
+    {
+      "title": "Re-Engineering the Attention Engine",
+      "link": "https://hooshaai.substack.com/p/re-engineering-the-attention-engine",
+      "date": "Mon, 10 Aug 2026 22:55:46 GMT",
+      "desc": "Mathematical Frontiers in Sub-Quadratic Transformers"
+    },
+    {
+      "title": "Breaking the Quadratic Barrier",
+      "link": "https://hooshaai.substack.com/p/breaking-the-quadratic-barrier",
+      "date": "Mon, 10 Aug 2026 22:34:16 GMT",
+      "desc": "The Architectural Evolution of Linear Transformers and Infinite Context Models"
+    },
+    {
+      "title": "Implementing Grounded Causal Verification to Prevent Recursive Epistemic Collapse in Self-Improving AI Systems",
+      "link": "https://hooshaai.substack.com/p/implementing-grounded-causal-verification",
+      "date": "Fri, 07 Aug 2026 22:31:36 GMT",
+      "desc": "The pursuit of recursive self-improvement in large language models relies on the fundamental premise that an artificial agent can autonomously evaluate, refi..."
+    },
+    {
+      "title": "The Civilization Simulator: Why Recursive AI Needs an Evolutionary Verification Engine",
+      "link": "https://hooshaai.substack.com/p/the-civilization-simulator-why-recursive",
+      "date": "Fri, 07 Aug 2026 19:28:11 GMT",
+      "desc": "On the biological bottleneck, the flintknapping compiler, epistemic vigilance, and the grounded architecture of safe self-improvement."
+    },
+    {
+      "title": "Evaluation of Grounded Causal and Evolutionary Verification for Recursive Self-Improvement",
+      "link": "https://hooshaai.substack.com/p/evaluation-of-grounded-causal-and",
+      "date": "Fri, 07 Aug 2026 18:45:51 GMT",
+      "desc": "The ambition to architect a stable, non-degenerative loop for Recursive Self-Improvement (RSI) in artificial intelligence has historically been constrained b..."
+    },
+    {
+      "title": "Why Biological Constraints Breed Universal Adaptation While Unconstrained AI Collapses",
+      "link": "https://hooshaai.substack.com/p/why-biological-constraints-breed",
+      "date": "Fri, 07 Aug 2026 01:03:29 GMT",
+      "desc": "On Working-Memory Bottlenecks, Symbol Grounding, and Why True Generalization Requires Embodied Causal Engines, Not Just Statistical Pattern Matching"
+    },
+    {
+      "title": "The Generalization Paradox: Why Biological Constraints Breed Universal Adaptation While Unconstrained AI Collapses",
+      "link": "https://hooshaai.substack.com/p/the-generalization-paradox-why-biological",
+      "date": "Fri, 07 Aug 2026 00:16:18 GMT",
+      "desc": "On Working Memory Bottlenecks, Symbol Grounding, and Why True Generalization Requires Embodied Causal Engines, Not Just Statistical Pattern Matching"
+    },
+    {
+      "title": "The True Paradigm: Symbolic Internalization, Not Just External Scaffolding",
+      "link": "https://hooshaai.substack.com/p/the-true-paradigm-symbolic-internalization",
+      "date": "Thu, 06 Aug 2026 23:06:16 GMT",
+      "desc": "Recent advances in LLM-based agents suggest that the core breakthrough in AI reasoning lies not in fusing neural nets with fixed symbolic rules, but in inter..."
+    },
+    {
+      "title": "The Cognitive Scaling Paradigm: Unifying Pre-Training, Inference Algorithms, and Post-Training Reinforcement Learning",
+      "link": "https://hooshaai.substack.com/p/the-cognitive-scaling-paradigm-unifying",
+      "date": "Mon, 03 Aug 2026 04:17:56 GMT",
+      "desc": "The trajectory of artificial intelligence development has irrevocably shifted from a regime dominated by static, pre-training data accumulation toward a dyna..."
+    },
+    {
+      "title": "Building AI that thinks before speaking",
+      "link": "https://hooshaai.substack.com/p/building-ai-that-thinks-before-speaking",
+      "date": "Mon, 03 Aug 2026 03:49:51 GMT",
+      "desc": ""
+    },
+    {
+      "title": "The ACWT Architecture",
+      "link": "https://hooshaai.substack.com/p/the-acwt-architecture",
+      "date": "Mon, 03 Aug 2026 03:49:09 GMT",
+      "desc": ""
+    },
+    {
+      "title": "Beyond Bigger Datasets",
+      "link": "https://hooshaai.substack.com/p/beyond-bigger-datasets",
+      "date": "Mon, 03 Aug 2026 03:28:34 GMT",
+      "desc": "How reinforcement learning, process supervision, and search are replacing bigger datasets as the path to smarter language models"
+    },
+    {
+      "title": "The Post-Training Frontier: Unified Frameworks for Reinforcement Learning, Process-Supervised Evaluation, and Test-Time Cognitive Scaling in Large Language Models",
+      "link": "https://hooshaai.substack.com/p/the-post-training-frontier-unified",
+      "date": "Mon, 03 Aug 2026 03:22:08 GMT",
+      "desc": "The trajectory of autoregressive language model development has historically been guided by empirical training-time scaling laws, which predict downstream pe..."
+    },
+    {
+      "title": "Building Synthetic Consciousness with Integrated Information Theory, Global Workspace Theory, and System-2 Refinement",
+      "link": "https://hooshaai.substack.com/p/architecting-synthetic-consciousness",
+      "date": "Sat, 01 Aug 2026 12:12:54 GMT",
+      "desc": "Combining Integrated Information Theory, Global Workspace Theory, and System-2 refinement as inductive biases for transformer attention"
+    },
+    {
+      "title": "A Technical Report on the IIT-Attention Modulation (IIT-AM) Research Program: System Architecture, Benchmark Provenance, and Evaluation Results",
+      "link": "https://hooshaai.substack.com/p/a-technical-report-on-the-iit-attention",
+      "date": "Sat, 01 Aug 2026 12:07:22 GMT",
+      "desc": "Internal technical report, compiled from project artifacts (folder guide, benchmark provenance log, and result summaries) as of the most recent recorded runs."
+    },
+    {
+      "title": "Open-Ended Innovation: Closing the Vocabulary and Verifier Gaps",
+      "link": "https://hooshaai.substack.com/p/open-ended-innovation-closing-the",
+      "date": "Mon, 27 Jul 2026 19:41:41 GMT",
+      "desc": "Current AI excels at finding solutions within fixed frames, but truly creative innovation requires changing the frame itself &#8211; inventing new concepts a..."
+    }
+  ]
+}

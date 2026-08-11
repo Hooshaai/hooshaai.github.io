@@ -8,9 +8,14 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
   
+  <!-- KaTeX CDN Support for Mathematical Formatting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,8 +30,10 @@
     </div>
     <div class="nav-links">
       <a href="#research">Research</a>
+      <a href="#ecosystem">Ecosystem</a>
       <a href="#open-source">Open Source</a>
       <a href="#journal">Journal</a>
+      <a href="#newsletter">Newsletter</a>
       <a href="#team">Team</a>
       <a href="#" class="btn-login" id="navLoginBtn"><i class="fas fa-user-circle"></i> Portal Access</a>
     </div>
@@ -60,6 +67,66 @@
     </div>
   </div>
 
+  <!-- Substack Article Reader Modal -->
+  <div id="articleModal" class="modal-overlay article-modal-overlay">
+    <div class="article-modal-content">
+      <div class="article-modal-topbar">
+        <div class="article-modal-breadcrumbs">
+          <span class="series-badge" id="articleCategoryBadge">Adaptive RAG</span>
+          <span class="article-modal-reading-time" id="articleReadTime"><i class="fas fa-book-open"></i> 12 min read</span>
+        </div>
+        <div class="article-modal-actions">
+          <button class="icon-btn" id="decreaseFontBtn" title="Decrease font size">A-</button>
+          <button class="icon-btn" id="increaseFontBtn" title="Increase font size">A+</button>
+          <a href="#" target="_blank" id="externalArticleLink" class="btn-sub-link" title="Open original essay on Substack">
+            <i class="fas fa-external-link-alt"></i> Substack
+          </a>
+          <button class="close-modal" id="closeArticleModal">&times;</button>
+        </div>
+      </div>
+      <div class="article-modal-body" id="articleBody">
+        <header class="article-header">
+          <div class="article-meta-bar">
+            <span id="articleDate" class="article-date">Hoosha AI Journal</span>
+            <span class="meta-dot">•</span>
+            <span id="articleWordCount" class="article-word-count">3,500 words</span>
+          </div>
+          <h1 id="articleTitle" class="article-title">Article Title</h1>
+          <p id="articleSubtitle" class="article-subtitle">Subtitle content goes here...</p>
+          <div class="article-author-card">
+            <img src="https://raw.githubusercontent.com/tahamajs/tahamajs.github.io/main/assets/avatar.jpg" alt="Mohammad Taha Majlesi" class="author-avatar">
+            <div class="author-info">
+              <span class="author-name">Mohammad Taha Majlesi</span>
+              <span class="author-role">Co-Founder & Lead AI Architect @ Hoosha AI</span>
+            </div>
+          </div>
+        </header>
+        
+        <article id="articleContent" class="article-markdown-body">
+          <!-- Article content dynamically rendered here -->
+        </article>
+
+        <!-- In-Modal Substack Subscription CTA -->
+        <div class="article-subscription-box">
+          <div class="sub-box-content">
+            <i class="fas fa-paper-plane sub-box-icon"></i>
+            <h3>Subscribe to Hoosha AI Research Journal</h3>
+            <p>Get technical breakthroughs, mathematical derivations, and open-source models sent directly to your inbox.</p>
+            <form class="substack-form modal-sub-form" action="https://hooshaai.substack.com/subscribe" method="get" target="_blank">
+              <div class="sub-input-group">
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" name="email" placeholder="Enter your email address..." required class="sub-email-input">
+                <button type="submit" class="btn btn-primary sub-submit-btn">
+                  Subscribe Free <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <main>
     <section class="hero" id="home">
       <div class="hero-badge">
@@ -78,38 +145,285 @@
         <a href="https://github.com/Hooshaai" target="_blank" class="btn btn-primary">
           <i class="fab fa-github"></i> Explore GitHub
         </a>
-        <a href="https://hooshaai.substack.com" target="_blank" class="btn btn-secondary">
+        <a href="#journal" class="btn btn-secondary">
           <i class="fas fa-newspaper"></i> Read Journal
         </a>
       </div>
     </section>
+
+    <!-- High-Resolution Tech Logo Strip -->
+    <div class="logo-strip-wrapper fade-up">
+      <div class="logo-strip-header">
+        <span class="strip-label">CORE TECHNOLOGIES & ECOSYSTEM</span>
+      </div>
+      <div class="logo-strip">
+        <div class="strip-item pytorch" title="PyTorch Framework">
+          <svg class="tech-icon-sm" viewBox="0 0 32 32"><path fill="#EE4C2C" d="M21.2 5.6c-1.3-1.3-3.4-1.3-4.7 0L14.7 7.4l4.7 4.7 1.8-1.8c1.3-1.3 1.3-3.4 0-4.7zM16 11.5c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-2.2-.9-4.2-2.3-5.7l-2.4 2.4c.4.9.7 1.9.7 3.3 0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4c1.4 0 2.4.3 3.3.7l2.4-2.4c-1.5-1.4-3.5-2.3-5.7-2.3zM25 10.5c.8 0 1.5-.7 1.5-1.5S25.8 7.5 25 7.5s-1.5.7-1.5 1.5.7 1.5 1.5 1.5z"/></svg>
+          <span>PyTorch</span>
+        </div>
+        <div class="strip-item cuda" title="NVIDIA CUDA Parallel Computing">
+          <svg class="tech-icon-sm" viewBox="0 0 32 32"><rect x="7" y="7" width="18" height="18" rx="3" fill="none" stroke="#76B900" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="#76B900"/><path d="M10 16h12M16 10v12" stroke="#76B900" stroke-width="2" stroke-linecap="round"/><path d="M4 11h3M4 16h3M4 21h3M25 11h3M25 16h3M25 21h3M11 4v3M16 4v3M21 4v3M11 25v3M16 25v3M21 25v3" stroke="#76B900" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>CUDA</span>
+        </div>
+        <div class="strip-item triton" title="OpenAI Triton Compiler">
+          <svg class="tech-icon-sm" viewBox="0 0 32 32"><path d="M16 3L4 9v14l12 6 12-6V9L16 3zm0 3.2l8.8 4.4L16 15 7.2 10.6 16 6.2zM6.5 12.3L14.5 16v9.3l-8-4V12.3zm19 9.3l-8 4V16l8-3.7v9.3z" fill="#00F0FF"/></svg>
+          <span>Triton</span>
+        </div>
+        <div class="strip-item hf" title="Hugging Face Model Hub">
+          <svg class="tech-icon-sm" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="#FFD21E"/><circle cx="11.5" cy="13.5" r="2" fill="#000"/><circle cx="20.5" cy="13.5" r="2" fill="#000"/><path d="M10 18.5c1.5 3 4.5 4 6 4s4.5-1 6-4" stroke="#000" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+          <span>Hugging Face</span>
+        </div>
+        <div class="strip-item substack" title="Substack Research Journal">
+          <svg class="tech-icon-sm" viewBox="0 0 32 32"><rect x="6" y="6" width="20" height="3.5" rx="1" fill="#FF6719"/><rect x="6" y="12" width="20" height="3.5" rx="1" fill="#FF6719"/><path d="M6 18h20v9l-10-5.5L6 27v-9z" fill="#FF6719"/></svg>
+          <span>Substack</span>
+        </div>
+        <div class="strip-item ut" title="University of Tehran">
+          <svg class="tech-icon-sm" viewBox="0 0 32 32"><path d="M16 3L3 9.5l13 6.5 13-6.5L16 3z" fill="#0072CE"/><path d="M7 13.5v7.5c0 4.5 4 8 9 8s9-3.5 9-8v-7.5l-9 4.5-9-4.5z" fill="none" stroke="#0072CE" stroke-width="2"/></svg>
+          <span>Univ. of Tehran</span>
+        </div>
+        <div class="strip-item sharif" title="Sharif University of Technology">
+          <svg class="tech-icon-sm" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12" fill="none" stroke="#00A896" stroke-width="2"/><polygon points="16,6 20,13 27,13 21,18 23,25 16,20 9,25 11,18 5,13 12,13" fill="#00A896" opacity="0.85"/><circle cx="16" cy="16" r="4" fill="#030712" stroke="#00A896" stroke-width="1.5"/></svg>
+          <span>Sharif Univ.</span>
+        </div>
+        <div class="strip-item python" title="Python 3.12+ Scientific Computing">
+          <svg class="tech-icon-sm" viewBox="0 0 32 32"><path d="M15.7 3c-5.8 0-5.4 2.5-5.4 2.5v2.6h5.5v.8H8.2S3 8.3 3 14.1s4.5 5.6 4.5 5.6h2.7v-3.8s-.1-4.5 4.4-4.5h7.6s4.2 0 4.2-4.1-3.7-4.3-3.7-4.3h-7zm-3 2.6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" fill="#3776AB"/><path d="M16.3 29c5.8 0 5.4-2.5 5.4-2.5v-2.6h-5.5v-.8h7.6s5.2.6 5.2-5.2-4.5-5.6-4.5-5.6h-2.7v3.8s.1 4.5-4.4 4.5h-7.6s-4.2 0-4.2 4.1 3.7 4.3 3.7 4.3h7zm3-2.6a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" fill="#FFD43B"/></svg>
+          <span>Python</span>
+        </div>
+      </div>
+    </div>
 
     <section class="research" id="research">
       <h2 class="section-title">Core Research Focus</h2>
       <div class="grid">
         
         <div class="card">
-          <div class="card-icon"><i class="fas fa-water"></i></div>
+          <div class="card-top-bar">
+            <div class="card-icon"><i class="fas fa-water"></i></div>
+            <div class="card-badge-row">
+              <span class="badge-mini pytorch-badge"><i class="fas fa-flame"></i> PyTorch</span>
+              <span class="badge-mini python-badge"><i class="fab fa-python"></i> Python</span>
+            </div>
+          </div>
           <h3>Continuous Flow Matching</h3>
           <p>Simulation-free velocity vector field alignment for rapid ODE trajectories. Pushing generative boundaries beyond traditional stochastic diffusion.</p>
         </div>
 
         <div class="card">
-          <div class="card-icon"><i class="fas fa-bolt"></i></div>
+          <div class="card-top-bar">
+            <div class="card-icon"><i class="fas fa-bolt"></i></div>
+            <div class="card-badge-row">
+              <span class="badge-mini triton-badge"><i class="fas fa-bolt"></i> Triton</span>
+              <span class="badge-mini cuda-badge"><i class="fas fa-microchip"></i> CUDA</span>
+            </div>
+          </div>
           <h3>Differential Attention</h3>
           <p>High-precision attention architectures engineered for extreme long-context reasoning with near-zero noise decay.</p>
         </div>
 
         <div class="card">
-          <div class="card-icon"><i class="fas fa-project-diagram"></i></div>
+          <div class="card-top-bar">
+            <div class="card-icon"><i class="fas fa-project-diagram"></i></div>
+            <div class="card-badge-row">
+              <span class="badge-mini pytorch-badge"><i class="fas fa-flame"></i> PyTorch</span>
+              <span class="badge-mini hf-badge"><i class="fas fa-smile"></i> HuggingFace</span>
+            </div>
+          </div>
           <h3>GRPO Reinforcement</h3>
           <p>Fine-tuning explicit mathematical reasoning engines using Group Relative Policy Optimization (GRPO) to align policy logits.</p>
         </div>
 
         <div class="card">
-          <div class="card-icon"><i class="fas fa-microchip"></i></div>
+          <div class="card-top-bar">
+            <div class="card-icon"><i class="fas fa-microchip"></i></div>
+            <div class="card-badge-row">
+              <span class="badge-mini cuda-badge"><i class="fas fa-microchip"></i> CUDA</span>
+              <span class="badge-mini triton-badge"><i class="fas fa-bolt"></i> Triton</span>
+            </div>
+          </div>
           <h3>CUDA & Triton Kernels</h3>
           <p>Developing ultra-high-performance fused operators, maximizing FLOPs utilization on modern distributed GPU hardware.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Tech Stack & Ecosystem Section -->
+    <section class="tech-stack fade-up" id="ecosystem">
+      <div class="tech-stack-header">
+        <span class="section-badge"><i class="fas fa-cubes"></i> CORE TECH & PARTNERS</span>
+        <h2 class="section-title">Tech Stack & Ecosystem</h2>
+        <p class="section-subtitle">
+          Powering frontier AI research with custom GPU operators, continuous-time modeling frameworks, 
+          open-source model distribution, and premier academic affiliations.
+        </p>
+      </div>
+
+      <div class="tech-grid">
+
+        <!-- PyTorch Card -->
+        <div class="tech-card pytorch-card">
+          <div class="tech-card-header">
+            <div class="tech-logo-box">
+              <svg class="tech-icon-lg" viewBox="0 0 32 32">
+                <path fill="#EE4C2C" d="M21.2 5.6c-1.3-1.3-3.4-1.3-4.7 0L14.7 7.4l4.7 4.7 1.8-1.8c1.3-1.3 1.3-3.4 0-4.7zM16 11.5c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8c0-2.2-.9-4.2-2.3-5.7l-2.4 2.4c.4.9.7 1.9.7 3.3 0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4c1.4 0 2.4.3 3.3.7l2.4-2.4c-1.5-1.4-3.5-2.3-5.7-2.3zM25 10.5c.8 0 1.5-.7 1.5-1.5S25.8 7.5 25 7.5s-1.5.7-1.5 1.5.7 1.5 1.5 1.5z"/>
+              </svg>
+            </div>
+            <span class="tech-badge pytorch-badge">Deep Learning</span>
+          </div>
+          <h3>PyTorch</h3>
+          <p class="tech-desc">Core tensor computation engine and dynamic computational graphs powering our Flow Matching ODE solvers and generative models.</p>
+          <div class="tech-tags">
+            <span>Autograd</span>
+            <span>TorchCompile</span>
+            <span>Distributed</span>
+          </div>
+        </div>
+
+        <!-- CUDA Card -->
+        <div class="tech-card cuda-card">
+          <div class="tech-card-header">
+            <div class="tech-logo-box">
+              <svg class="tech-icon-lg" viewBox="0 0 32 32">
+                <rect x="7" y="7" width="18" height="18" rx="3" fill="none" stroke="#76B900" stroke-width="2"/>
+                <circle cx="16" cy="16" r="3" fill="#76B900"/>
+                <path d="M10 16h12M16 10v12" stroke="#76B900" stroke-width="2" stroke-linecap="round"/>
+                <path d="M4 11h3M4 16h3M4 21h3M25 11h3M25 16h3M25 21h3M11 4v3M16 4v3M21 4v3M11 25v3M16 25v3M21 25v3" stroke="#76B900" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="tech-badge cuda-badge">GPU Acceleration</span>
+          </div>
+          <h3>NVIDIA CUDA</h3>
+          <p class="tech-desc">Low-level C++/CUDA kernels engineered for parallel memory access, warp-level primitives, and high-throughput attention operators.</p>
+          <div class="tech-tags">
+            <span>C++ Kernels</span>
+            <span>Shared Memory</span>
+            <span>Tensor Cores</span>
+          </div>
+        </div>
+
+        <!-- Triton Card -->
+        <div class="tech-card triton-card">
+          <div class="tech-card-header">
+            <div class="tech-logo-box">
+              <svg class="tech-icon-lg" viewBox="0 0 32 32">
+                <path d="M16 3L4 9v14l12 6 12-6V9L16 3zm0 3.2l8.8 4.4L16 15 7.2 10.6 16 6.2zM6.5 12.3L14.5 16v9.3l-8-4V12.3zm19 9.3l-8 4V16l8-3.7v9.3z" fill="#00F0FF"/>
+              </svg>
+            </div>
+            <span class="tech-badge triton-badge">GPU Compiler</span>
+          </div>
+          <h3>OpenAI Triton</h3>
+          <p class="tech-desc">Python-based GPU kernel programming language for fused operators, implementing differential attention with maximum FLOP efficiency.</p>
+          <div class="tech-tags">
+            <span>Fused Kernels</span>
+            <span>JIT Compiler</span>
+            <span>H100 / A100</span>
+          </div>
+        </div>
+
+        <!-- Hugging Face Card -->
+        <div class="tech-card hf-card">
+          <div class="tech-card-header">
+            <div class="tech-logo-box">
+              <svg class="tech-icon-lg" viewBox="0 0 32 32">
+                <circle cx="16" cy="16" r="13" fill="#FFD21E"/>
+                <circle cx="11.5" cy="13.5" r="2" fill="#000"/>
+                <circle cx="20.5" cy="13.5" r="2" fill="#000"/>
+                <path d="M10 18.5c1.5 3 4.5 4 6 4s4.5-1 6-4" stroke="#000" stroke-width="2" stroke-linecap="round" fill="none"/>
+                <path d="M7 16c-1-2-1-4 1-5M25 16c1-2 1-4-1-5" stroke="#000" stroke-width="2" stroke-linecap="round" fill="none"/>
+              </svg>
+            </div>
+            <span class="tech-badge hf-badge">Open Ecosystem</span>
+          </div>
+          <h3>Hugging Face</h3>
+          <p class="tech-desc">Model weight hosting, open datasets distribution, tokenizer pipelines, and foundation model fine-tuning architectures.</p>
+          <div class="tech-tags">
+            <span>Transformers</span>
+            <span>Model Hub</span>
+            <span>Datasets</span>
+          </div>
+        </div>
+
+        <!-- Substack Card -->
+        <div class="tech-card substack-card">
+          <div class="tech-card-header">
+            <div class="tech-logo-box">
+              <svg class="tech-icon-lg" viewBox="0 0 32 32">
+                <rect x="6" y="6" width="20" height="3.5" rx="1" fill="#FF6719"/>
+                <rect x="6" y="12" width="20" height="3.5" rx="1" fill="#FF6719"/>
+                <path d="M6 18h20v9l-10-5.5L6 27v-9z" fill="#FF6719"/>
+              </svg>
+            </div>
+            <span class="tech-badge substack-badge">Journal Publishing</span>
+          </div>
+          <h3>Substack Journal</h3>
+          <p class="tech-desc">In-depth technical publications, mathematical breakdowns, and multi-part masterclasses read by thousands of AI researchers.</p>
+          <div class="tech-tags">
+            <span>Research Essays</span>
+            <span>Math Derivations</span>
+            <span>Open Access</span>
+          </div>
+        </div>
+
+        <!-- UT Card -->
+        <div class="tech-card ut-card">
+          <div class="tech-card-header">
+            <div class="tech-logo-box">
+              <svg class="tech-icon-lg" viewBox="0 0 32 32">
+                <path d="M16 3L3 9.5l13 6.5 13-6.5L16 3z" fill="#0072CE"/>
+                <path d="M7 13.5v7.5c0 4.5 4 8 9 8s9-3.5 9-8v-7.5l-9 4.5-9-4.5z" fill="none" stroke="#0072CE" stroke-width="2"/>
+                <path d="M16 11v11M12 14l4 4 4-4" stroke="#0072CE" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="tech-badge ut-badge">Academic Partner</span>
+          </div>
+          <h3>University of Tehran</h3>
+          <p class="tech-desc">Academic foundation and research synergy in Computer Engineering, computer vision, and cognitive systems research.</p>
+          <div class="tech-tags">
+            <span>Computer Eng.</span>
+            <span>AI Systems</span>
+            <span>Academic Lab</span>
+          </div>
+        </div>
+
+        <!-- Sharif Card -->
+        <div class="tech-card sharif-card">
+          <div class="tech-card-header">
+            <div class="tech-logo-box">
+              <svg class="tech-icon-lg" viewBox="0 0 32 32">
+                <circle cx="16" cy="16" r="12" fill="none" stroke="#00A896" stroke-width="2"/>
+                <polygon points="16,6 20,13 27,13 21,18 23,25 16,20 9,25 11,18 5,13 12,13" fill="#00A896" opacity="0.85"/>
+                <circle cx="16" cy="16" r="4" fill="#030712" stroke="#00A896" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <span class="tech-badge sharif-badge">Academic Partner</span>
+          </div>
+          <h3>Sharif University</h3>
+          <p class="tech-desc">Collaboration in Compiler Construction, systems architecture, and high-performance computing instruction.</p>
+          <div class="tech-tags">
+            <span>Compiler Construction</span>
+            <span>Systems Architecture</span>
+            <span>Parallel Compute</span>
+          </div>
+        </div>
+
+        <!-- Python Card -->
+        <div class="tech-card python-card">
+          <div class="tech-card-header">
+            <div class="tech-logo-box">
+              <svg class="tech-icon-lg" viewBox="0 0 32 32">
+                <path d="M15.7 3c-5.8 0-5.4 2.5-5.4 2.5v2.6h5.5v.8H8.2S3 8.3 3 14.1s4.5 5.6 4.5 5.6h2.7v-3.8s-.1-4.5 4.4-4.5h7.6s4.2 0 4.2-4.1-3.7-4.3-3.7-4.3h-7zm-3 2.6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" fill="#3776AB"/>
+                <path d="M16.3 29c5.8 0 5.4-2.5 5.4-2.5v-2.6h-5.5v-.8h7.6s5.2.6 5.2-5.2-4.5-5.6-4.5-5.6h-2.7v3.8s.1 4.5-4.4 4.5h-7.6s-4.2 0-4.2 4.1 3.7 4.3 3.7 4.3h7zm3-2.6a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" fill="#FFD43B"/>
+              </svg>
+            </div>
+            <span class="tech-badge python-badge">Primary Language</span>
+          </div>
+          <h3>Python 3.12+</h3>
+          <p class="tech-desc">Primary programming language for research scripts, neural network prototyping, C-extension interfaces, and evaluation benchmarks.</p>
+          <div class="tech-tags">
+            <span>Asynchronous</span>
+            <span>C Extensions</span>
+            <span>SciPy / NumPy</span>
+          </div>
         </div>
 
       </div>
@@ -121,7 +435,10 @@
         <a href="https://github.com/Hooshaai/consciousness_in_LLMs" target="_blank" class="repo-card">
           <div class="repo-header">
             <h4><i class="fas fa-book"></i> consciousness_in_LLMs</h4>
-            <span class="repo-badge">HTML / JS</span>
+            <div class="repo-badge-group">
+              <span class="repo-badge python-badge"><i class="fab fa-python"></i> Python</span>
+              <span class="repo-badge hf-badge"><i class="fas fa-smile"></i> HF</span>
+            </div>
           </div>
           <p>Probing self-awareness metrics, logit variance, and internal representations in Large Language Models.</p>
         </a>
@@ -129,7 +446,11 @@
         <a href="https://github.com/Hooshaai/Diff-Attention" target="_blank" class="repo-card">
           <div class="repo-header">
             <h4><i class="fas fa-book"></i> Diff-Attention</h4>
-            <span class="repo-badge">Python / CUDA</span>
+            <div class="repo-badge-group">
+              <span class="repo-badge triton-badge"><i class="fas fa-bolt"></i> Triton</span>
+              <span class="repo-badge cuda-badge"><i class="fas fa-microchip"></i> CUDA</span>
+              <span class="repo-badge pytorch-badge"><i class="fas fa-flame"></i> PyTorch</span>
+            </div>
           </div>
           <p>Fused Differential Attention operator implementation for efficient context scaling and memory reduction.</p>
         </a>
@@ -147,85 +468,149 @@
         <h3 class="series-title">Adaptive RAG & Retrieval Masterclass</h3>
         <p class="series-desc">Teaching models when to retrieve, probing knowledge boundaries, and eliminating naive RAG bottlenecks.</p>
 
-        <a href="https://hooshaai.substack.com/p/problems-with-naive-rag" target="_blank" class="chapter-row">
+        <div class="chapter-row" data-article-id="rag-part1">
           <div class="chapter-meta">
             <span class="part-badge">Part 1</span>
             <div class="chapter-info">
               <h4>The Hidden Costs of Naive Retrieval: Adaptive RAG</h4>
-              <span class="read-time"><i class="fas fa-book-open"></i> 12 min read · 3,599 words</span>
+              <span class="read-time"><i class="fas fa-book-open"></i> 12 min read · 3,599 words · KaTeX math enabled</span>
             </div>
           </div>
-          <i class="fas fa-arrow-right chapter-arrow"></i>
-        </a>
+          <div class="chapter-actions">
+            <button class="btn-read-modal"><i class="fas fa-book-reader"></i> Read Full Essay</button>
+            <a href="https://hooshaai.substack.com/p/problems-with-naive-rag" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
 
-        <a href="https://hooshaai.substack.com/p/deciding-when-not-to-retrieve" target="_blank" class="chapter-row">
+        <div class="chapter-row" data-article-id="rag-part2">
           <div class="chapter-meta">
             <span class="part-badge">Part 2</span>
             <div class="chapter-info">
               <h4>Deciding When Not to Retrieve</h4>
-              <span class="read-time"><i class="fas fa-book-open"></i> 9 min read · 2,242 words</span>
+              <span class="read-time"><i class="fas fa-book-open"></i> 9 min read · 2,242 words · KaTeX math enabled</span>
             </div>
           </div>
-          <i class="fas fa-arrow-right chapter-arrow"></i>
-        </a>
+          <div class="chapter-actions">
+            <button class="btn-read-modal"><i class="fas fa-book-reader"></i> Read Full Essay</button>
+            <a href="https://hooshaai.substack.com/p/deciding-when-not-to-retrieve" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
 
-        <a href="https://hooshaai.substack.com/p/probing-llms-knowledge-boundary" target="_blank" class="chapter-row">
+        <div class="chapter-row" data-article-id="rag-part3">
           <div class="chapter-meta">
             <span class="part-badge">Part 3</span>
             <div class="chapter-info">
               <h4>Probing LLMs' Knowledge Boundary</h4>
-              <span class="read-time"><i class="fas fa-book-open"></i> 18 min read · 6,071 words</span>
+              <span class="read-time"><i class="fas fa-book-open"></i> 18 min read · 6,071 words · KaTeX math enabled</span>
             </div>
           </div>
-          <i class="fas fa-arrow-right chapter-arrow"></i>
-        </a>
+          <div class="chapter-actions">
+            <button class="btn-read-modal"><i class="fas fa-book-reader"></i> Read Full Essay</button>
+            <a href="https://hooshaai.substack.com/p/probing-llms-knowledge-boundary" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
 
-        <a href="https://hooshaai.substack.com/p/learning-to-retrieve" target="_blank" class="chapter-row">
+        <div class="chapter-row" data-article-id="rag-part4">
           <div class="chapter-meta">
             <span class="part-badge">Part 4</span>
             <div class="chapter-info">
               <h4>Teaching Models to Decide When to Retrieve</h4>
-              <span class="read-time"><i class="fas fa-book-open"></i> 22 min read · 7,573 words</span>
+              <span class="read-time"><i class="fas fa-book-open"></i> 22 min read · 7,573 words · KaTeX math enabled</span>
             </div>
           </div>
-          <i class="fas fa-arrow-right chapter-arrow"></i>
-        </a>
+          <div class="chapter-actions">
+            <button class="btn-read-modal"><i class="fas fa-book-reader"></i> Read Full Essay</button>
+            <a href="https://hooshaai.substack.com/p/learning-to-retrieve" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
       </div>
 
       <div class="series-card fade-up" style="margin-top: 2rem;">
         <div class="series-header">
           <span class="series-badge" style="color: var(--purple); background: rgba(138, 43, 226, 0.1); border-color: var(--purple);">🌊 Flow Matching</span>
-          <span class="series-count">3 Chapters</span>
+          <span class="series-count">2 Chapters</span>
         </div>
         <h3 class="series-title">Continuous Flow Matching & ODE Trajectories</h3>
         <p class="series-desc">Mathematical foundations of Conditional Flow Matching (CFM) and simulation-free ODE velocity alignment.</p>
 
-        <a href="https://hooshaai.substack.com/p/flow-matching-vs-diffusion" target="_blank" class="chapter-row">
+        <div class="chapter-row" data-article-id="flow-part1">
           <div class="chapter-meta">
             <span class="part-badge" style="color: var(--purple);">Part 1</span>
             <div class="chapter-info">
               <h4>Flow Matching vs Diffusion SDEs: Velocity Vector Fields</h4>
-              <span class="read-time"><i class="fas fa-book-open"></i> 14 min read · 4,210 words</span>
+              <span class="read-time"><i class="fas fa-book-open"></i> 14 min read · 4,210 words · KaTeX math enabled</span>
             </div>
           </div>
-          <i class="fas fa-arrow-right chapter-arrow"></i>
-        </a>
-        <a href="https://hooshaai.substack.com/p/optimal-transport-flow-matching" target="_blank" class="chapter-row">
+          <div class="chapter-actions">
+            <button class="btn-read-modal"><i class="fas fa-book-reader"></i> Read Full Essay</button>
+            <a href="https://hooshaai.substack.com/p/flow-matching-vs-diffusion" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="chapter-row" data-article-id="flow-part2">
           <div class="chapter-meta">
             <span class="part-badge" style="color: var(--purple);">Part 2</span>
             <div class="chapter-info">
               <h4>Optimal Transport Straight Paths for Fast ODE Integration</h4>
-              <span class="read-time"><i class="fas fa-book-open"></i> 19 min read · 5,890 words</span>
+              <span class="read-time"><i class="fas fa-book-open"></i> 19 min read · 5,890 words · KaTeX math enabled</span>
             </div>
           </div>
-          <i class="fas fa-arrow-right chapter-arrow"></i>
-        </a>
+          <div class="chapter-actions">
+            <button class="btn-read-modal"><i class="fas fa-book-reader"></i> Read Full Essay</button>
+            <a href="https://hooshaai.substack.com/p/optimal-transport-flow-matching" target="_blank" class="chapter-external-link" title="Open on Substack" onclick="event.stopPropagation();">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
       </div>
 
       <div style="text-align: center; margin-top: 3rem;">
         <a href="https://hooshaai.substack.com" target="_blank" class="btn btn-secondary fade-up">
-          <i class="fas fa-layer-group"></i> Read All 20 Articles on Substack
+          <i class="fas fa-layer-group"></i> Read All Articles on Substack
         </a>
+      </div>
+    </section>
+
+    <!-- Active Substack Newsletter Subscription Section -->
+    <section class="newsletter-section fade-up" id="newsletter">
+      <div class="newsletter-card">
+        <div class="newsletter-glow"></div>
+        <div class="newsletter-content">
+          <div class="newsletter-badge">
+            <i class="fas fa-paper-plane"></i> SUBSTACK RESEARCH DISPATCHES
+          </div>
+          <h2 class="newsletter-title">Subscribe to Hoosha AI Journal</h2>
+          <p class="newsletter-description">
+            Get deep-dive technical articles on Continuous-Time Generative Models, Differential Attention, 
+            and Reinforcement Learning delivered directly to your inbox.
+          </p>
+          <form id="substackMainForm" class="substack-form" action="https://hooshaai.substack.com/subscribe" method="get" target="_blank">
+            <div class="sub-input-group">
+              <i class="fas fa-envelope input-icon"></i>
+              <input type="email" id="substackEmail" name="email" placeholder="researcher@university.edu" required class="sub-email-input">
+              <button type="submit" class="btn btn-primary sub-submit-btn">
+                <span>Subscribe Free</span>
+                <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+            <div class="sub-status-message" id="subStatusMessage"></div>
+            <div class="newsletter-features">
+              <span><i class="fas fa-check-circle"></i> Mathematical Derivations</span>
+              <span><i class="fas fa-check-circle"></i> Open Source PyTorch / CUDA</span>
+              <span><i class="fas fa-check-circle"></i> Direct Author Updates</span>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -236,6 +621,11 @@
         <div class="team-info">
           <h3>Mohammad Taha Majlesi</h3>
           <p class="role">Co-Founder & Lead AI Architect</p>
+          <div class="affiliation-badges">
+            <span class="aff-badge ut"><i class="fas fa-university"></i> Univ. of Tehran</span>
+            <span class="aff-badge sharif"><i class="fas fa-graduation-cap"></i> Sharif Univ. (TA)</span>
+            <span class="aff-badge substack"><i class="fas fa-newspaper"></i> Substack Journal</span>
+          </div>
           <p class="bio">
             AI Systems Engineer specializing in Generative Models and distributed infrastructure. 
             Computer Engineering student at University of Tehran and TA for Compiler Construction at Sharif University.

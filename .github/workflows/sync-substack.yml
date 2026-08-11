@@ -26,6 +26,7 @@ jobs:
           import xml.etree.ElementTree as ET
           import json
           import re
+          from datetime import datetime, timezone
 
           url = 'https://hooshaai.substack.com/feed'
           req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
@@ -46,15 +47,17 @@ jobs:
                   desc = item.findtext('description', '').strip()
                   
                   clean_desc = re.sub(r'<[^>]+>', '', desc)
-                  if len(clean_desc) > 150:
-                      clean_desc = clean_desc[:147] + '...'
+                  clean_desc = re.sub(r'\s+', ' ', clean_desc).strip()
+                  if len(clean_desc) > 160:
+                      clean_desc = clean_desc[:157] + '...'
                       
-                  articles.append({'title': title, 'link': link, 'date': pub_date[:16], 'desc': clean_desc})
+                  articles.append({'title': title, 'link': link, 'date': pub_date, 'desc': clean_desc})
 
-              with open('data.json', 'r') as f:
-                  data = json.load(f)
-
-              data['articles'] = articles
+              data = {
+                  'last_updated': datetime.now(timezone.utc).isoformat(),
+                  'feed_url': url,
+                  'articles': articles
+              }
 
               with open('data.json', 'w') as f:
                   json.dump(data, f, indent=2)
