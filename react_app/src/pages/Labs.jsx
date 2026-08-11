@@ -1,241 +1,524 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
 
-const CfmCanvas = () => {
+const cardStyle = {
+  background: 'rgba(10,15,30,0.7)',
+  border: '1px solid rgba(0,240,255,0.15)',
+  borderRadius: '16px',
+  padding: '2rem',
+  marginBottom: '2rem',
+  boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+  backdropFilter: 'blur(4px)',
+  WebkitBackdropFilter: 'blur(4px)',
+};
+
+const formulaStyle = {
+  background: 'rgba(0,0,0,0.4)',
+  borderLeft: '3px solid #00f0ff',
+  padding: '1rem',
+  fontFamily: 'JetBrains Mono, monospace',
+  fontSize: '0.9rem',
+  margin: '1rem 0',
+  color: '#e2e8f0',
+  overflowX: 'auto',
+  whiteSpace: 'pre-wrap'
+};
+
+const buttonStyle = {
+  background: 'rgba(0,240,255,0.1)',
+  border: '1px solid #00f0ff',
+  color: '#00f0ff',
+  padding: '0.5rem 1.2rem',
+  borderRadius: '8px',
+  cursor: 'pointer',
+  fontWeight: '600',
+  transition: 'all 0.2s ease',
+  marginRight: '1rem',
+  marginTop: '1rem'
+};
+
+const Simulation1 = () => {
   const canvasRef = useRef(null);
-  
+  const [flowSpeed, setFlowSpeed] = useState(1);
+  const [particles, setParticles] = useState([]);
+  const [step, setStep] = useState(0);
+  const targetRef = useRef({ x: 400, y: 150 });
+  const isDragging = useRef(false);
+
+  const initParticles = useCallback(() => {
+    const newParticles = Array.from({ length: 80 }, () => ({
+      x: Math.random() * 100 + 50,
+      y: Math.random() * 100 + 100,
+      vx: 0,
+      vy: 0,
+      active: true
+    }));
+    setParticles(newParticles);
+    setStep(0);
+  }, []);
+
+  useEffect(() => {
+    initParticles();
+  }, [initParticles]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const w = canvas.width = canvas.parentElement.clientWidth;
-    const h = canvas.height = 300;
-    
-    let particles = Array.from({length: 100}, () => ({
-      x: Math.random() * w, 
-      y: Math.random() * h, 
-      age: Math.random() * 100
-    }));
-
-    let id;
-    let mouseX = w/2;
-    let mouseY = h/2;
-
-    const handleMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
-    };
-    canvas.addEventListener('mousemove', handleMouseMove);
+    let animationFrameId;
 
     const render = () => {
-      ctx.fillStyle = 'rgba(10, 15, 30, 0.2)';
-      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const target = targetRef.current;
       
-      particles.forEach(p => {
-        // Vector field towards mouse (target point)
-        const dx = mouseX - p.x;
-        const dy = mouseY - p.y;
-        const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      // Draw target
+      ctx.beginPath();
+      ctx.arc(target.x, target.y, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#a855f7';
+      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 15;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Draw source cluster area vaguely
+      ctx.beginPath();
+      ctx.arc(100, 150, 60, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 240, 255, 0.05)';
+      ctx.fill();
+
+      let activeCount = 0;
+
+      setParticles((prevParticles) => {
+        const nextParticles = prevParticles.map((p) => {
+          if (!p.active) return p;
+          
+          const dx = target.x - p.x;
+          const dy = target.y - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 5) {
+            return { ...p, active: false };
+          }
+
+          const vx = (dx * 0.03 + Math.sin(p.y * 0.02) * 0.8) * flowSpeed;
+          const vy = (dy * 0.03 + Math.cos(p.x * 0.02) * 0.8) * flowSpeed;
+          
+          const speedMag = Math.sqrt(vx*vx + vy*vy);
+          const maxMag = 15;
+          const normalizedMag = Math.min(speedMag / maxMag, 1);
+          
+          // Color based on velocity: cyan (0,240,255) to purple (168,85,247)
+          const r = Math.round(0 + (168 - 0) * normalizedMag);
+          const g = Math.round(240 + (85 - 240) * normalizedMag);
+          const b = Math.round(255 + (247 - 255) * normalizedMag);
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+          ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+          ctx.fill();
+
+          activeCount++;
+
+          return { ...p, x: p.x + vx, y: p.y + vy, vx, vy };
+        });
         
-        // Add curl/swirl
-        const vx = (dx / dist) * 2 + Math.sin(p.y * 0.05) * 1.5;
-        const vy = (dy / dist) * 2 + Math.cos(p.x * 0.05) * 1.5;
-        
-        p.x += vx;
-        p.y += vy;
-        p.age++;
-        
-        if (dist < 10 || p.age > 150) {
-          p.x = Math.random() * w;
-          p.y = Math.random() * h;
-          p.age = 0;
-        }
-        
-        ctx.fillStyle = `rgba(0, 240, 255, ${1 - p.age/150})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2);
-        ctx.fill();
+        return nextParticles;
       });
 
-      // Draw Target
-      ctx.beginPath();
-      ctx.arc(mouseX, mouseY, 8, 0, Math.PI*2);
-      ctx.strokeStyle = '#a855f7';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      setStep(s => s + 1);
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [flowSpeed]);
+
+  const handlePointerDown = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const dx = x - targetRef.current.x;
+    const dy = y - targetRef.current.y;
+    if (Math.sqrt(dx*dx + dy*dy) < 30) {
+      isDragging.current = true;
+    }
+  };
+
+  const handlePointerMove = (e) => {
+    if (isDragging.current && canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      targetRef.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+  };
+
+  const handlePointerUp = () => {
+    isDragging.current = false;
+  };
+
+  return (
+    <motion.div style={cardStyle} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}>
+      <h3><span style={{color: '#00f0ff', marginRight:'10px'}}>◆</span>Continuous Flow Matching (CFM)</h3>
+      <div style={formulaStyle}>
+        $$dx_t = v_\theta(t, x_t)\,dt, \quad x_0 \sim p_0, \quad x_1 \sim p_1$$
+      </div>
       
-      id = requestAnimationFrame(render);
+      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8' }}>
+            Flow Speed: {flowSpeed.toFixed(1)}x
+          </label>
+          <input type="range" min="0.5" max="3" step="0.1" value={flowSpeed} onChange={e => setFlowSpeed(parseFloat(e.target.value))} style={{ width: '200px', accentColor: '#00f0ff' }} />
+        </div>
+        <div style={{ textAlign: 'right', color: '#94a3b8' }}>
+          <div>Active Particles: {particles.filter(p => p.active).length} / 80</div>
+          <div>Step: {step}</div>
+        </div>
+      </div>
+
+      <canvas 
+        ref={canvasRef} 
+        width={800} 
+        height={300} 
+        style={{ width: '100%', height: '300px', borderRadius: '12px', background: '#000', cursor: isDragging.current ? 'grabbing' : 'grab' }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+      />
+      <button style={buttonStyle} onClick={initParticles}>Reset Particles</button>
+    </motion.div>
+  );
+};
+
+const Simulation2 = () => {
+  const canvasRef = useRef(null);
+  const [klPenalty, setKlPenalty] = useState(0.1);
+  const [rewards, setRewards] = useState(Array(8).fill(0.5));
+  const [targetRewards, setTargetRewards] = useState(Array(8).fill(0.5));
+  const meanRewardRef = useRef(0.5);
+  const [stats, setStats] = useState({ mean: 0.5, advantage: 0 });
+
+  const newRollout = useCallback(() => {
+    const newTargets = Array(8).fill(0).map(() => Math.random());
+    setTargetRewards(newTargets);
+    const mean = newTargets.reduce((a,b)=>a+b, 0) / 8;
+    meanRewardRef.current = mean;
+    setStats({ mean: mean.toFixed(2), advantage: (Math.random() * 0.4 - 0.2).toFixed(2) });
+  }, []);
+
+  useEffect(() => {
+    newRollout();
+    const interval = setInterval(newRollout, 2000);
+    return () => clearInterval(interval);
+  }, [newRollout]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      setRewards(prev => {
+        const next = prev.map((val, i) => {
+          const target = targetRewards[i];
+          return val + (target - val) * 0.1; // lerp
+        });
+        
+        const w = canvas.width;
+        const h = canvas.height;
+        const barWidth = (w - 100) / 8;
+        const spacing = 10;
+        const maxH = h - 60;
+        
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.beginPath();
+        ctx.moveTo(0, h - 30);
+        ctx.lineTo(w, h - 30);
+        ctx.stroke();
+
+        next.forEach((val, i) => {
+          const finalVal = val - (klPenalty * 0.5);
+          const barH = Math.max(10, finalVal * maxH);
+          const x = 50 + i * (barWidth + spacing);
+          const y = h - 30 - barH;
+
+          ctx.fillStyle = finalVal > 0.6 ? '#22c55e' : (finalVal < 0.4 ? '#ef4444' : '#f59e0b');
+          ctx.fillRect(x, y, barWidth, barH);
+        });
+
+        // Mean line
+        const currentMean = next.reduce((a,b)=>a+b,0)/8 - (klPenalty * 0.5);
+        ctx.strokeStyle = '#00f0ff';
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        const meanY = h - 30 - (currentMean * maxH);
+        ctx.moveTo(30, meanY);
+        ctx.lineTo(w - 30, meanY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        ctx.fillStyle = '#00f0ff';
+        ctx.font = '12px Inter';
+        ctx.fillText('Mean', w - 40, meanY - 5);
+
+        return next;
+      });
+
+      animationFrameId = requestAnimationFrame(render);
     };
     render();
-    return () => {
-      cancelAnimationFrame(id);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [targetRewards, klPenalty]);
 
-  return <canvas ref={canvasRef} className="w-full rounded-xl border border-gray-800 bg-black mb-4 cursor-crosshair" />;
+  return (
+    <motion.div style={cardStyle} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}>
+      <h3><span style={{color: '#00f0ff', marginRight:'10px'}}>◆</span>GRPO Policy Alignment</h3>
+      <div style={formulaStyle}>
+        $$\mathcal{'{L}'}_{'{GRPO}'} = -\mathbb{'{E}'}\left[\hat{'{A}'}_i \log \pi_\theta(o_i|q)\right] + \beta\,\mathbb{'{KL}'}(\pi_\theta \| \pi_{'{ref}'})$$
+      </div>
+      
+      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8' }}>
+            KL Penalty (β): {klPenalty.toFixed(2)}
+          </label>
+          <input type="range" min="0.01" max="0.5" step="0.01" value={klPenalty} onChange={e => setKlPenalty(parseFloat(e.target.value))} style={{ width: '200px', accentColor: '#00f0ff' }} />
+        </div>
+        <div style={{ textAlign: 'right', color: '#94a3b8' }}>
+          <div>Mean Reward: {stats.mean}</div>
+          <div>Group Adv: {stats.advantage}</div>
+        </div>
+      </div>
+
+      <canvas ref={canvasRef} width={800} height={300} style={{ width: '100%', height: '300px', borderRadius: '12px', background: '#000' }} />
+      <button style={buttonStyle} onClick={newRollout}>New Rollout</button>
+    </motion.div>
+  );
 };
 
-const GrpoInteractive = () => {
-  const [rewards, setRewards] = useState([0.2, 0.5, 0.8, 0.4, 0.9, 0.1, 0.6, 0.3]);
-  
+const Simulation3 = () => {
+  const canvasRef = useRef(null);
+  const [lambda, setLambda] = useState(1.0);
+  const [snr, setSnr] = useState(0);
+
   useEffect(() => {
-    const id = setInterval(() => {
-      setRewards(prev => prev.map(r => Math.max(0, Math.min(1, r + (Math.random() - 0.5) * 0.2))));
-    }, 500);
-    return () => clearInterval(id);
-  }, []);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+    let time = 0;
 
-  const mean = rewards.reduce((a,b) => a+b, 0) / rewards.length;
+    const noise = Array.from({length: 800}, () => (Math.random() * 2 - 1) * 20);
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const w = canvas.width;
+      const h = canvas.height;
+      const cy = h / 2;
+
+      let signalPow = 0;
+      let noisePow = 0;
+
+      const drawWave = (color, fn, isOutput=false) => {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = isOutput ? 3 : 2;
+        ctx.beginPath();
+        for (let x = 0; x < w; x++) {
+          const n = noise[(x + time) % noise.length];
+          const y = cy + fn(x, n);
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+
+          if (isOutput) {
+            const sig = fn(x, 0); // ideal without noise
+            signalPow += sig*sig;
+            const err = fn(x, n) - sig;
+            noisePow += err*err;
+          }
+        }
+        ctx.stroke();
+      };
+
+      // A1: cyan
+      drawWave('rgba(0, 240, 255, 0.5)', (x, n) => Math.sin(x * 0.02 + time * 0.05) * 40 + n);
+      // A2: purple
+      drawWave('rgba(168, 85, 247, 0.5)', (x, n) => Math.sin((x + 20) * 0.02 + time * 0.05) * 35 + n);
+      // Output: white
+      drawWave('#ffffff', (x, n) => {
+        const v1 = Math.sin(x * 0.02 + time * 0.05) * 40 + n;
+        const v2 = Math.sin((x + 20) * 0.02 + time * 0.05) * 35 + n;
+        return v1 - lambda * v2;
+      }, true);
+
+      const computedSnr = 10 * Math.log10((signalPow + 1) / (noisePow + 1));
+      setSnr(computedSnr.toFixed(1));
+
+      time += 2;
+      animationFrameId = requestAnimationFrame(render);
+    };
+    render();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [lambda]);
 
   return (
-    <div className="h-[300px] bg-black rounded-xl border border-gray-800 flex items-center justify-center mb-4 relative overflow-hidden px-4">
-      <div className="flex w-full justify-between items-end h-[80%] z-10 gap-2">
-        {rewards.map((h, i) => {
-          const advantage = h - mean;
-          return (
-            <motion.div 
-              key={i} 
-              className={`flex-1 rounded-t ${advantage > 0 ? 'bg-green-500' : 'bg-red-500'}`} 
-              animate={{ height: `${h * 100}%` }}
-              transition={{ type: 'spring', bounce: 0, duration: 0.5 }}
-            />
-          );
-        })}
+    <motion.div style={cardStyle} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}>
+      <h3><span style={{color: '#00f0ff', marginRight:'10px'}}>◆</span>Differential Attention Noise</h3>
+      <div style={formulaStyle}>
+        $$\text{'{DiffAttn}'}(Q,K,V) = (A_1 - \lambda A_2)\,V, \quad \lambda \in [0, 2]$$
       </div>
-      <motion.div 
-        className="absolute w-full h-[2px] bg-cyan-400 z-20 shadow-[0_0_10px_cyan]"
-        animate={{ top: `${(1 - mean) * 80 + 10}%` }}
-      />
-      <div className="absolute top-2 left-4 text-xs text-cyan-400 font-mono bg-black/80 px-2 py-1 rounded">Group Mean: {mean.toFixed(2)}</div>
-    </div>
+      
+      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8' }}>
+            Lambda (λ): {lambda.toFixed(2)}
+          </label>
+          <input type="range" min="0" max="2" step="0.05" value={lambda} onChange={e => setLambda(parseFloat(e.target.value))} style={{ width: '200px', accentColor: '#00f0ff' }} />
+        </div>
+        <div style={{ textAlign: 'right', color: '#94a3b8' }}>
+          <div>Live SNR Estimate: {snr} dB</div>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', fontSize: '0.8rem' }}>
+            <span style={{color: 'rgba(0, 240, 255, 0.8)'}}>■ A1 Map</span>
+            <span style={{color: 'rgba(168, 85, 247, 0.8)'}}>■ A2 Map</span>
+            <span style={{color: '#fff'}}>■ Output</span>
+          </div>
+        </div>
+      </div>
+
+      <canvas ref={canvasRef} width={800} height={300} style={{ width: '100%', height: '300px', borderRadius: '12px', background: '#000' }} />
+    </motion.div>
   );
 };
 
-const DiffAttention = () => {
-  const [lambda, setLambda] = useState(0.5);
-  const data = Array.from({length: 50}, (_, i) => ({
-    x: i,
-    signal1: Math.sin(i * 0.2) + (Math.random() * 0.5 * (1-lambda)),
-    signal2: Math.sin(i * 0.2 + Math.PI) + (Math.random() * 0.5 * (1-lambda))
-  }));
+const Simulation4 = () => {
+  const [prompt, setPrompt] = useState('Type your prompt here...');
+  const [threshold, setThreshold] = useState(0.7);
+  const [stats, setStats] = useState({ conf: 0, meanEnt: 0, trig: false });
+  const [logs, setLogs] = useState([]);
+
+  const words = useMemo(() => prompt.trim().split(/\s+/).filter(w=>w.length>0), [prompt]);
+
+  const entropyData = useMemo(() => {
+    return words.map(word => {
+      // simulated entropy based on length
+      const p = Math.max(0.01, 1 - (word.length * 0.1));
+      const ent = -p * Math.log2(p) * 2; 
+      const finalEnt = Math.min(1.5, Math.max(0, ent + (Math.random()*0.2)));
+      return { word, ent: finalEnt };
+    });
+  }, [words]);
+
+  useEffect(() => {
+    if (entropyData.length === 0) {
+      setStats({ conf: 100, meanEnt: 0, trig: false });
+      return;
+    }
+    const meanEnt = entropyData.reduce((a,b)=>a+b.ent, 0) / entropyData.length;
+    const isTrig = meanEnt > threshold;
+    setStats({
+      conf: Math.max(0, (1 - meanEnt) * 100).toFixed(1),
+      meanEnt: meanEnt.toFixed(2),
+      trig: isTrig
+    });
+    
+    if (isTrig && entropyData.length > 3 && !logs.includes(`RAG Triggered at entropy ${meanEnt.toFixed(2)}`)) {
+      setLogs(l => [`RAG Triggered at entropy ${meanEnt.toFixed(2)}`, ...l].slice(0, 5));
+    }
+  }, [entropyData, threshold]);
 
   return (
-    <div className="bg-black rounded-xl border border-gray-800 p-4 mb-4">
-      <div className="h-[200px] mb-4">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
-            <Line type="monotone" dataKey="signal1" stroke="#22d3ee" dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="signal2" stroke="#a855f7" dot={false} isAnimationActive={false} />
-          </LineChart>
-        </ResponsiveContainer>
+    <motion.div style={cardStyle} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}>
+      <h3><span style={{color: '#00f0ff', marginRight:'10px'}}>◆</span>LLM Epistemic Uncertainty & RAG Gate</h3>
+      <div style={formulaStyle}>
+        $$\mathcal{'{H}'}(X) = -\sum_i p_i \log p_i, \quad \text{'{RAG gate: }'} \mathbb{'{1}'}[\mathcal{'{H}'} &gt; \tau]$$
       </div>
-      <div className="flex items-center gap-4 text-sm font-mono text-gray-400">
-        <span>Noise (λ):</span>
-        <input 
-          type="range" min="0" max="1" step="0.01" value={lambda} 
-          onChange={e => setLambda(parseFloat(e.target.value))}
-          className="flex-1 accent-cyan-400"
+      
+      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8' }}>
+            Threshold (τ): {threshold.toFixed(2)}
+          </label>
+          <input type="range" min="0.3" max="0.9" step="0.05" value={threshold} onChange={e => setThreshold(parseFloat(e.target.value))} style={{ width: '200px', accentColor: '#00f0ff' }} />
+        </div>
+        <div style={{ textAlign: 'right', color: '#94a3b8' }}>
+          <div>Confidence: {stats.conf}%</div>
+          <div>Mean Entropy: {stats.meanEnt}</div>
+        </div>
+      </div>
+
+      <div style={{ position: 'relative', marginBottom: '1rem' }}>
+        <textarea 
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          style={{ width: '100%', height: '100px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: '1px solid rgba(0,240,255,0.3)', borderRadius: '8px', padding: '1rem', fontFamily: 'Inter', fontSize: '1rem' }}
         />
-        <span>{lambda.toFixed(2)}</span>
+        {stats.trig && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            style={{ position: 'absolute', top: '-15px', right: '-10px', background: '#ef4444', color: '#fff', padding: '0.3rem 0.8rem', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold', boxShadow: '0 0 15px rgba(239, 68, 68, 0.6)' }}
+          >
+            RAG RETRIEVAL TRIGGERED
+          </motion.div>
+        )}
       </div>
-    </div>
-  );
-};
 
-const EntropyProbe = () => {
-  const text = "The quick brown fox jumps over the lazy dog";
-  const words = text.split(" ");
-  
-  return (
-    <div className="bg-black rounded-xl border border-gray-800 p-6 mb-4 font-mono">
-      <div className="flex flex-wrap gap-2 mb-4">
-        {words.map((w, i) => {
-          const entropy = Math.random();
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem', background: '#000', padding: '1rem', borderRadius: '8px', minHeight: '80px' }}>
+        {entropyData.map((d, i) => {
+          // ent 0 to 1 -> green to red
+          const norm = Math.min(1, d.ent);
+          const r = Math.round(255 * norm);
+          const g = Math.round(255 * (1 - norm));
           return (
-            <div key={i} className="flex flex-col items-center">
-              <span className="text-sm text-gray-300">{w}</span>
-              <div 
-                className="w-full h-1 mt-1 rounded" 
-                style={{ backgroundColor: `hsl(${(1-entropy)*120}, 100%, 50%)` }}
-              ></div>
-              <span className="text-[10px] text-gray-500">{entropy.toFixed(2)}</span>
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>{d.word}</span>
+              <div style={{ width: '100%', height: '4px', background: `rgb(${r}, ${g}, 0)`, marginTop: '4px', borderRadius: '2px' }} />
             </div>
           )
         })}
       </div>
-      <div className="text-xs text-gray-500 text-center">Color mapping: Red = High Entropy (Uncertain), Green = Low Entropy (Certain)</div>
-    </div>
+      
+      <div style={{ color: '#94a3b8', fontSize: '0.8rem', height: '60px', overflowY: 'auto' }}>
+        {logs.map((log, i) => <div key={i}>&gt; {log}</div>)}
+      </div>
+
+    </motion.div>
   );
 };
 
-const Labs = () => {
+export default function Labs() {
   return (
-    <div className="labs-page pt-32 px-4 max-w-7xl mx-auto mb-20">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold font-['Space_Grotesk'] mb-6">AI Learning Labs</h1>
-        <p className="text-gray-400 max-w-2xl mx-auto text-lg">Interactive simulations and visualizations of our core mathematical concepts. Manipulate the parameters to build intuition.</p>
-      </div>
+    <div style={{ padding: '4rem 2rem', minHeight: '100vh', background: '#050810', color: '#e2e8f0', fontFamily: 'Inter, system-ui, sans-serif' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+        <header style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: '800', background: 'linear-gradient(90deg, #00f0ff, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '1rem' }}>
+            Interactive AI Learning Labs
+          </h1>
+          <p style={{ fontSize: '1.1rem', color: '#94a3b8', marginBottom: '2rem' }}>
+            Explore the mathematical foundations of Hoosha AI research through real-time visualizations
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            {['4 Simulations', 'Real-time Canvas', 'KaTeX Math', 'Open Source'].map(badge => (
+              <span key={badge} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.4rem 1rem', borderRadius: '999px', fontSize: '0.9rem' }}>
+                {badge}
+              </span>
+            ))}
+          </div>
+        </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        {/* Module 1: CFM */}
-        <div className="glass-card card p-8 border border-gray-800 rounded-2xl hover:border-cyan-500/30 transition-colors">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold font-['Space_Grotesk']">1. CFM Vector Field</h2>
-            <span className="bg-cyan-900/30 text-cyan-400 px-3 py-1 rounded text-xs font-mono">Interactive</span>
-          </div>
-          <CfmCanvas />
-          <p className="text-gray-400 text-sm mb-4">Continuous Flow Matching models learn a deterministic ODE trajectory. Move your mouse to change the target distribution sink.</p>
-          <div className="bg-black/50 p-3 rounded-lg font-mono text-cyan-400 text-sm text-center border border-gray-800">
-            d(\mathbf{x}_t)/dt = (v_\theta(\mathbf{x}_t))
-          </div>
-        </div>
-
-        {/* Module 2: GRPO */}
-        <div className="glass-card card p-8 border border-gray-800 rounded-2xl hover:border-purple-500/30 transition-colors">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold font-['Space_Grotesk']">2. GRPO Optimization</h2>
-            <span className="bg-green-900/30 text-green-400 px-3 py-1 rounded text-xs font-mono">Live Data</span>
-          </div>
-          <GrpoInteractive />
-          <p className="text-gray-400 text-sm mb-4">Group Relative Policy Optimization computes advantage relative to a sampled group mean, shown by the horizontal line.</p>
-          <div className="bg-black/50 p-3 rounded-lg font-mono text-purple-400 text-sm text-center border border-gray-800">
-            A_i = (R_i - (\mu(R))) / (\sigma(R))
-          </div>
-        </div>
-
-        {/* Module 3: Differential Attention */}
-        <div className="glass-card card p-8 border border-gray-800 rounded-2xl hover:border-cyan-500/30 transition-colors">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold font-['Space_Grotesk']">3. Differential Attention</h2>
-            <span className="bg-cyan-900/30 text-cyan-400 px-3 py-1 rounded text-xs font-mono">Parametric</span>
-          </div>
-          <DiffAttention />
-          <p className="text-gray-400 text-sm mb-4">Cancels out common-mode noise across attention heads by subtracting paired waveforms.</p>
-          <div className="bg-black/50 p-3 rounded-lg font-mono text-cyan-400 text-sm text-center border border-gray-800">
-            Attn_diff = Softmax(Q_1 K_1^T) - \lambda Softmax(Q_2 K_2^T)
-          </div>
-        </div>
-
-        {/* Module 4: Epistemic Entropy Probe */}
-        <div className="glass-card card p-8 border border-gray-800 rounded-2xl hover:border-purple-500/30 transition-colors">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold font-['Space_Grotesk']">4. Epistemic Entropy Probe</h2>
-            <span className="bg-purple-900/30 text-purple-400 px-3 py-1 rounded text-xs font-mono">Visualization</span>
-          </div>
-          <EntropyProbe />
-          <p className="text-gray-400 text-sm mb-4">Visualizing token-level uncertainty. High entropy indicates the model should defer to parametric retrieval (RAG).</p>
-          <div className="bg-black/50 p-3 rounded-lg font-mono text-purple-400 text-sm text-center border border-gray-800">
-            H_l(x) = -\sum P_l(v|x) \log P_l(v|x)
-          </div>
-        </div>
-
+        <Simulation1 />
+        <Simulation2 />
+        <Simulation3 />
+        <Simulation4 />
       </div>
     </div>
   );
-};
-
-export default Labs;
+}
