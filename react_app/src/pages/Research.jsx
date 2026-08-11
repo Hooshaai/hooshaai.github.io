@@ -10,8 +10,6 @@ const Research = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const tts = useTTSPlayer();
 
-  const categories = ['All', 'Linear Attention', 'Verification', 'Cognition', 'Consciousness', 'Adaptive RAG', 'Continuous Flow Matching', 'GRPO Alignment'];
-
   const filteredArticles = ALL_ARTICLES ? ALL_ARTICLES.filter(art => {
     const matchesSearch = art.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (art.snippet && art.snippet.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -33,14 +31,22 @@ const Research = () => {
           <input 
             type="text" 
             placeholder="Search publications, authors, or topics..." 
-            className="w-full bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-2xl py-5 pl-16 pr-6 text-white text-lg focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 focus:outline-none transition-all relative z-0 shadow-2xl"
+            className="w-full bg-gray-900/80 backdrop-blur-md border border-gray-700 rounded-2xl py-5 pl-16 pr-12 text-white text-lg focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 focus:outline-none transition-all relative z-0 shadow-2xl"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {searchQuery && (
+            <button 
+              className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white z-10"
+              onClick={() => setSearchQuery('')}
+            >
+              <i className="fas fa-times"></i>
+            </button>
+          )}
         </div>
 
         <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {categories.map(cat => (
+          {['All', 'Linear Attention', 'Verification', 'Cognition', 'Consciousness'].map(cat => (
             <button 
               key={cat}
               className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${activeCategory === cat ? 'bg-cyan-400 text-black shadow-[0_0_15px_rgba(0,240,255,0.4)] scale-105' : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'}`}

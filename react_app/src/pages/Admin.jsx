@@ -7,6 +7,17 @@ const Admin = () => {
   const [pass, setPass] = useState('');
   
   const [copiedKey, setCopiedKey] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [toastMsg, setToastMsg] = useState('');
+
+  const subscribers = [
+    { e: 'researcher@mit.edu', org: 'MIT', d: '2026-08-11 14:22 UTC', s: 'Active' },
+    { e: 'dev@openai.com', org: 'OpenAI', d: '2026-08-10 09:15 UTC', s: 'Active' },
+    { e: 'student@stanford.edu', org: 'Stanford', d: '2026-08-09 18:40 UTC', s: 'Pending' },
+    { e: 't.majlesi@ut.ac.ir', org: 'Univ of Tehran', d: '2026-08-08 11:10 UTC', s: 'Active' }
+  ];
+
+  const filteredSubs = subscribers.filter(s => s.e.toLowerCase().includes(searchQuery.toLowerCase()) || s.org.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const chartData = [
     { name: 'Jan', subs: 4000 },
@@ -29,7 +40,11 @@ const Admin = () => {
   const copyKey = (key) => {
     navigator.clipboard.writeText(key);
     setCopiedKey(key);
-    setTimeout(() => setCopiedKey(''), 2000);
+    setToastMsg(`Copied ${key.substring(0, 10)}... to clipboard`);
+    setTimeout(() => {
+      setCopiedKey('');
+      setToastMsg('');
+    }, 2000);
   };
 
   if (!auth) {
@@ -146,11 +161,23 @@ const Admin = () => {
       </div>
 
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-lg">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <h2 className="text-xl font-bold font-['Space_Grotesk']">Recent Subscribers</h2>
-          <button className="text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg border border-gray-700 transition-colors">
-            <i className="fas fa-download mr-2"></i>Export CSV
-          </button>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative flex-1 md:w-64">
+              <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+              <input 
+                type="text" 
+                placeholder="Search email or org..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full bg-black border border-gray-700 rounded-lg pl-9 pr-3 py-2 text-sm text-white focus:border-cyan-500 focus:outline-none transition-colors"
+              />
+            </div>
+            <button className="text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg border border-gray-700 transition-colors whitespace-nowrap">
+              <i className="fas fa-download mr-2"></i>Export CSV
+            </button>
+          </div>
         </div>
         
         <div className="overflow-x-auto">
@@ -165,12 +192,7 @@ const Admin = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
-              {[
-                { e: 'researcher@mit.edu', org: 'MIT', d: '2026-08-11 14:22 UTC', s: 'Active' },
-                { e: 'dev@openai.com', org: 'OpenAI', d: '2026-08-10 09:15 UTC', s: 'Active' },
-                { e: 'student@stanford.edu', org: 'Stanford', d: '2026-08-09 18:40 UTC', s: 'Pending' },
-                { e: 't.majlesi@ut.ac.ir', org: 'Univ of Tehran', d: '2026-08-08 11:10 UTC', s: 'Active' }
-              ].map((sub, i) => (
+              {filteredSubs.map((sub, i) => (
                 <tr key={i} className="hover:bg-gray-800/50 transition-colors">
                   <td className="py-4 pl-4 text-cyan-400">{sub.e}</td>
                   <td className="py-4 text-gray-400">{sub.org}</td>
@@ -186,6 +208,14 @@ const Admin = () => {
           </table>
         </div>
       </div>
+      
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="fixed bottom-4 right-4 bg-gray-800 border border-cyan-500/50 text-cyan-400 px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 animate-bounce">
+          <i className="fas fa-check-circle"></i>
+          <span className="font-mono text-sm">{toastMsg}</span>
+        </div>
+      )}
     </div>
   );
 };

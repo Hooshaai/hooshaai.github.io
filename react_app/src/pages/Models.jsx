@@ -1,34 +1,46 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LineChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
 const Models = () => {
   const models = [
-    { name: 'Hoosha CFM-7B', params: '7B', type: 'Flow Matching', precision: 'BF16', scores: { mmlu: 68.2, math: 42.1, gsm8k: 78.5 }, size: '14.2 GB' },
-    { name: 'GRPO Reasoner 14B', params: '14B', type: 'Reasoning', precision: 'INT4', scores: { mmlu: 75.4, math: 61.2, gsm8k: 89.1 }, size: '8.4 GB' },
-    { name: 'Sparse MoE 8x7B', params: '47B', type: 'MoE', precision: 'FP8', scores: { mmlu: 72.1, math: 51.4, gsm8k: 84.3 }, size: '47.1 GB' },
-    { name: 'Adaptive RAG 3B', params: '3B', type: 'RAG', precision: 'BF16', scores: { mmlu: 61.5, math: 31.2, gsm8k: 65.4 }, size: '6.1 GB' },
-    { name: 'Vision Flow 34B', params: '34B', type: 'Multimodal', precision: 'FP8', scores: { mmlu: 78.9, math: 65.4, gsm8k: 91.2 }, size: '34.5 GB' },
-    { name: 'Triton Kernel v1', params: 'N/A', type: 'Kernel', precision: 'CUDA', scores: { mmlu: '-', math: '-', gsm8k: '-' }, size: '2 MB' }
+    { name: 'Hoosha CFM-7B', params: '7B', context: '32k', type: 'Flow Matching', precision: 'BF16', scores: { mmlu: 68.2, math: 42.1, gsm8k: 78.5 }, size: '14.2 GB', memory: '16 GB' },
+    { name: 'GRPO Reasoner 14B', params: '14B', context: '128k', type: 'Reasoning', precision: 'INT4', scores: { mmlu: 75.4, math: 61.2, gsm8k: 89.1 }, size: '8.4 GB', memory: '12 GB' },
+    { name: 'Sparse MoE 8x7B', params: '47B', context: '64k', type: 'MoE', precision: 'FP8', scores: { mmlu: 72.1, math: 51.4, gsm8k: 84.3 }, size: '47.1 GB', memory: '48 GB' },
+    { name: 'Adaptive RAG 3B', params: '3B', context: '8k', type: 'RAG', precision: 'BF16', scores: { mmlu: 61.5, math: 31.2, gsm8k: 65.4 }, size: '6.1 GB', memory: '8 GB' },
+    { name: 'Vision Flow 34B', params: '34B', context: '128k', type: 'Multimodal', precision: 'FP8', scores: { mmlu: 78.9, math: 65.4, gsm8k: 91.2 }, size: '34.5 GB', memory: '40 GB' },
+    { name: 'Triton Kernel v1', params: 'N/A', context: 'N/A', type: 'Kernel', precision: 'CUDA', scores: { mmlu: '-', math: '-', gsm8k: '-' }, size: '2 MB', memory: '1 GB' }
   ];
 
   const [downloadModal, setDownloadModal] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [speedData, setSpeedData] = useState([]);
   const [copied, setCopied] = useState('');
 
   const handleDownload = (model) => {
     setDownloadModal(model);
     setProgress(0);
     setCopied('');
-    const interval = setInterval(() => {
-      setProgress(p => {
-        if (p >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return p + (Math.random() * 15); // Random jumps
-      });
-    }, 500);
+    setSpeedData(Array.from({length: 10}, (_, i) => ({ time: i, speed: 0 })));
   };
+
+  useEffect(() => {
+    let interval;
+    if (downloadModal && progress < 100) {
+      interval = setInterval(() => {
+        const newSpeed = 20 + Math.random() * 50;
+        setProgress(p => {
+          const next = p + (newSpeed / 100);
+          return next > 100 ? 100 : next;
+        });
+        setSpeedData(prev => {
+          const newData = [...prev.slice(1), { time: Date.now(), speed: newSpeed }];
+          return newData;
+        });
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [downloadModal, progress]);
 
   const copyCode = (text, id) => {
     navigator.clipboard.writeText(text);
@@ -45,6 +57,42 @@ const Models = () => {
           <span className="flex items-center"><i className="fas fa-cube text-purple-400 mr-3 text-lg"></i>6 Production Checkpoints</span>
           <span className="flex items-center"><i className="fas fa-download text-green-400 mr-3 text-lg"></i>276k+ Global Downloads</span>
         </div>
+      </div>
+
+      <div className="mb-16 overflow-x-auto">
+        <h2 className="text-2xl font-bold font-['Space_Grotesk'] mb-6">Comparison Matrix</h2>
+        <table className="w-full text-left border-collapse font-mono text-sm">
+          <thead>
+            <tr className="bg-gray-900/80 border-b border-gray-800 text-gray-400">
+              <th className="p-4">Model Name</th>
+              <th className="p-4">Parameters</th>
+              <th className="p-4">Context Length</th>
+              <th className="p-4">Memory Footprint</th>
+              <th className="p-4">MMLU</th>
+              <th className="p-4">MATH500</th>
+              <th className="p-4">GSM8K</th>
+              <th className="p-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {models.map((model, i) => (
+              <tr key={i} className="border-b border-gray-800/50 hover:bg-gray-800/20 transition-colors">
+                <td className="p-4 font-bold text-cyan-400">{model.name}</td>
+                <td className="p-4">{model.params}</td>
+                <td className="p-4">{model.context}</td>
+                <td className="p-4">{model.memory}</td>
+                <td className="p-4">{model.scores.mmlu}</td>
+                <td className="p-4">{model.scores.math}</td>
+                <td className="p-4">{model.scores.gsm8k}</td>
+                <td className="p-4">
+                  <button onClick={() => handleDownload(model)} className="px-3 py-1 bg-gray-800 hover:bg-cyan-500 hover:text-black rounded text-xs transition-colors">
+                    Download
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -65,21 +113,6 @@ const Models = () => {
               <span className="text-gray-500"><i className="fas fa-hdd mr-1"></i> {model.size}</span>
             </div>
             
-            <div className="grid grid-cols-3 gap-2 mb-8 text-center text-xs">
-              <div className="bg-gray-900/80 border border-gray-800 p-3 rounded-lg">
-                <div className="text-gray-500 mb-1">MMLU</div>
-                <div className="font-mono text-white text-sm">{model.scores.mmlu}</div>
-              </div>
-              <div className="bg-gray-900/80 border border-gray-800 p-3 rounded-lg">
-                <div className="text-gray-500 mb-1">MATH500</div>
-                <div className="font-mono text-white text-sm">{model.scores.math}</div>
-              </div>
-              <div className="bg-gray-900/80 border border-gray-800 p-3 rounded-lg">
-                <div className="text-gray-500 mb-1">GSM8K</div>
-                <div className="font-mono text-white text-sm">{model.scores.gsm8k}</div>
-              </div>
-            </div>
-
             <button 
               className="mt-auto w-full bg-white text-black py-3 rounded-xl font-bold hover:bg-cyan-400 transition-colors flex justify-center items-center gap-2"
               onClick={() => handleDownload(model)}
@@ -102,7 +135,7 @@ const Models = () => {
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-gray-900 border border-gray-700 rounded-3xl p-8 max-w-2xl w-full relative shadow-2xl"
+              className="bg-gray-900 border border-gray-700 rounded-3xl p-8 max-w-3xl w-full relative shadow-2xl"
             >
               <button 
                 className="absolute top-6 right-6 text-gray-400 hover:text-white text-xl bg-gray-800 w-8 h-8 rounded-full flex items-center justify-center"
@@ -117,16 +150,18 @@ const Models = () => {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold font-['Space_Grotesk']">{downloadModal.name}</h2>
-                  <p className="text-sm text-gray-400 font-mono">Size: {downloadModal.size} • SHA256: 8f4e2...a1b9</p>
+                  <p className="text-sm text-gray-400 font-mono flex items-center gap-2">
+                    Size: {downloadModal.size} • <span className="text-green-400"><i className="fas fa-check-circle"></i> SHA256 Verified</span>
+                  </p>
                 </div>
               </div>
               
-              <div className="mb-8">
+              <div className="mb-8 bg-black/50 p-6 rounded-2xl border border-gray-800">
                 <div className="flex justify-between text-sm font-mono mb-2">
-                  <span className="text-cyan-400">{progress >= 100 ? 'Download Complete' : 'Downloading weights...'}</span>
+                  <span className="text-cyan-400">{progress >= 100 ? 'Download Complete' : 'Downloading weights (.safetensors)...'}</span>
                   <span className="text-white">{Math.min(100, Math.floor(progress))}%</span>
                 </div>
-                <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden border border-gray-700">
+                <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden border border-gray-700 mb-4">
                   <motion.div 
                     className="bg-gradient-to-r from-cyan-500 to-purple-500 h-full rounded-full relative" 
                     animate={{ width: `${Math.min(100, progress)}%` }}
@@ -135,39 +170,39 @@ const Models = () => {
                     <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
                   </motion.div>
                 </div>
-                {progress < 100 && <div className="text-right text-xs text-gray-500 mt-2 font-mono">ETA: {Math.floor(120 - progress)}s • 45 MB/s</div>}
+                <div className="h-20 w-full mt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={speedData}>
+                      <YAxis domain={[0, 100]} hide />
+                      <Line type="monotone" dataKey="speed" stroke="#22d3ee" strokeWidth={2} dot={false} isAnimationActive={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                {progress < 100 && <div className="text-right text-xs text-gray-500 mt-2 font-mono">{(speedData[speedData.length-1]?.speed || 0).toFixed(1)} MB/s</div>}
               </div>
 
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-400 font-mono">Wget Command</span>
+                    <span className="text-sm text-gray-400 font-mono">Wget</span>
                     <button onClick={() => copyCode(`wget https://huggingface.co/hooshaai/${downloadModal.name.replace(/ /g, '-').toLowerCase()}/resolve/main/model.safetensors`, 'wget')} className="text-xs text-cyan-400 hover:text-white">
                       {copied === 'wget' ? <><i className="fas fa-check mr-1"></i> Copied!</> : <><i className="fas fa-copy mr-1"></i> Copy</>}
                     </button>
                   </div>
-                  <div className="bg-black p-4 rounded-xl border border-gray-800 font-mono text-sm text-green-400 overflow-x-auto">
+                  <div className="bg-black p-4 rounded-xl border border-gray-800 font-mono text-xs text-green-400 overflow-x-auto h-24 flex items-center">
                     wget https://huggingface.co/hooshaai/{downloadModal.name.replace(/ /g, '-').toLowerCase()}/resolve/main/model.safetensors
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-400 font-mono">PyTorch Implementation</span>
-                    <button onClick={() => copyCode(`import torch\\nfrom transformers import AutoModelForCausalLM\\n\\nmodel = AutoModelForCausalLM.from_pretrained(\\n  "hooshaai/${downloadModal.name.replace(/ /g, '-').toLowerCase()}",\\n  torch_dtype=torch.bfloat16\\n)`, 'pt')} className="text-xs text-cyan-400 hover:text-white">
-                      {copied === 'pt' ? <><i className="fas fa-check mr-1"></i> Copied!</> : <><i className="fas fa-copy mr-1"></i> Copy</>}
+                    <span className="text-sm text-gray-400 font-mono">Hugging Face CLI</span>
+                    <button onClick={() => copyCode(`huggingface-cli download hooshaai/${downloadModal.name.replace(/ /g, '-').toLowerCase()}`, 'hf')} className="text-xs text-cyan-400 hover:text-white">
+                      {copied === 'hf' ? <><i className="fas fa-check mr-1"></i> Copied!</> : <><i className="fas fa-copy mr-1"></i> Copy</>}
                     </button>
                   </div>
-                  <div className="bg-black p-4 rounded-xl border border-gray-800 font-mono text-sm overflow-x-auto">
-                    <pre className="text-gray-300">
-<span className="text-purple-400">import</span> torch
-<span className="text-purple-400">from</span> transformers <span className="text-purple-400">import</span> AutoModelForCausalLM
-
-model = AutoModelForCausalLM.from_pretrained(
-  <span className="text-yellow-300">"hooshaai/{downloadModal.name.replace(/ /g, '-').toLowerCase()}"</span>,
-  torch_dtype=torch.bfloat16
-)
-                    </pre>
+                  <div className="bg-black p-4 rounded-xl border border-gray-800 font-mono text-xs text-purple-400 overflow-x-auto h-24 flex items-center">
+                    huggingface-cli download hooshaai/{downloadModal.name.replace(/ /g, '-').toLowerCase()}
                   </div>
                 </div>
               </div>

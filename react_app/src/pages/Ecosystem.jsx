@@ -3,17 +3,17 @@ import { useState } from 'react';
 const Ecosystem = () => {
   const [activeTab, setActiveTab] = useState('All');
 
-  const tabs = ['All', 'Compute', 'Frameworks', 'Hardware', 'Community'];
+  const tabs = ['All', 'Model', 'Framework', 'Kernel', 'Hardware'];
   
   const techStack = [
-    { name: 'PyTorch', cat: 'Frameworks', desc: 'Core deep learning framework for all our models.', icon: 'fa-fire' },
-    { name: 'CUDA / Triton', cat: 'Compute', desc: 'Custom kernels for sub-quadratic attention.', icon: 'fa-microchip' },
-    { name: 'HuggingFace', cat: 'Community', desc: 'Model weights and dataset hosting.', icon: 'fa-cube' },
-    { name: 'Substack', cat: 'Community', desc: 'Research journal and publications.', icon: 'fa-pen-nib' },
-    { name: 'University of Tehran', cat: 'Community', desc: 'Academic partner.', icon: 'fa-university' },
-    { name: 'Sharif University', cat: 'Community', desc: 'Academic partner.', icon: 'fa-university' },
-    { name: 'Python', cat: 'Frameworks', desc: 'Primary development language.', icon: 'fa-code' },
-    { name: 'H100 GPUs', cat: 'Hardware', desc: 'Primary training cluster hardware.', icon: 'fa-server' }
+    { name: 'PyTorch', cat: 'Frameworks', desc: 'Core deep learning framework.', icon: 'fa-fire' },
+    { name: 'CUDA', cat: 'Kernel', desc: 'Hardware-level programming.', icon: 'fa-microchip' },
+    { name: 'Triton', cat: 'Kernel', desc: 'Custom kernels.', icon: 'fa-water' },
+    { name: 'HuggingFace', cat: 'Model', desc: 'Model weights hosting.', icon: 'fa-cube' },
+    { name: 'Substack', cat: 'Frameworks', desc: 'Research journal.', icon: 'fa-pen-nib' },
+    { name: 'University of Tehran', cat: 'Hardware', desc: 'Academic partner.', icon: 'fa-university' },
+    { name: 'Sharif University', cat: 'Hardware', desc: 'Academic partner.', icon: 'fa-university' },
+    { name: 'Python', cat: 'Frameworks', desc: 'Primary development language.', icon: 'fa-code' }
   ];
 
   return (
@@ -47,12 +47,19 @@ const Ecosystem = () => {
       </div>
 
       <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6 text-center">Interoperability Stack</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Interactive Architecture Stack</h2>
         <div className="flex flex-col gap-4">
-          <div className="bg-gray-800/80 p-4 rounded-xl text-center border border-gray-700">Application Layer (React, Vite, Cloudflare)</div>
-          <div className="bg-gray-800/80 p-4 rounded-xl text-center border border-gray-700">Model Layer (Transformers, Flow Matching, GRPO)</div>
-          <div className="bg-gray-800/80 p-4 rounded-xl text-center border border-gray-700">Framework Layer (PyTorch, vLLM, DeepSpeed)</div>
-          <div className="bg-gray-800/80 p-4 rounded-xl text-center border border-cyan-900/50 text-cyan-400">Compute Layer (CUDA, Triton, H100 Tensor Cores)</div>
+          {['Model Layer', 'Framework Layer', 'Kernel Layer', 'Hardware Layer'].map((layer, i) => (
+            <div 
+              key={layer}
+              className={`p-4 rounded-xl text-center border cursor-pointer transition-all hover:-translate-y-1 ${
+                activeTab === layer.split(' ')[0] ? 'bg-cyan-900/40 border-cyan-500 text-cyan-400 font-bold' : 'bg-gray-800/80 border-gray-700 text-gray-300 hover:bg-gray-700'
+              }`}
+              onClick={() => setActiveTab(layer.split(' ')[0])}
+            >
+              {layer}
+            </div>
+          ))}
         </div>
       </div>
     </div>

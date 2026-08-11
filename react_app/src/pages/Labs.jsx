@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { MathBlock } from '../utils/renderMath';
 
 const cardStyle = {
   background: 'rgba(10,15,30,0.7)',
@@ -12,17 +13,6 @@ const cardStyle = {
   WebkitBackdropFilter: 'blur(4px)',
 };
 
-const formulaStyle = {
-  background: 'rgba(0,0,0,0.4)',
-  borderLeft: '3px solid #00f0ff',
-  padding: '1rem',
-  fontFamily: 'JetBrains Mono, monospace',
-  fontSize: '0.9rem',
-  margin: '1rem 0',
-  color: '#e2e8f0',
-  overflowX: 'auto',
-  whiteSpace: 'pre-wrap'
-};
 
 const buttonStyle = {
   background: 'rgba(0,240,255,0.1)',
@@ -164,9 +154,7 @@ const Simulation1 = () => {
   return (
     <motion.div style={cardStyle} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}>
       <h3><span style={{color: '#00f0ff', marginRight:'10px'}}>◆</span>Continuous Flow Matching (CFM)</h3>
-      <div style={formulaStyle}>
-        $$dx_t = v_\theta(t, x_t)\,dt, \quad x_0 \sim p_0, \quad x_1 \sim p_1$$
-      </div>
+      <MathBlock formula={String.raw`dx_t = v_\theta(t, x_t)\,dt, \quad x_0 \sim p_0, \quad x_1 \sim p_1`} />
       
       <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
         <div>
@@ -282,9 +270,7 @@ const Simulation2 = () => {
   return (
     <motion.div style={cardStyle} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}>
       <h3><span style={{color: '#00f0ff', marginRight:'10px'}}>◆</span>GRPO Policy Alignment</h3>
-      <div style={formulaStyle}>
-        $$\mathcal{'{L}'}_{'{GRPO}'} = -\mathbb{'{E}'}\left[\hat{'{A}'}_i \log \pi_\theta(o_i|q)\right] + \beta\,\mathbb{'{KL}'}(\pi_\theta \| \pi_{'{ref}'})$$
-      </div>
+      <MathBlock formula={String.raw`\mathcal{L}_{GRPO} = -\mathbb{E}\left[\hat{A}_i \log \pi_\theta(o_i|q)\right] + \beta\,\mathbb{KL}(\pi_\theta \| \pi_{ref})`} />
       
       <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
         <div>
@@ -372,9 +358,7 @@ const Simulation3 = () => {
   return (
     <motion.div style={cardStyle} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}>
       <h3><span style={{color: '#00f0ff', marginRight:'10px'}}>◆</span>Differential Attention Noise</h3>
-      <div style={formulaStyle}>
-        $$\text{'{DiffAttn}'}(Q,K,V) = (A_1 - \lambda A_2)\,V, \quad \lambda \in [0, 2]$$
-      </div>
+      <MathBlock formula={String.raw`\text{DiffAttn}(Q,K,V) = (A_1 - \lambda A_2)\,V, \quad \lambda \in [0, 2]`} />
       
       <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
@@ -437,9 +421,7 @@ const Simulation4 = () => {
   return (
     <motion.div style={cardStyle} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}>
       <h3><span style={{color: '#00f0ff', marginRight:'10px'}}>◆</span>LLM Epistemic Uncertainty & RAG Gate</h3>
-      <div style={formulaStyle}>
-        $$\mathcal{'{H}'}(X) = -\sum_i p_i \log p_i, \quad \text{'{RAG gate: }'} \mathbb{'{1}'}[\mathcal{'{H}'} &gt; \tau]$$
-      </div>
+      <MathBlock formula={String.raw`\mathcal{H}(X) = -\sum_i p_i \log p_i, \quad \text{RAG gate: } \mathbb{1}[\mathcal{H} > \tau]`} />
       
       <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
         <div>

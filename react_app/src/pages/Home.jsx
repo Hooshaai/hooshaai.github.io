@@ -146,7 +146,7 @@ const Home = () => {
       <section className="stats-bar grid grid-cols-2 md:grid-cols-4 gap-8 p-8 bg-gray-900/60 backdrop-blur-md border border-gray-800 rounded-2xl my-12 mx-auto max-w-5xl">
         <div className="text-center">
           <h3 className="text-4xl font-bold text-cyan-400 font-mono"><Counter from={0} to={20} /></h3>
-          <p className="text-gray-400 mt-2 font-medium uppercase tracking-wider text-sm">Publications</p>
+          <p className="text-gray-400 mt-2 font-medium uppercase tracking-wider text-sm">Dispatches</p>
         </div>
         <div className="text-center">
           <h3 className="text-4xl font-bold text-purple-400 font-mono"><Counter from={0} to={6} /></h3>
@@ -171,8 +171,19 @@ const Home = () => {
           transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
           className="flex gap-16 items-center whitespace-nowrap text-gray-500 font-mono text-xl"
         >
-          {Array(4).fill(['PyTorch', 'CUDA', 'Triton', 'HuggingFace', 'React', 'Vite', 'Recharts', 'Framer']).flat().map((tech, i) => (
-            <span key={i} className="hover:text-cyan-400 transition-colors">{tech}</span>
+          {Array(4).fill([
+            {name: 'PyTorch', icon: 'fa-fire'}, 
+            {name: 'CUDA', icon: 'fa-microchip'}, 
+            {name: 'Triton', icon: 'fa-water'}, 
+            {name: 'HuggingFace', icon: 'fa-cube'}, 
+            {name: 'React', icon: 'fab fa-react'}, 
+            {name: 'Vite', icon: 'fa-bolt'}, 
+            {name: 'Recharts', icon: 'fa-chart-line'}, 
+            {name: 'Framer', icon: 'fa-framer'}
+          ]).flat().map((tech, i) => (
+            <span key={i} className="hover:text-cyan-400 transition-colors flex items-center gap-2">
+              <i className={`fas ${tech.icon}`}></i> {tech.name}
+            </span>
           ))}
         </motion.div>
       </div>
