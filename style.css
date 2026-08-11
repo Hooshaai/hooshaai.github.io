@@ -401,3 +401,115 @@ footer {
   .footer-content { flex-direction: column; gap: 2rem; }
   .nav-links { display: none; }
 }
+
+/* Journal Series */
+.series-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+  backdrop-filter: blur(10px);
+}
+
+.series-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.series-badge {
+  background: rgba(0, 240, 255, 0.1);
+  color: var(--cyan);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--cyan);
+}
+
+.series-count {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.series-title {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.series-desc {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.chapter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  background: rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+.chapter-row:hover {
+  background: rgba(0, 240, 255, 0.05);
+  border-color: var(--cyan);
+  transform: translateX(10px);
+}
+
+.chapter-meta {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.part-badge {
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 0.95rem;
+  min-width: 60px;
+}
+
+.chapter-info h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.3rem;
+}
+
+.read-time {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.chapter-arrow {
+  color: var(--text-muted);
+  transition: color 0.3s, transform 0.3s;
+}
+
+.chapter-row:hover .chapter-arrow {
+  color: var(--cyan);
+  transform: translateX(5px);
+}
+
+/* Animations */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
