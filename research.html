@@ -204,12 +204,14 @@
     <div class="article-modal-content">
       <div class="article-modal-topbar">
         <div class="article-modal-breadcrumbs">
-          <span class="series-badge" id="articleCategoryBadge">Substack Essay</span>
-          <span class="article-modal-reading-time" id="articleReadTime"><i class="fas fa-book-open"></i> 8 min read</span>
+          <span class="series-badge" id="articleCategoryBadge">Adaptive RAG</span>
+          <span class="article-modal-reading-time" id="articleReadTime"><i class="fas fa-book-open"></i> 12 min read</span>
         </div>
         <div class="article-modal-actions">
           <button class="icon-btn" id="decreaseFontBtn" title="Decrease font size">A-</button>
           <button class="icon-btn" id="increaseFontBtn" title="Increase font size">A+</button>
+          <button class="btn-sub-action" id="modalCiteBibtexBtn" title="Generate BibTeX Citation"><i class="fas fa-quote-right"></i> Cite</button>
+          <button class="btn-sub-action" id="modalExportPdfBtn" title="Export PDF Download"><i class="fas fa-file-pdf"></i> PDF</button>
           <a href="#" target="_blank" id="externalArticleLink" class="btn-sub-link" title="Open original essay on Substack">
             <i class="fas fa-external-link-alt"></i> Substack
           </a>
@@ -218,6 +220,13 @@
       </div>
       <div class="article-modal-body" id="articleBody">
         <header class="article-header">
+          <div class="article-meta-bar">
+            <span id="articleDate" class="article-date">Hoosha AI Journal</span>
+            <span class="meta-dot">•</span>
+            <span id="articleWordCount" class="article-word-count">3,500 words</span>
+          </div>
+          <h1 id="articleTitle" class="article-title">Article Title</h1>
+          <p id="articleSubtitle" class="article-subtitle">Subtitle content goes here...</p>
           <div class="article-author-card">
             <img src="https://raw.githubusercontent.com/tahamajs/tahamajs.github.io/main/assets/avatar.jpg" alt="Mohammad Taha Majlesi" class="author-avatar">
             <div class="author-info">
@@ -225,13 +234,59 @@
               <span class="author-role" id="articleAuthorRole">Co-Founder & Lead AI Architect @ Hoosha AI</span>
             </div>
           </div>
-          <h1 id="articleTitle" class="article-title">Article Title</h1>
-          <p id="articleSubtitle" class="article-subtitle">Subtitle content goes here...</p>
         </header>
         
         <article id="articleContent" class="article-markdown-body">
           <!-- Article content dynamically rendered here -->
         </article>
+
+        <!-- In-Modal Substack Subscription CTA -->
+        <div class="article-subscription-box">
+          <div class="sub-box-content">
+            <i class="fas fa-paper-plane sub-box-icon"></i>
+            <h3>Subscribe to Hoosha AI Research Journal</h3>
+            <p>Get technical breakthroughs, mathematical derivations, and open-source models sent directly to your inbox.</p>
+            <form class="substack-form modal-sub-form" action="https://hooshaai.substack.com/subscribe" method="get" target="_blank">
+              <div class="sub-input-group">
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" name="email" placeholder="Enter your email address..." required class="sub-email-input">
+                <button type="submit" class="btn btn-primary sub-submit-btn">
+                  Subscribe Free <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BibTeX Citation Generator Modal -->
+  <div id="bibtexModal" class="modal-overlay">
+    <div class="modal-content bibtex-modal-content">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 0.6rem;">
+          <i class="fas fa-quote-right" style="color: #c084fc; font-size: 1.4rem;"></i>
+          <h2 style="font-size: 1.3rem; margin: 0;">BibTeX Citation Generator</h2>
+        </div>
+        <button class="close-modal" id="closeBibtexModal">&times;</button>
+      </div>
+      <p id="bibtexArticleTitle" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; line-height: 1.4; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.5rem;">
+        Citation for selected research article.
+      </p>
+      <div class="bibtex-code-container" style="position: relative; margin-top: 1rem; background: #080c18; border: 1px solid rgba(147, 51, 234, 0.3); border-radius: 8px; padding: 1.2rem;">
+        <pre><code id="bibtexCodeText" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #a5f3fc; white-space: pre-wrap; word-break: break-word;"></code></pre>
+        <button id="copyBibtexBtn" class="btn-copy-bibtex" title="Copy BibTeX code to clipboard" style="position: absolute; top: 10px; right: 10px; background: rgba(147, 51, 234, 0.2); border: 1px solid #c084fc; color: #c084fc; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-family: 'Space Grotesk', sans-serif; font-weight: 600; transition: all 0.2s ease;">
+          <i class="fas fa-copy"></i> Copy BibTeX
+        </button>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+        <button id="downloadBibFileBtn" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+          <i class="fas fa-download"></i> Download .bib File
+        </button>
+        <button id="closeBibtexModalBottom" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+          Done
+        </button>
       </div>
     </div>
   </div>

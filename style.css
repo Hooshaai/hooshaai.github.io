@@ -3411,9 +3411,28 @@ footer {
 
 .substack-card:hover {
   border-color: var(--cyan);
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 240, 255, 0.12);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 240, 255, 0.25);
   background: rgba(15, 23, 42, 0.85);
+}
+
+.substack-card[data-category="linear-attention"] { border-left: 3px solid var(--cyan); }
+.substack-card[data-category="verification"] { border-left: 3px solid #a855f7; }
+.substack-card[data-category="cognition"] { border-left: 3px solid #10b981; }
+.substack-card[data-category="consciousness"] { border-left: 3px solid #f59e0b; }
+
+.substack-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: 0;
+  background: var(--cyan);
+  transition: width 0.4s ease;
+}
+.substack-card:hover::after {
+  width: 100%;
 }
 
 .substack-card-header {
