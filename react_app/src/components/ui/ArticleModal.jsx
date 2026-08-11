@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateSubstackArticleModalHTML } from '../../utils/articleContent';
-import katex from 'katex';
+import { renderMathInElement } from '../../utils/renderMath';
 
 const ArticleModal = ({ article, onClose }) => {
   const contentRef = useRef(null);
@@ -14,18 +14,9 @@ const ArticleModal = ({ article, onClose }) => {
       const html = article.content || generateSubstackArticleModalHTML(article);
       contentRef.current.innerHTML = html;
       
+      // Render all $$...$$ and $...$ math via npm katex
       try {
-        if (window.renderMathInElement) {
-          window.renderMathInElement(contentRef.current, {
-            delimiters: [
-              {left: '$$', right: '$$', display: true},
-              {left: '$', right: '$', display: false},
-              {left: '\(', right: '\)', display: false},
-              {left: '\\[', right: '\\]', display: true}
-            ],
-            throwOnError: false
-          });
-        }
+        renderMathInElement(contentRef.current);
       } catch (e) {
         console.error('KaTeX render error:', e);
       }
