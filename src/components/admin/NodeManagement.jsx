@@ -128,19 +128,19 @@ const NodeManagement = ({ onToast = () => {} }) => {
   return (
     <div className="space-y-8 font-mono">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-zinc-800">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/20">
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1">
+          <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">
             Infrastructure // Compute Topology
           </div>
           <h1 className="text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-3">
-            <i className="fas fa-server text-zinc-400 text-2xl"></i> Node Management
+            <i className="fas fa-server text-gray-300 text-2xl"></i> Node Management
           </h1>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={handleAddNode}
-            className="px-4 py-2.5 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-zinc-200 transition-colors shadow-sm flex items-center gap-2"
+            className="px-4 py-2.5 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-colors shadow-md flex items-center gap-2"
           >
             <i className="fas fa-plus"></i> Provision Node
           </button>
@@ -149,28 +149,28 @@ const NodeManagement = ({ onToast = () => {} }) => {
 
       {/* Overview Stat Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-black border border-zinc-800 p-4 rounded-xl">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest">Total Nodes</div>
+        <div className="bg-white/[0.03] border border-white/20 p-4 rounded-xl shadow-md">
+          <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Total Nodes</div>
           <div className="text-2xl font-bold text-white mt-1">{nodes.length}</div>
         </div>
-        <div className="bg-black border border-zinc-800 p-4 rounded-xl">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest">Active Workers</div>
+        <div className="bg-white/[0.03] border border-white/20 p-4 rounded-xl shadow-md">
+          <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Active Workers</div>
           <div className="text-2xl font-bold text-white mt-1">
             {nodes.filter((n) => n.status === 'ONLINE' || n.status === 'BUSY').length}
           </div>
         </div>
-        <div className="bg-black border border-zinc-800 p-4 rounded-xl">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest">Avg Temp</div>
+        <div className="bg-white/[0.03] border border-white/20 p-4 rounded-xl shadow-md">
+          <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Avg Temp</div>
           <div className="text-2xl font-bold text-white mt-1">59°C</div>
         </div>
-        <div className="bg-black border border-zinc-800 p-4 rounded-xl">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest">Aggregate VRAM</div>
+        <div className="bg-white/[0.03] border border-white/20 p-4 rounded-xl shadow-md">
+          <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Aggregate VRAM</div>
           <div className="text-2xl font-bold text-white mt-1">276 / 480 GB</div>
         </div>
       </div>
 
       {/* Control Bar: Filters & Search */}
-      <div className="bg-black border border-zinc-800 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div className="bg-white/[0.03] border border-white/20 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-md">
         {/* Status Filter Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
           {['ALL', 'ONLINE', 'BUSY', 'IDLE', 'MAINTENANCE'].map((st) => (
@@ -179,8 +179,8 @@ const NodeManagement = ({ onToast = () => {} }) => {
               onClick={() => setFilterStatus(st)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${
                 filterStatus === st
-                  ? 'bg-white text-black shadow'
-                  : 'bg-zinc-950 text-zinc-400 border border-zinc-800 hover:text-white hover:border-zinc-700'
+                  ? 'bg-white text-black shadow-md'
+                  : 'bg-black text-gray-400 border border-white/20 hover:text-white hover:border-white/50'
               }`}
             >
               {st}
@@ -190,7 +190,7 @@ const NodeManagement = ({ onToast = () => {} }) => {
 
         {/* Search Input */}
         <div className="relative w-full md:w-72">
-          <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+          <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
           <input
             id="admin-node-search"
             name="nodeSearch"
@@ -199,7 +199,7 @@ const NodeManagement = ({ onToast = () => {} }) => {
             placeholder="Filter node ID, role, IP..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-600 focus:border-white focus:outline-none transition-all font-mono"
+            className="w-full bg-black border border-white/20 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:border-white focus:outline-none transition-all font-mono"
           />
         </div>
       </div>
@@ -211,43 +211,43 @@ const NodeManagement = ({ onToast = () => {} }) => {
           return (
             <div
               key={node.id}
-              className="bg-black border border-zinc-800 hover:border-zinc-500 transition-all rounded-2xl p-5 shadow-sm flex flex-col justify-between"
+              className="bg-white/[0.03] border border-white/20 hover:border-white/50 transition-all rounded-2xl p-5 shadow-lg flex flex-col justify-between"
             >
               <div>
                 {/* Node Header */}
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <div className="text-sm font-bold text-white font-mono tracking-wider">{node.id}</div>
-                    <div className="text-[11px] text-zinc-400 mt-0.5">{node.role}</div>
+                    <div className="text-[11px] text-gray-400 mt-0.5">{node.role}</div>
                   </div>
                   <span
                     className={`text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 rounded border ${
                       node.status === 'ONLINE'
                         ? 'bg-white text-black border-white'
                         : node.status === 'BUSY'
-                        ? 'bg-zinc-800 text-white border-zinc-600'
+                        ? 'bg-white/10 text-white border-white/30 font-bold'
                         : node.status === 'IDLE'
-                        ? 'bg-zinc-900 text-zinc-300 border-zinc-800'
-                        : 'bg-zinc-950 text-zinc-500 border-zinc-800'
+                        ? 'bg-black text-gray-300 border-white/20'
+                        : 'bg-black text-gray-500 border-white/10'
                     }`}
                   >
                     {node.status}
                   </span>
                 </div>
 
-                <div className="text-[10px] text-zinc-500 mb-4 tracking-widest uppercase">
-                  IP: <span className="text-zinc-300">{node.ip}</span>
+                <div className="text-[10px] text-gray-400 mb-4 tracking-widest uppercase">
+                  IP: <span className="text-gray-200 font-bold">{node.ip}</span>
                 </div>
 
                 {/* Utilization Progress Bars */}
-                <div className="space-y-3 pt-3 border-t border-zinc-800">
+                <div className="space-y-3 pt-3 border-t border-white/20">
                   {/* CPU Usage */}
                   <div>
-                    <div className="flex justify-between items-center text-[10px] mb-1">
-                      <span className="text-zinc-400 uppercase">CPU Usage</span>
-                      <span className="text-white font-bold">{node.cpu}%</span>
+                    <div className="flex justify-between items-center text-[10px] mb-1 font-bold">
+                      <span className="text-gray-400 uppercase">CPU Usage</span>
+                      <span className="text-white">{node.cpu}%</span>
                     </div>
-                    <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-800">
+                    <div className="w-full bg-black h-1.5 rounded-full overflow-hidden border border-white/20">
                       <div
                         className="bg-white h-full transition-all duration-500"
                         style={{ width: `${node.cpu}%` }}
@@ -257,13 +257,13 @@ const NodeManagement = ({ onToast = () => {} }) => {
 
                   {/* GPU Utilization */}
                   <div>
-                    <div className="flex justify-between items-center text-[10px] mb-1">
-                      <span className="text-zinc-400 uppercase">GPU Load</span>
-                      <span className="text-white font-bold">{node.gpu}%</span>
+                    <div className="flex justify-between items-center text-[10px] mb-1 font-bold">
+                      <span className="text-gray-400 uppercase">GPU Load</span>
+                      <span className="text-white">{node.gpu}%</span>
                     </div>
-                    <div className="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-800">
+                    <div className="w-full bg-black h-1.5 rounded-full overflow-hidden border border-white/20">
                       <div
-                        className="bg-zinc-300 h-full transition-all duration-500"
+                        className="bg-gray-300 h-full transition-all duration-500"
                         style={{ width: `${node.gpu}%` }}
                       ></div>
                     </div>
@@ -271,32 +271,32 @@ const NodeManagement = ({ onToast = () => {} }) => {
                 </div>
 
                 {/* Metrics Breakdown */}
-                <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-zinc-800 text-[10px]">
+                <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/20 text-[10px]">
                   <div>
-                    <span className="text-zinc-500 block uppercase">VRAM</span>
-                    <span className="text-zinc-200 font-bold">{node.vram}</span>
+                    <span className="text-gray-400 block uppercase">VRAM</span>
+                    <span className="text-gray-200 font-bold">{node.vram}</span>
                   </div>
                   <div>
-                    <span className="text-zinc-500 block uppercase">RAM</span>
-                    <span className="text-zinc-200 font-bold">{node.mem}</span>
+                    <span className="text-gray-400 block uppercase">RAM</span>
+                    <span className="text-gray-200 font-bold">{node.mem}</span>
                   </div>
                   <div>
-                    <span className="text-zinc-500 block uppercase">Temp</span>
-                    <span className="text-zinc-200 font-bold">{node.temp}</span>
+                    <span className="text-gray-400 block uppercase">Temp</span>
+                    <span className="text-gray-200 font-bold">{node.temp}</span>
                   </div>
                   <div>
-                    <span className="text-zinc-500 block uppercase">Power Draw</span>
-                    <span className="text-zinc-200 font-bold">{node.power}</span>
+                    <span className="text-gray-400 block uppercase">Power Draw</span>
+                    <span className="text-gray-200 font-bold">{node.power}</span>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-2 mt-6 pt-4 border-t border-zinc-800">
+              <div className="flex items-center gap-2 mt-6 pt-4 border-t border-white/20">
                 {isMaintenance ? (
                   <button
                     onClick={() => handleAction(node.id, 'Activate')}
-                    className="w-full py-2 bg-white text-black text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-zinc-200 transition-colors"
+                    className="w-full py-2 bg-white text-black text-[10px] font-bold uppercase tracking-wider rounded-lg hover:bg-gray-200 transition-colors shadow-md"
                   >
                     <i className="fas fa-play mr-1"></i> Activate Node
                   </button>
@@ -304,13 +304,13 @@ const NodeManagement = ({ onToast = () => {} }) => {
                   <>
                     <button
                       onClick={() => handleAction(node.id, 'Restart')}
-                      className="flex-1 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors"
+                      className="flex-1 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors"
                     >
                       <i className="fas fa-redo mr-1"></i> Restart
                     </button>
                     <button
                       onClick={() => handleAction(node.id, 'Drain')}
-                      className="flex-1 py-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors"
+                      className="flex-1 py-2 bg-black hover:bg-white/5 border border-white/20 text-gray-400 hover:text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-colors"
                     >
                       <i className="fas fa-pause mr-1"></i> Drain
                     </button>

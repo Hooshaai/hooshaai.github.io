@@ -40,14 +40,14 @@ const CudaPlayground = () => {
   };
 
   return (
-    <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 h-full flex flex-col group hover:border-white/30 transition-colors">
+    <div className="bg-white/[0.03] border border-white/20 rounded-3xl p-8 h-full flex flex-col group hover:border-white/50 transition-colors shadow-xl">
       <h2 className="text-2xl font-bold mb-6 font-['Space_Grotesk'] flex items-center tracking-tight text-white">
-        <i className="fas fa-code text-gray-400 mr-3"></i>CUDA/Triton JIT
+        <i className="fas fa-code text-gray-300 mr-3"></i>CUDA/Triton JIT
       </h2>
-      <div className="bg-black border border-white/10 rounded-2xl overflow-hidden font-mono text-sm flex-1 flex flex-col">
-        <div className="bg-white/5 px-5 py-4 flex justify-between items-center text-gray-400 border-b border-white/10">
+      <div className="bg-black border border-white/20 rounded-2xl overflow-hidden font-mono text-sm flex-1 flex flex-col shadow-inner">
+        <div className="bg-white/10 px-5 py-4 flex justify-between items-center text-gray-300 border-b border-white/20">
           <span className="flex items-center gap-3 text-[10px] tracking-widest font-bold uppercase">
-            <i className="fab fa-python text-gray-300 text-sm"></i> kernel.cu
+            <i className="fab fa-python text-white text-sm"></i> kernel.cu
           </span>
           <button 
             onClick={handleCompile}
@@ -62,15 +62,15 @@ const CudaPlayground = () => {
           name="cudaKernelCode"
           aria-label="CUDA Kernel Code"
           ref={codeRef}
-          className="w-full h-56 bg-transparent p-5 text-gray-300 focus:outline-none resize-none leading-relaxed tracking-wide text-xs"
+          className="w-full h-56 bg-transparent p-5 text-gray-300 focus:outline-none resize-none leading-relaxed tracking-wide text-xs border-b border-white/10"
           spellCheck="false"
           defaultValue={`extern "C" __global__\nvoid flash_attn(\n    float* Q, float* K, float* V, float* Out,\n    float sm_scale,\n    int BLOCK_M, int BLOCK_N\n) {\n    int tx = threadIdx.x;\n    int bx = blockIdx.x;\n    // Load blocks\n    __shared__ float sQ[128];\n    __shared__ float sK[128];\n}`}
         />
-        <div className="bg-black p-5 border-t border-white/10 h-48 overflow-y-auto">
-          <div className="text-[10px] text-gray-600 mb-3 uppercase tracking-[0.2em] font-bold flex items-center gap-2">
+        <div className="bg-black p-5 border-t border-white/20 h-48 overflow-y-auto">
+          <div className="text-[10px] text-gray-400 mb-3 uppercase tracking-[0.2em] font-bold flex items-center gap-2">
             <i className="fas fa-terminal"></i> NVCC Terminal
           </div>
-          <pre className="text-gray-400 text-xs whitespace-pre-wrap font-mono leading-relaxed">{compilerOutput || 'user@h100-sigma:~$ '}</pre>
+          <pre className="text-gray-300 text-xs whitespace-pre-wrap font-mono leading-relaxed">{compilerOutput || 'user@h100-sigma:~$ '}</pre>
         </div>
       </div>
     </div>

@@ -3,18 +3,19 @@ import { motion } from 'framer-motion';
 import { MathBlock } from '../../utils/renderMath';
 
 const cardStyle = {
-  background: 'rgba(255, 255, 255, 0.02)',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
+  background: 'rgba(255, 255, 255, 0.03)',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
   borderRadius: '24px',
   padding: '2.5rem',
   marginBottom: '3rem',
   display: 'flex',
   flexDirection: 'column',
   gap: '1.25rem',
+  boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
 };
 
 const cardHover = {
-  borderColor: 'rgba(255, 255, 255, 0.3)',
+  borderColor: 'rgba(255, 255, 255, 0.5)',
   transition: { duration: 0.3 }
 };
 

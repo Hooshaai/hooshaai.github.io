@@ -12,24 +12,24 @@ const TTSBar = () => {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900/90 backdrop-blur-xl border border-gray-700 p-4 rounded-2xl shadow-2xl z-50 flex items-center gap-6"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur-xl border border-white/30 p-4 rounded-2xl shadow-2xl z-50 flex items-center gap-6 font-mono"
         >
-          <div className="w-12 h-12 bg-cyan-900/50 rounded-full flex items-center justify-center text-cyan-400">
+          <div className="w-12 h-12 bg-white/10 border border-white/20 rounded-full flex items-center justify-center text-white">
             <i className="fas fa-podcast text-xl"></i>
           </div>
           
           <div className="flex-1 min-w-[200px]">
-            <div className="font-bold text-sm truncate">Playing Article Title</div>
-            <div className="text-xs text-cyan-400 truncate">Author Name</div>
+            <div className="font-bold text-sm text-white truncate">Playing Article Title</div>
+            <div className="text-xs text-gray-400 truncate">Author Name</div>
           </div>
 
           <div className="flex gap-4 text-gray-300">
             <button className="hover:text-white"><i className="fas fa-step-backward"></i></button>
-            <button className="text-white hover:text-cyan-400 text-xl"><i className="fas fa-pause"></i></button>
+            <button className="text-white hover:text-gray-300 text-xl"><i className="fas fa-pause"></i></button>
             <button className="hover:text-white"><i className="fas fa-step-forward"></i></button>
           </div>
 
-          <button className="text-gray-500 hover:text-red-400 ml-4 border-l border-gray-800 pl-4"><i className="fas fa-times"></i></button>
+          <button className="text-gray-400 hover:text-white ml-4 border-l border-white/20 pl-4"><i className="fas fa-times"></i></button>
         </motion.div>
       )}
     </AnimatePresence>

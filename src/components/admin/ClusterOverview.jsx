@@ -31,17 +31,17 @@ const ClusterOverview = ({
   return (
     <div className="space-y-8 font-mono">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-zinc-800">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/20">
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1">
+          <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">
             System Control // Telemetry
           </div>
           <h1 className="text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-3">
-            <i className="fas fa-chart-pie text-zinc-400 text-2xl"></i> Cluster Overview
+            <i className="fas fa-chart-pie text-gray-300 text-2xl"></i> Cluster Overview
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-zinc-900 text-zinc-300 border border-zinc-700">
+          <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-bold bg-white/10 text-white border border-white/20">
             <span className="w-2 h-2 rounded-full bg-white mr-2 animate-pulse"></span>
             CLUSTER ONLINE
           </span>
@@ -53,19 +53,19 @@ const ClusterOverview = ({
         {stats.map((stat) => (
           <div
             key={stat.title}
-            className="bg-black border border-zinc-800 rounded-2xl p-5 hover:border-zinc-500 transition-all shadow-sm"
+            className="bg-white/[0.03] border border-white/20 rounded-2xl p-5 hover:border-white/50 transition-all shadow-md"
           >
             <div className="flex justify-between items-start mb-3">
-              <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-bold">
+              <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
                 {stat.title}
               </span>
-              <i className={`fas ${stat.icon} text-zinc-500 text-sm`}></i>
+              <i className={`fas ${stat.icon} text-gray-300 text-sm`}></i>
             </div>
             <div className="text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight mb-2">
               {stat.val}
             </div>
-            <div className="flex items-center text-[10px] text-zinc-400 font-bold uppercase tracking-wider">
-              <span className="bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded text-zinc-300 mr-2">
+            <div className="flex items-center text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+              <span className="bg-white/10 border border-white/20 px-2 py-0.5 rounded text-white mr-2">
                 {stat.change}
               </span>
               vs previous period
@@ -77,21 +77,21 @@ const ClusterOverview = ({
       {/* Main Grid: Chart & API Management */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Subscriber Growth Chart */}
-        <div className="lg:col-span-2 bg-black border border-zinc-800 rounded-2xl p-6 shadow-sm">
+        <div className="lg:col-span-2 bg-white/[0.03] border border-white/20 rounded-2xl p-6 shadow-md">
           <div className="flex justify-between items-center mb-6">
             <div>
               <h2 className="text-xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-2">
-                <i className="fas fa-chart-area text-zinc-400 text-base"></i> Subscriber Growth
+                <i className="fas fa-chart-area text-gray-300 text-base"></i> Subscriber Growth
               </h2>
-              <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Year to Date Progression</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Year to Date Progression</p>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span className="w-2.5 h-2.5 rounded-full bg-white inline-block"></span>
-              <span className="text-zinc-400">Total Subs</span>
+              <span className="text-gray-300 font-bold">Total Subs</span>
             </div>
           </div>
 
-          <div className="h-[280px] w-full bg-zinc-950 rounded-xl p-3 border border-zinc-800/80">
+          <div className="h-[280px] w-full bg-black rounded-xl p-3 border border-white/20 shadow-inner">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
@@ -100,20 +100,20 @@ const ClusterOverview = ({
                     <stop offset="95%" stopColor="#ffffff" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" vertical={false} />
                 <XAxis
                   dataKey="name"
-                  stroke="#52525b"
-                  tick={{ fontSize: 10, fill: '#a1a1aa', fontFamily: 'monospace' }}
+                  stroke="#9ca3af"
+                  tick={{ fontSize: 10, fill: '#9ca3af', fontFamily: 'monospace' }}
                 />
                 <YAxis
-                  stroke="#52525b"
-                  tick={{ fontSize: 10, fill: '#a1a1aa', fontFamily: 'monospace' }}
+                  stroke="#9ca3af"
+                  tick={{ fontSize: 10, fill: '#9ca3af', fontFamily: 'monospace' }}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#09090b',
-                    border: '1px solid #3f3f46',
+                    backgroundColor: '#000000',
+                    border: '1px solid #ffffff40',
                     borderRadius: '8px',
                     color: '#ffffff',
                     fontSize: '11px',
@@ -135,30 +135,30 @@ const ClusterOverview = ({
         </div>
 
         {/* API Management */}
-        <div className="bg-black border border-zinc-800 rounded-2xl p-6 flex flex-col shadow-sm">
+        <div className="bg-white/[0.03] border border-white/20 rounded-2xl p-6 flex flex-col shadow-md">
           <div className="mb-6">
             <h2 className="text-xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-2">
-              <i className="fas fa-key text-zinc-400 text-base"></i> API Keys
+              <i className="fas fa-key text-gray-300 text-base"></i> API Keys
             </h2>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Access Control & Tokens</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Access Control & Tokens</p>
           </div>
 
           <div className="space-y-3.5 flex-1">
             {apiKeys.map((k) => (
-              <div key={k.name} className="bg-zinc-950 border border-zinc-800 rounded-xl p-3.5">
+              <div key={k.name} className="bg-black/60 border border-white/20 rounded-xl p-3.5">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs font-bold text-white">{k.name}</span>
                   <span
                     className={`text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 rounded border ${
                       k.status === 'Active'
                         ? 'bg-white text-black border-white'
-                        : 'bg-zinc-900 text-zinc-500 border-zinc-800'
+                        : 'bg-white/5 text-gray-400 border-white/10'
                     }`}
                   >
                     {k.status}
                   </span>
                 </div>
-                <div className="flex items-center justify-between bg-black p-2.5 rounded-lg border border-zinc-800 text-[11px] font-mono text-zinc-400">
+                <div className="flex items-center justify-between bg-black p-2.5 rounded-lg border border-white/20 text-[11px] font-mono text-gray-300">
                   <span className="tracking-wider">{k.key}</span>
                   <button
                     onClick={() => copyKey(k.key)}
@@ -176,24 +176,24 @@ const ClusterOverview = ({
             ))}
           </div>
 
-          <button className="w-full mt-6 bg-white hover:bg-zinc-200 text-black font-bold tracking-widest uppercase text-[10px] py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+          <button className="w-full mt-6 bg-white hover:bg-gray-200 text-black font-bold tracking-widest uppercase text-[10px] py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
             <i className="fas fa-plus text-xs"></i> Issue New Key
           </button>
         </div>
       </div>
 
       {/* Subscribers Table */}
-      <div className="bg-black border border-zinc-800 rounded-2xl p-6 shadow-sm">
+      <div className="bg-white/[0.03] border border-white/20 rounded-2xl p-6 shadow-md">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h2 className="text-xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-2">
-              <i className="fas fa-users text-zinc-400 text-base"></i> Subscribers Directory
+              <i className="fas fa-users text-gray-300 text-base"></i> Subscribers Directory
             </h2>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Manage Registered Users</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Manage Registered Users</p>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
             <div className="relative flex-1 md:w-64">
-              <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs"></i>
+              <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
               <input
                 id="admin-subscriber-search"
                 name="subscriberSearch"
@@ -202,18 +202,18 @@ const ClusterOverview = ({
                 placeholder="Search email / org..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-600 focus:border-white focus:outline-none transition-all font-mono"
+                className="w-full bg-black border border-white/20 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:border-white focus:outline-none transition-all font-mono"
               />
             </div>
-            <button className="text-[10px] font-bold tracking-widest uppercase bg-zinc-900 hover:bg-zinc-800 text-white px-4 py-2.5 rounded-xl border border-zinc-700 transition-colors flex items-center gap-2 whitespace-nowrap">
+            <button className="text-[10px] font-bold tracking-widest uppercase bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-xl border border-white/20 transition-colors flex items-center gap-2 whitespace-nowrap">
               <i className="fas fa-download"></i> Export
             </button>
           </div>
         </div>
 
-        <div className="overflow-x-auto bg-zinc-950 rounded-xl border border-zinc-800">
+        <div className="overflow-x-auto bg-black rounded-xl border border-white/20">
           <table className="w-full text-left text-xs font-mono whitespace-nowrap">
-            <thead className="text-zinc-400 border-b border-zinc-800 text-[10px] uppercase tracking-widest bg-black">
+            <thead className="text-gray-400 border-b border-white/20 text-[10px] uppercase tracking-widest bg-white/5 font-bold">
               <tr>
                 <th className="py-4 pl-6">Email Address</th>
                 <th className="py-4">Organization</th>
@@ -222,29 +222,29 @@ const ClusterOverview = ({
                 <th className="py-4 text-right pr-6">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-white/10">
               {filteredSubs.length > 0 ? (
                 filteredSubs.map((sub, i) => (
-                  <tr key={i} className="hover:bg-zinc-900/50 transition-colors">
+                  <tr key={i} className="hover:bg-white/[0.04] transition-colors">
                     <td className="py-3.5 pl-6 text-white font-medium">{sub.e}</td>
-                    <td className="py-3.5 text-zinc-400">{sub.org}</td>
-                    <td className="py-3.5 text-zinc-500">{sub.d}</td>
+                    <td className="py-3.5 text-gray-400">{sub.org}</td>
+                    <td className="py-3.5 text-gray-400">{sub.d}</td>
                     <td className="py-3.5">
                       <span
                         className={`px-2 py-0.5 rounded text-[9px] uppercase tracking-widest font-bold border ${
                           sub.s === 'Active'
                             ? 'bg-white text-black border-white'
-                            : 'bg-zinc-900 text-zinc-400 border-zinc-700'
+                            : 'bg-white/5 text-gray-400 border-white/10'
                         }`}
                       >
                         {sub.s}
                       </span>
                     </td>
                     <td className="py-3.5 text-right pr-6">
-                      <button className="text-zinc-400 hover:text-white mr-3 transition-colors p-1.5 hover:bg-zinc-800 rounded">
+                      <button className="text-gray-400 hover:text-white mr-3 transition-colors p-1.5 hover:bg-white/10 border border-transparent hover:border-white/10 rounded">
                         <i className="fas fa-edit text-xs"></i>
                       </button>
-                      <button className="text-zinc-400 hover:text-white transition-colors p-1.5 hover:bg-zinc-800 rounded">
+                      <button className="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-white/10 border border-transparent hover:border-white/10 rounded">
                         <i className="fas fa-trash text-xs"></i>
                       </button>
                     </td>
@@ -252,7 +252,7 @@ const ClusterOverview = ({
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="py-8 text-center text-zinc-500">
+                  <td colSpan="5" className="py-8 text-center text-gray-500">
                     No subscribers found matching filter.
                   </td>
                 </tr>
