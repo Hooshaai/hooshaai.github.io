@@ -39,15 +39,15 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1, duration: 0.4 }}
               key={series.name} 
-              className="p-8 rounded-3xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] transition-colors group flex flex-col h-full"
+              className="p-8 rounded-3xl bg-white/[0.03] border border-white/20 hover:border-white/50 hover:bg-white/[0.06] transition-all duration-300 group flex flex-col h-full shadow-lg"
             >
-              <div className="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center mb-6">
-                <i className={`fas ${series.icon} text-lg text-white opacity-80`}></i>
+              <div className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center mb-6">
+                <i className={`fas ${series.icon} text-lg text-white opacity-90`}></i>
               </div>
               <h3 className="text-2xl font-bold font-['Space_Grotesk'] mb-3 tracking-tight text-white">{series.name}</h3>
               <p className="text-gray-400 mb-8 leading-relaxed font-light flex-1">Explore our fundamental breakthroughs in {series.name.toLowerCase()} architecture and implementation details.</p>
-              <div className="flex justify-between items-center pt-6 border-t border-white/10 mt-auto">
-                <span className="text-[10px] font-mono tracking-widest text-gray-500 uppercase">4 Articles</span>
+              <div className="flex justify-between items-center pt-6 border-t border-white/20 mt-auto">
+                <span className="text-[10px] font-mono tracking-widest text-gray-400 uppercase">4 Articles</span>
                 <Link to="/research" className="text-white hover:text-gray-300 text-sm font-medium tracking-wide flex items-center gap-2 transition-colors">
                   Explore <i className="fas fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
                 </Link>
@@ -71,14 +71,14 @@ const Home = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1, duration: 0.4 }}
               key={article.id || i} 
-              className="flex flex-col p-8 rounded-3xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-colors group"
+              className="flex flex-col p-8 rounded-3xl border border-white/20 bg-white/[0.03] hover:border-white/50 hover:bg-white/[0.06] transition-all duration-300 group shadow-lg"
             >
-              <div className="text-[10px] font-mono tracking-widest text-gray-400 mb-4 uppercase">
+              <div className="text-[10px] font-mono tracking-widest text-gray-400 mb-4 uppercase border border-white/10 px-3 py-1 rounded-full bg-white/5 inline-block self-start">
                 {article.categoryName || article.category || 'Research'}
               </div>
               <h3 className="text-xl font-bold font-['Space_Grotesk'] mb-3 leading-snug tracking-tight text-white group-hover:text-gray-300 transition-colors">{article.title}</h3>
-              <p className="text-gray-500 text-sm mb-8 flex-1 line-clamp-3 leading-relaxed font-light">{article.snippet}</p>
-              <div className="pt-6 border-t border-white/10 mt-auto">
+              <p className="text-gray-400 text-sm mb-8 flex-1 line-clamp-3 leading-relaxed font-light">{article.snippet}</p>
+              <div className="pt-6 border-t border-white/20 mt-auto">
                 <Link to="/research" className="text-white font-medium tracking-wide transition-colors inline-flex items-center gap-2 text-sm">
                   Read <i className="fas fa-arrow-right text-xs transform group-hover:translate-x-1 transition-transform"></i>
                 </Link>

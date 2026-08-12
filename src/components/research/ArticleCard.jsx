@@ -9,7 +9,7 @@ const ArticleCard = ({ article, isPlaying, onSelect, onTogglePlay }) => {
       exit={{ opacity: 0, scale: 0.95, y: -20 }}
       transition={{ duration: 0.3 }}
       key={article.id} 
-      className={`flex flex-col p-8 rounded-3xl bg-white/[0.02] border ${isPlaying ? 'border-gray-400' : 'border-white/10 hover:border-white/30'} transition-all duration-300 group`}
+      className={`flex flex-col p-8 rounded-3xl bg-white/[0.03] border ${isPlaying ? 'border-white' : 'border-white/20 hover:border-white/50'} transition-all duration-300 group shadow-lg`}
     >
       <div className="flex justify-between items-start mb-6">
         <div className="text-[10px] font-mono tracking-widest text-gray-400 border border-white/10 px-3 py-1.5 rounded-full bg-white/5 uppercase">

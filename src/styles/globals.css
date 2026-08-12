@@ -1,13 +1,14 @@
 :root {
-  --bg-dark: #030712;
-  --bg-card: rgba(10, 15, 30, 0.6);
-  --border: rgba(0, 240, 255, 0.15);
-  --cyan: #00f0ff;
-  --purple: #8a2be2;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.3);
-  --glow-purple: 0 0 20px rgba(138, 43, 226, 0.3);
+  --bg-dark: #000000;
+  --bg-card: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.2);
+  --border-bright: rgba(255, 255, 255, 0.5);
+  --cyan: #ffffff;
+  --purple: #e4e4e7;
+  --text-main: #ffffff;
+  --text-muted: #a1a1aa;
+  --glow-cyan: 0 0 15px rgba(255, 255, 255, 0.15);
+  --glow-purple: 0 0 15px rgba(255, 255, 255, 0.15);
 }
 
 /* KaTeX MathML Clipboard Fix */
