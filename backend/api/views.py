@@ -88,13 +88,17 @@ class UserProfileAPIView(generics.RetrieveUpdateAPIView):
         return self.request.user
 
 
-class SubscribeAPIView(generics.CreateAPIView):
+class SubscribeAPIView(generics.ListCreateAPIView):
     """
-    API endpoint to register new subscribers for newsletters & platform updates.
+    API endpoint to list subscribers (admin) or register new subscribers for newsletters & platform updates.
     """
     queryset = Subscriber.objects.all()
     serializer_class = SubscriberSerializer
-    permission_classes = [permissions.AllowAny]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.IsAdminUser()]
+        return [permissions.AllowAny()]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
