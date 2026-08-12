@@ -18,7 +18,7 @@ NAMESPACES = {
     'atom': 'http://www.w3.org/2005/Atom',
 }
 
-DEFAULT_SUBSTACK_URL = 'https://hoosha.substack.com/feed'
+DEFAULT_SUBSTACK_URL = 'https://hooshaai.substack.com/feed'
 
 
 def clean_html_tags(raw_html):
