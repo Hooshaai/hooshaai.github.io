@@ -36,9 +36,8 @@ const Home = () => {
           ].map((series, i) => (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.4 }}
               key={series.name} 
               className="p-8 rounded-3xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] transition-colors group flex flex-col h-full"
             >
@@ -69,19 +68,18 @@ const Home = () => {
           {latestArticles.map((article, i) => (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
-              key={article.id} 
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1, duration: 0.4 }}
+              key={article.id || i} 
               className="flex flex-col p-8 rounded-3xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] transition-colors group"
             >
               <div className="text-[10px] font-mono tracking-widest text-gray-400 mb-4 uppercase">
-                {article.categoryName}
+                {article.categoryName || article.category || 'Research'}
               </div>
               <h3 className="text-xl font-bold font-['Space_Grotesk'] mb-3 leading-snug tracking-tight text-white group-hover:text-gray-300 transition-colors">{article.title}</h3>
               <p className="text-gray-500 text-sm mb-8 flex-1 line-clamp-3 leading-relaxed font-light">{article.snippet}</p>
               <div className="pt-6 border-t border-white/10 mt-auto">
-                <Link to={`/research?article=${article.id}`} className="text-white font-medium tracking-wide transition-colors inline-flex items-center gap-2 text-sm">
+                <Link to="/research" className="text-white font-medium tracking-wide transition-colors inline-flex items-center gap-2 text-sm">
                   Read <i className="fas fa-arrow-right text-xs transform group-hover:translate-x-1 transition-transform"></i>
                 </Link>
               </div>
