@@ -17,12 +17,35 @@ const Research = () => {
     });
   }, []);
 
+  const normalizeCat = (cat) => (cat || '').toLowerCase().replace(/\s+/g, '-');
+
   const filteredArticles = articles ? articles.filter(art => {
-    const matchesSearch = art.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (art.snippet && art.snippet.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = activeCategory === 'All' || art.categoryName === activeCategory || art.category === activeCategory;
-    return matchesSearch && matchesCategory;
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !q || art.title.toLowerCase().includes(q) || 
+                          (art.snippet && art.snippet.toLowerCase().includes(q));
+    
+    if (!matchesSearch) return false;
+    if (activeCategory === 'All') return true;
+
+    const target = normalizeCat(activeCategory);
+    const artCat = normalizeCat(art.category);
+    const artCatName = normalizeCat(art.categoryName);
+
+    return artCat.includes(target) || artCatName.includes(target) || target.includes(artCat);
   }) : [];
+
+  const getCategoryCount = (catName) => {
+    if (!articles) return 0;
+    if (catName === 'All') return articles.length;
+    const target = normalizeCat(catName);
+    return articles.filter(a => {
+      const c1 = normalizeCat(a.category);
+      const c2 = normalizeCat(a.categoryName);
+      return c1.includes(target) || c2.includes(target) || target.includes(c1);
+    }).length;
+  };
+
+  const categories = ['All', 'Linear Attention', 'Verification', 'Cognition', 'Consciousness'];
 
   return (
     <div className="research-page pt-32 px-4 max-w-7xl mx-auto">
@@ -53,15 +76,21 @@ const Research = () => {
         </div>
 
         <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {['All', 'Linear Attention', 'Verification', 'Cognition', 'Consciousness'].map(cat => (
-            <button 
-              key={cat}
-              className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${activeCategory === cat ? 'bg-cyan-400 text-black shadow-[0_0_15px_rgba(0,240,255,0.4)] scale-105' : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'}`}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
+          {categories.map(cat => {
+            const count = getCategoryCount(cat);
+            return (
+              <button 
+                key={cat}
+                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${activeCategory === cat ? 'bg-cyan-400 text-black shadow-[0_0_15px_rgba(0,240,255,0.4)] scale-105 font-bold' : 'bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white border border-gray-700'}`}
+                onClick={() => setActiveCategory(cat)}
+              >
+                <span>{cat}</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-mono ${activeCategory === cat ? 'bg-black/30 text-black' : 'bg-gray-900 text-cyan-400'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
