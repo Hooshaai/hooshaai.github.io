@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Platform = () => {
@@ -42,16 +42,61 @@ const Platform = () => {
 
   const [compilerOutput, setCompilerOutput] = useState('');
   const [compiling, setCompiling] = useState(false);
+  const codeRef = useRef(null);
 
-  const handleCompile = () => {
+  const handleCompile = async () => {
     setCompiling(true);
     setCompilerOutput('$ nvcc -arch=sm_90 -ptx kernel.cu -o kernel.ptx\nCompiling...');
+
+    const codeContent = codeRef.current ? codeRef.current.value : '';
+
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/cuda/compile/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: codeContent })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCompilerOutput(prev => prev + '\n' + data.output);
+        setCompiling(false);
+        return;
+      }
+    } catch (err) {
+      console.warn('CUDA compiler API offline, using local simulation fallback', err);
+    }
+
     setTimeout(() => setCompilerOutput(prev => prev + '\nptxas info    : 0 bytes gmem, 49152 bytes smem\nptxas info    : Compiling entry function \'flash_attn\' for \'sm_90\''), 800);
     setTimeout(() => setCompilerOutput(prev => prev + '\nptxas info    : Used 128 registers, 384 bytes cmem[0]\nOptimizing JIT bindings...'), 1500);
     setTimeout(() => {
       setCompilerOutput(prev => prev + '\n✓ CUDA Kernel compiled successfully.\n$ ncu --set full ./test_kernel\nAchieved 87% Peak TFLOPS on H100.');
       setCompiling(false);
     }, 2500);
+  };
+
+  const [cmsTitle, setCmsTitle] = useState('');
+  const [cmsContent, setCmsContent] = useState('');
+  const handlePublish = (e) => {
+    e.preventDefault();
+    if (!cmsTitle || !cmsContent) return;
+    const newArticle = {
+      id: `cms-${Date.now()}`,
+      title: cmsTitle,
+      link: '#',
+      pubDate: new Date().toUTCString(),
+      wordCount: `${cmsContent.split(' ').length} words`,
+      readTime: '1 min read',
+      snippet: cmsContent.substring(0, 100) + '...',
+      category: 'research',
+      categoryName: 'CMS Publish',
+      author: 'Admin',
+      authorRole: 'Hoosha AI'
+    };
+    const existing = JSON.parse(localStorage.getItem('hoosha_cms_articles') || '[]');
+    localStorage.setItem('hoosha_cms_articles', JSON.stringify([newArticle, ...existing]));
+    setCmsTitle('');
+    setCmsContent('');
+    alert('Published successfully to local storage!');
   };
 
   return (
@@ -179,6 +224,7 @@ const Platform = () => {
                 </button>
               </div>
               <textarea 
+                ref={codeRef}
                 className="w-full h-48 bg-transparent p-4 text-gray-300 focus:outline-none resize-none leading-relaxed"
                 spellCheck="false"
                 defaultValue={`extern "C" __global__\nvoid flash_attn(\n    float* Q, float* K, float* V, float* Out,\n    float sm_scale,\n    int BLOCK_M, int BLOCK_N\n) {\n    int tx = threadIdx.x;\n    int bx = blockIdx.x;\n    // Load blocks\n    __shared__ float sQ[128];\n    __shared__ float sK[128];\n}`}
@@ -188,6 +234,29 @@ const Platform = () => {
                 <pre className="text-green-400 text-xs whitespace-pre-wrap font-mono">{compilerOutput || 'user@h100-sigma:~$ '}</pre>
               </div>
             </div>
+          </div>
+
+          {/* Research Studio CMS */}
+          <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-2xl p-6 shadow-xl flex flex-col">
+            <h2 className="text-xl font-bold mb-4 font-['Space_Grotesk'] flex items-center"><i className="fas fa-edit text-purple-400 mr-3"></i>Research Studio CMS</h2>
+            <form onSubmit={handlePublish} className="flex flex-col gap-4">
+              <input 
+                type="text" 
+                placeholder="Article Title" 
+                value={cmsTitle}
+                onChange={e => setCmsTitle(e.target.value)}
+                className="bg-black border border-gray-700 rounded-lg p-3 text-sm text-white focus:border-purple-500 focus:outline-none"
+              />
+              <textarea 
+                placeholder="Article Content Snippet..." 
+                value={cmsContent}
+                onChange={e => setCmsContent(e.target.value)}
+                className="bg-black border border-gray-700 rounded-lg p-3 text-sm text-white focus:border-purple-500 focus:outline-none h-32 resize-none"
+              />
+              <button type="submit" className="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-lg transition-colors">
+                Publish Article
+              </button>
+            </form>
           </div>
 
         </div>

@@ -280,3 +280,48 @@ export const ALL_ARTICLES = [
     authorRole: 'Co-Founder & Lead AI Architect @ Hoosha AI'
   }
 ];
+
+export async function fetchRealArticles() {
+  let fetchedArticles = [];
+  try {
+    const response = await fetch('/articles.json');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    fetchedArticles = await response.json();
+  } catch (error) {
+    console.warn('Failed to fetch articles.json, falling back to RSS to JSON API', error);
+    try {
+      const rssUrl = 'https://hooshaai.substack.com/feed';
+      const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
+      if (!response.ok) {
+        throw new Error('RSS fallback failed');
+      }
+      const data = await response.json();
+      fetchedArticles = data.items.map((item, index) => ({
+        id: `art-rss-${index}`,
+        title: item.title,
+        link: item.link,
+        pubDate: item.pubDate,
+        wordCount: "N/A",
+        readTime: "N/A",
+        snippet: (item.description || '').replace(/<[^>]*>?/gm, '').substring(0, 200) + '...',
+        category: "latest",
+        categoryName: "Latest Research",
+        katex: false,
+        author: item.author || 'Hoosha AI',
+        authorRole: 'Contributor'
+      }));
+    } catch (rssError) {
+      console.error('Failed to fetch RSS, falling back to mock data', rssError);
+      fetchedArticles = ALL_ARTICLES;
+    }
+  }
+
+  try {
+    const cmsArticles = JSON.parse(localStorage.getItem('hoosha_cms_articles') || '[]');
+    return [...cmsArticles, ...fetchedArticles];
+  } catch (e) {
+    return fetchedArticles;
+  }
+}

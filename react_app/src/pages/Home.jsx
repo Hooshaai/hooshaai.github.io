@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView, useAnimation, animate } from 'framer-motion';
-import { ALL_ARTICLES } from '../data/articles';
+import { ALL_ARTICLES, fetchRealArticles } from '../data/articles';
 
 const NeuralCanvas = () => {
   const canvasRef = useRef(null);
@@ -98,7 +98,15 @@ const Counter = ({ from, to, suffix = "", duration = 2 }) => {
 };
 
 const Home = () => {
-  const latestArticles = ALL_ARTICLES ? ALL_ARTICLES.slice(0, 3) : [];
+  const [articles, setArticles] = useState(ALL_ARTICLES);
+
+  useEffect(() => {
+    fetchRealArticles().then(data => {
+      if (data && data.length > 0) setArticles(data);
+    });
+  }, []);
+
+  const latestArticles = articles ? articles.slice(0, 3) : [];
 
   return (
     <div className="home-page">

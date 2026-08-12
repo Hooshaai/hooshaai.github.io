@@ -1,16 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ALL_ARTICLES } from '../data/articles';
+import { ALL_ARTICLES, fetchRealArticles } from '../data/articles';
 import ArticleModal from '../components/ui/ArticleModal';
 import useTTSPlayer from '../hooks/useTTSPlayer';
 
 const Research = () => {
+  const [articles, setArticles] = useState(ALL_ARTICLES);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [selectedArticle, setSelectedArticle] = useState(null);
   const tts = useTTSPlayer();
 
-  const filteredArticles = ALL_ARTICLES ? ALL_ARTICLES.filter(art => {
+  useEffect(() => {
+    fetchRealArticles().then(data => {
+      if (data && data.length > 0) setArticles(data);
+    });
+  }, []);
+
+  const filteredArticles = articles ? articles.filter(art => {
     const matchesSearch = art.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           (art.snippet && art.snippet.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesCategory = activeCategory === 'All' || art.categoryName === activeCategory || art.category === activeCategory;

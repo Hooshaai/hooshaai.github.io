@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const Admin = () => {
@@ -10,12 +10,18 @@ const Admin = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [toastMsg, setToastMsg] = useState('');
 
-  const subscribers = [
-    { e: 'researcher@mit.edu', org: 'MIT', d: '2026-08-11 14:22 UTC', s: 'Active' },
-    { e: 'dev@openai.com', org: 'OpenAI', d: '2026-08-10 09:15 UTC', s: 'Active' },
-    { e: 'student@stanford.edu', org: 'Stanford', d: '2026-08-09 18:40 UTC', s: 'Pending' },
-    { e: 't.majlesi@ut.ac.ir', org: 'Univ of Tehran', d: '2026-08-08 11:10 UTC', s: 'Active' }
-  ];
+  const [subscribers, setSubscribers] = useState([]);
+
+  useEffect(() => {
+    const defaultSubs = [
+      { e: 'researcher@mit.edu', org: 'MIT', d: '2026-08-11 14:22 UTC', s: 'Active' },
+      { e: 'dev@openai.com', org: 'OpenAI', d: '2026-08-10 09:15 UTC', s: 'Active' },
+      { e: 'student@stanford.edu', org: 'Stanford', d: '2026-08-09 18:40 UTC', s: 'Pending' },
+      { e: 't.majlesi@ut.ac.ir', org: 'Univ of Tehran', d: '2026-08-08 11:10 UTC', s: 'Active' }
+    ];
+    const saved = JSON.parse(localStorage.getItem('hoosha_subscribers') || '[]');
+    setSubscribers([...defaultSubs, ...saved]);
+  }, []);
 
   const filteredSubs = subscribers.filter(s => s.e.toLowerCase().includes(searchQuery.toLowerCase()) || s.org.toLowerCase().includes(searchQuery.toLowerCase()));
 
