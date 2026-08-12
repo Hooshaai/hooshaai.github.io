@@ -1982,8 +1982,10 @@ footer {
   font-size: 0.85rem;
   color: var(--text-muted);
   transition: all 0.25s ease;
-  user-select: none;
+  user-select: none;           /* For modern browsers */
+  -webkit-user-select: none;   /* For Safari */
 }
+
 
 .topic-pill:hover {
   border-color: var(--cyan);
