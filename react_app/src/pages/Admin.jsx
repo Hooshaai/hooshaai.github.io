@@ -69,6 +69,7 @@ const Admin = () => {
               type="text" 
               value={user}
               onChange={e => setUser(e.target.value)}
+              autoComplete="username"
               className="w-full bg-black border border-gray-700 rounded-xl p-3 text-white focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition-all"
             />
           </div>
@@ -78,6 +79,7 @@ const Admin = () => {
               type="password" 
               value={pass}
               onChange={e => setPass(e.target.value)}
+              autoComplete="current-password"
               className="w-full bg-black border border-gray-700 rounded-xl p-3 text-white focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none transition-all"
             />
           </div>
