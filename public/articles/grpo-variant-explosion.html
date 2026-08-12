@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="From imitating narrated reasoning to experiential verification: Deconstructing DAPO, SAPO, GDPO, PAPO, and the mathematics of GRPO variance control.">
+<meta name="author" content="Mohammad Taha Majlesi">
+<meta property="og:title" content="The GRPO Variant Explosion — Narrated Reasoning to Experiential Verification">
+<meta property="og:description" content="Why DAPO, SAPO, GDPO, and PAPO exist, why RLVR risks optimizing the imitation of reasoning, and what verification substrates fix.">
+<meta property="og:type" content="article">
+<title>The GRPO Variant Explosion — Narrated Reasoning to Experiential Verification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+
+<style>
+  :root{
+    --paper: #0E1A21;
+    --paper-alt: #0A1318;
+    --panel: #122029;
+    --ink: #E9F1EF;
+    --ink-dim: #A9BFC1;
+    --muted: #6E8A8F;
+    --line: #234049;
+    --line-bright: #34606B;
+    --cyan: #6BD9C9;
+    --cyan-dim: #3E8E82;
+    --amber: #E7A85A;
+    --amber-dim: #8C6631;
+    --red: #D9765F;
+    --violet: #9C8FE0;
+    --radius: 3px;
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'Source Serif 4', Georgia, serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection{ background: var(--cyan-dim); color: #06110F; }
+  a{ color: var(--cyan); }
+  .wrap{ max-width: 880px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- SITE NAV ---------- */
+  .site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(14, 26, 33, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .site-nav a {
+    color: var(--ink-dim);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+  }
+  .site-nav a:hover { color: var(--cyan); }
+  .site-nav .back-arrow { font-size: 14px; }
+  .site-nav .series-tag {
+    border: 1px solid var(--cyan-dim);
+    padding: 2px 8px;
+    border-radius: var(--radius);
+    color: var(--cyan);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  header.hero{ border-bottom: 1px solid var(--line); padding: 64px 0 48px; }
+  .doc-stamp{
+    font-family: var(--mono); font-size: 12px; letter-spacing: .12em; color: var(--cyan-dim);
+    text-transform: uppercase; display:flex; justify-content: space-between;
+    padding-bottom: 28px; margin-bottom: 28px; border-bottom: 1px dashed var(--line);
+    flex-wrap: wrap; gap: 8px;
+  }
+  .doc-stamp span.tag{ border: 1px solid var(--cyan-dim); padding: 2px 8px; border-radius: var(--radius); color: var(--cyan); }
+  h1.title{
+    font-family: var(--display); font-weight: 700; font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.08; letter-spacing: -0.01em; margin: 0 0 14px; max-width: 15ch;
+  }
+  h1.title em{ font-style: normal; color: var(--cyan); }
+  p.subtitle{ font-family: var(--body); font-style: italic; font-size: 1.2rem; color: var(--ink-dim); max-width: 50ch; margin: 0 0 26px; }
+  .hero-abstract{ font-size: .95rem; color: var(--ink-dim); border-left: 2px solid var(--cyan-dim); padding-left: 18px; max-width: 64ch; }
+  nav.toc{ font-family: var(--mono); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px 22px; margin-top: 32px; color: var(--muted); }
+  nav.toc a{ color: var(--ink-dim); text-decoration:none; border-bottom: 1px solid transparent; transition: all 0.2s; }
+  nav.toc a:hover{ color: var(--cyan); border-bottom-color: var(--cyan-dim); }
+
+  section{ padding: 56px 0; border-bottom: 1px solid var(--line); }
+  section:last-of-type{ border-bottom: none; }
+  .section-head{ display:flex; align-items:baseline; gap:14px; margin-bottom: 8px; }
+  .section-num{ font-family: var(--mono); color: var(--cyan-dim); font-size: .85rem; }
+  h2{ font-family: var(--display); font-weight: 600; font-size: 1.7rem; margin: 0; letter-spacing: -0.01em; }
+  h3{ font-family: var(--display); font-weight: 600; font-size: 1.15rem; color: var(--ink); margin: 34px 0 10px; }
+  h3 .subnum{ color: var(--cyan-dim); font-family: var(--mono); font-size: .8em; margin-right: 8px; }
+  p{ margin: 0 0 16px; color: var(--ink); }
+  .lede{ color: var(--ink-dim); font-size: 1.02rem; }
+  strong{ color: var(--cyan); font-weight: 600; }
+  em.term{ font-style: normal; color: var(--amber); border-bottom: 1px dotted var(--amber-dim); }
+
+  .callout{
+    background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--cyan-dim);
+    padding: 16px 20px; border-radius: var(--radius); font-size: .95rem; color: var(--ink-dim); margin: 20px 0;
+  }
+  .callout b{ color: var(--cyan); }
+
+  .formula-block{ background: var(--paper-alt); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 24px; margin: 18px 0; overflow-x: auto; }
+  .formula-cap{ font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 6px; }
+  mjx-container{ color: var(--ink) !important; }
+
+  .calc{ background: var(--panel); border: 1px solid var(--line-bright); border-radius: var(--radius); padding: 24px 26px; margin: 22px 0 8px; }
+  .calc-top{ display:flex; justify-content: space-between; align-items:baseline; flex-wrap:wrap; gap:10px; margin-bottom:16px;}
+  .calc-label{ font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing:.1em; color: var(--cyan-dim);}
+  .calc-readout{ font-family: var(--mono); font-size: 1.4rem; color: var(--cyan); }
+  .calc-readout .unit{ font-size: .6em; color: var(--muted); }
+  input[type=range]{ width: 100%; accent-color: var(--cyan); background: transparent; }
+  .calc-row{ display:flex; align-items:center; gap:14px; margin-bottom: 14px; font-family: var(--mono); font-size: 13px; color: var(--ink-dim); }
+  .calc-row label{ width: 190px; flex-shrink:0; }
+  .group-bar{ display:flex; height: 26px; border-radius: 2px; overflow:hidden; border: 1px solid var(--line); }
+  .group-bar .correct{ background: var(--cyan-dim); transition: width 0.3s ease; }
+  .group-bar .incorrect{ background: var(--amber-dim); transition: width 0.3s ease; }
+  .group-legend{ display:flex; gap:18px; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 8px;}
+  .group-legend .dot{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px; vertical-align: middle;}
+  .dot.c{ background: var(--cyan-dim); } .dot.i{ background: var(--amber-dim); }
+  .calc-verdict{ margin-top: 14px; padding-top:14px; border-top: 1px dashed var(--line); font-size: .92rem; color: var(--ink-dim); min-height: 40px; }
+
+  .obj-tabs{ display:flex; gap:6px; margin: 18px 0 0; flex-wrap: wrap; }
+  .obj-tab{
+    font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-dim);
+    background: var(--paper-alt); border: 1px solid var(--line); padding: 9px 14px; border-radius: var(--radius);
+    cursor: pointer; transition: all .15s ease;
+  }
+  .obj-tab:hover{ border-color: var(--line-bright); color: var(--ink); }
+  .obj-tab.active{ border-color: var(--cyan); color: var(--cyan); background: var(--panel); }
+  .obj-panel{ background: var(--panel); border: 1px solid var(--line); border-top:none; border-radius: 0 0 var(--radius) var(--radius); padding: 20px 22px; display:none; }
+  .obj-panel.active{ display:block; }
+  .obj-panel p{ font-size: .92rem; color: var(--ink-dim); margin: 0 0 10px; }
+  .obj-panel .obj-fix{ font-family: var(--mono); font-size: 12px; color: var(--amber); }
+
+  table.data{ width: 100%; border-collapse: collapse; font-size: .86rem; margin: 18px 0; }
+  table.data th{ font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); text-align: left; border-bottom: 1px solid var(--line-bright); padding: 8px 10px; }
+  table.data td{ padding: 10px 10px; border-bottom: 1px solid var(--line); color: var(--ink-dim); vertical-align: top; }
+  table.data tr:last-child td{ border-bottom: none; }
+  table.data tr:hover td{ background: rgba(107,217,201,0.03); }
+  table.data td.var-name{ color: var(--cyan); font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+
+  /* gate plotter */
+  .plotter{ background: var(--panel); border: 1px solid var(--line-bright); border-radius: var(--radius); padding: 22px 24px; margin: 20px 0; }
+  .plotter-controls{ display:flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .gate-btn{
+    font-family: var(--mono); font-size: 11px; text-transform:uppercase; letter-spacing:.05em; padding: 7px 12px;
+    border-radius: var(--radius); border: 1px solid var(--line); background: var(--paper-alt); color: var(--ink-dim); cursor:pointer;
+  }
+  .gate-btn.active{ border-color: var(--cyan); color: var(--cyan); }
+  svg.plot{ width:100%; height: auto; }
+  .plot-axis{ stroke: var(--line); stroke-width: 1; }
+  .plot-curve{ fill:none; stroke: var(--cyan); stroke-width: 2; }
+  .plot-curve.faint{ stroke: var(--violet); opacity: .35; }
+  .decay-tag{ font-family: var(--mono); font-size: 11.5px; color: var(--amber); margin-top: 10px; }
+  .tau-row{ display:flex; align-items:center; gap: 14px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-dim); margin-top:14px; }
+  .tau-row label{ width: 90px; }
+
+  /* bar chart */
+  .barchart{ background: var(--panel); border: 1px solid var(--line-bright); border-radius: var(--radius); padding: 22px 24px; margin: 20px 0; }
+  .bc-row{ margin-bottom: 16px; }
+  .bc-label{ font-family: var(--mono); font-size: 11.5px; color: var(--ink-dim); margin-bottom: 6px; display:flex; justify-content:space-between; }
+  .bc-track{ height: 20px; background: var(--paper-alt); border-radius: 2px; overflow:hidden; display:flex; border:1px solid var(--line); position:relative; }
+  .bc-fill{ height:100%; display:flex; align-items:center; transition: width 0.3s ease; }
+  .bc-fill.grpo{ background: var(--amber-dim); }
+  .bc-fill.gdpo{ background: var(--cyan-dim); }
+  .bc-legend{ display:flex; gap:18px; font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top:6px; }
+
+  /* stat strip */
+  .stat-strip{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 22px 0; }
+  .stat-card{ background: var(--paper-alt); border:1px solid var(--line); border-radius: var(--radius); padding: 18px 16px; text-align:center; }
+  .stat-num{ font-family: var(--display); font-size: 1.7rem; color: var(--cyan); font-weight:700; }
+  .stat-label{ font-family: var(--mono); font-size: 10.5px; color: var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-top:4px; }
+
+  /* ERL / evolutionary loop */
+  .loop-wrap{ display:flex; flex-direction: column; align-items:center; margin: 26px 0; }
+  svg.loop{ width: 100%; max-width: 480px; height: auto; }
+  .loop-step-circle{ fill: var(--paper-alt); stroke: var(--line-bright); stroke-width: 1.4; cursor:pointer; transition: all .18s ease; }
+  .loop-step:hover .loop-step-circle, .loop-step.active .loop-step-circle{ stroke: var(--cyan); fill: var(--panel); }
+  .loop-step-text{ font-family: var(--mono); font-size: 11.5px; fill: var(--ink-dim); pointer-events:none; }
+  .loop-step:hover .loop-step-text, .loop-step.active .loop-step-text{ fill: var(--cyan); }
+  .loop-arrow{ stroke: var(--line-bright); stroke-width: 1.4; fill: none; marker-end: url(#arrowhead2); }
+  .loop-detail{ background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 20px; margin-top: 14px; font-size: .92rem; color: var(--ink-dim); text-align:center; max-width: 480px; transition: all 0.2s ease; }
+  .loop-detail b{ color: var(--cyan); }
+
+  /* substrate cards */
+  .substrate-grid{ display:grid; grid-template-columns: 1fr; gap: 12px; margin: 20px 0; }
+  .substrate-card{ background: var(--paper-alt); border: 1px solid var(--line); border-radius: var(--radius); overflow:hidden; }
+  .substrate-head{
+    display:flex; justify-space-between; align-items:center; padding: 14px 18px; cursor:pointer;
+    font-family: var(--mono); font-size: 13px; color: var(--ink); letter-spacing: .02em;
+  }
+  .substrate-head:hover{ background: var(--panel); }
+  .substrate-head .chevron{ color: var(--cyan-dim); transition: transform .2s ease; }
+  .substrate-card.open .chevron{ transform: rotate(45deg); }
+  .substrate-body{ max-height:0; overflow:hidden; transition: max-height .25s ease; padding: 0 18px; }
+  .substrate-card.open .substrate-body{ max-height: 260px; padding: 0 18px 18px; }
+  .substrate-body p{ font-size: .92rem; color: var(--ink-dim); margin: 0 0 8px; }
+  .substrate-tag{ display:inline-block; font-family: var(--mono); font-size: 10px; text-transform:uppercase; letter-spacing:.06em; color: var(--cyan-dim); border: 1px solid var(--cyan-dim); border-radius: var(--radius); padding: 1px 7px; margin-right: 8px; }
+
+  ul.plain{ margin: 0 0 16px; padding-left: 20px; color: var(--ink); }
+  ul.plain li{ margin-bottom: 8px; }
+  ul.plain li b{ color: var(--amber); font-weight:600; }
+
+  .two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 20px 0; }
+  .mini-card{ background: var(--paper-alt); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .mini-card .mc-head{ font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing:.08em; margin-bottom: 8px; }
+  .mini-card p{ font-size: .88rem; color: var(--ink-dim); margin: 0 0 8px; }
+  .mini-card p:last-child{ margin-bottom:0; }
+
+  footer.page-footer{
+    padding: 44px 0 70px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  footer.page-footer .rule{
+    border-top: 1px dashed var(--line);
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  footer.page-footer .back-link {
+    color: var(--cyan-dim);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+  }
+  footer.page-footer .back-link:hover { color: var(--cyan); }
+
+  #progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: var(--cyan);
+    z-index: 9999;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px rgba(107,217,201,0.5);
+  }
+
+  @media (max-width: 640px){
+    .two-col{ grid-template-columns: 1fr; }
+    .stat-strip{ grid-template-columns: 1fr; }
+    .site-nav { padding: 12px 16px; }
+    .wrap { padding: 0 16px; }
+  }
+  @media (prefers-reduced-motion: reduce){ *{ transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav class="site-nav">
+  <a href="/" class="back-link">
+    <span class="back-arrow">&#8592;</span>
+    Hoosha AI Research
+  </a>
+  <span class="series-tag">Verification &middot; RL Optimization</span>
+</nav>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="doc-stamp">
+      <span>Field Report &middot; RL Optimization Architecture</span>
+      <span class="tag">Rev. 02</span>
+    </div>
+    <h1 class="title">The GRPO Variant <em>Explosion</em></h1>
+    <p class="subtitle">From imitating narrated reasoning to experiential verification.</p>
+    <p class="hero-abstract">
+      DAPO, SAPO, GDPO, and PAPO all patch the same underlying weakness: credit assignment when the verification
+      signal is weak, sparse, or multi-faceted. This report deconstructs their mathematics, argues that RLVR still
+      risks optimizing the <em>imitation</em> of reasoning rather than reasoning itself, and traces the path toward
+      Experiential Reinforcement Learning and rigorous verification substrates &mdash; Lean 4, dependently-typed hardware
+      DSLs, and claim-verification pipelines &mdash; as the actual bottleneck to solve.
+    </p>
+    <nav class="toc">
+      <a href="#p1">I &middot; The Variant Explosion</a>
+      <a href="#p2">II &middot; The Narrated Reasoning Trap</a>
+      <a href="#p3">III &middot; Experiential Learning</a>
+      <a href="#p4">IV &middot; Verification Substrates</a>
+      <a href="#p5">V &middot; Conclusion</a>
+    </nav>
+  </header>
+
+  <!-- ================= PART I ================= -->
+  <section id="p1">
+    <div class="section-head"><span class="section-num">I</span><h2>The Anatomy of the GRPO Variant Explosion</h2></div>
+    <p class="lede">
+      GRPO samples G responses per prompt, scores them with a verifier, normalizes within the group to get an
+      advantage, and updates the policy under a KL penalty back to a reference model. Scaled to long CoT, multi-objective
+      alignment, and multimodal perception, it hit entropy collapse, signal masking, and extreme gradient variance &mdash;
+      and the variants exist to engineer around each one.
+    </p>
+
+    <h3><span class="subnum">1.1</span>The Group-Standard-Deviation Identity</h3>
+    <p>
+      GRPO, Dr.GRPO, and DAPO are not three algorithms &mdash; they&rsquo;re three operations on one number. For binary verifiable
+      rewards, with \(k\) correct out of \(G\) sampled responses:
+    </p>
+    <div class="formula-block">
+      <div class="formula-cap">Group reward standard deviation</div>
+      \[ \sigma = \sqrt{\frac{k(G-k)}{G}} \]
+    </div>
+    <p>
+      The per-prompt gradient step is \(g \propto \sigma(\bar s^{+} - \bar s^{-})\) &mdash; direction from the contrast between
+      correct and incorrect rollouts, magnitude set entirely by \(\sigma\). Unanimous groups (\(k{=}0\) or \(k{=}G\))
+      give \(\sigma{=}0\) and teach nothing; an even split maximizes signal.
+    </p>
+
+    <div class="calc">
+      <div class="calc-top">
+        <span class="calc-label">Live &middot; Group Signal Calculator</span>
+        <span class="calc-readout"><span id="sigmaVal">0.500</span> <span class="unit">&sigma;</span></span>
+      </div>
+      <div class="calc-row"><label for="gSlider">Group size (G)</label><input type="range" id="gSlider" min="4" max="32" value="16" step="1"><span id="gVal" style="width:28px;">16</span></div>
+      <div class="calc-row"><label for="kSlider">Correct answers (k)</label><input type="range" id="kSlider" min="0" max="16" value="8" step="1"><span id="kVal" style="width:28px;">8</span></div>
+      <div class="group-bar" id="groupBar"></div>
+      <div class="group-legend"><span><span class="dot c"></span>correct rollout</span><span><span class="dot i"></span>incorrect rollout</span></div>
+      <div class="calc-verdict" id="verdict"></div>
+    </div>
+
+    <p>The same &sigma;, treated three different ways, produces three different algorithms:</p>
+    <div class="obj-tabs" id="objTabs">
+      <div class="obj-tab active" data-obj="grpo">GRPO</div>
+      <div class="obj-tab" data-obj="drgrpo">Dr.GRPO</div>
+      <div class="obj-tab" data-obj="dapo">DAPO</div>
+    </div>
+    <div class="obj-panel active" data-objpanel="grpo">
+      <p>Divides the mean-centered advantage by &sigma;, scaling the gradient by 1/&sigma; &mdash; effectively ascending the variance-stabilized
+      arcsine objective:</p>
+      <div class="formula-block"><div class="formula-cap">GRPO objective</div>\[ \max_\theta\ \mathbb{E}_x\left[2\arcsin\sqrt{p_x}\right] \]</div>
+      <p class="obj-fix">Effect &rarr; massive gradient weight on extreme-difficulty prompts (very easy or very hard, where &sigma; is small); mid-difficulty prompts get under-weighted.</p>
+    </div>
+    <div class="obj-panel" data-objpanel="drgrpo">
+      <p>Drops the division by &sigma; entirely. Gradient magnitude scales by &sigma;&sup2; instead of &sigma;, flattening the difficulty weighting
+      and optimizing the raw success rate directly:</p>
+      <div class="formula-block"><div class="formula-cap">Dr.GRPO objective</div>\[ \max_\theta\ \mathbb{E}_x\left[p_x\right] \]</div>
+      <p class="obj-fix">Effect &rarr; training pressure distributes evenly across success rates instead of concentrating at the extremes.</p>
+    </div>
+    <div class="obj-panel" data-objpanel="dapo">
+      <p>Discards the &ldquo;silent mass&rdquo; outright &mdash; since &sigma;=0 groups teach nothing, DAPO filters them during sampling and
+      dynamically over-samples until every group in the batch has \(0 < k < G\).</p>
+      <p class="obj-fix">Effect &rarr; computational resources spend entirely on groups that actually produce a gradient.</p>
+    </div>
+
+    <div class="callout">
+      <b>Reading the identity.</b> Much of the &ldquo;algorithmic novelty&rdquo; in this space is hyperparameter tuning on a single
+      variance dial &mdash; intricate methods of assigning credit when the underlying signal is binary and sparse. That&rsquo;s not
+      a criticism of the engineering; it&rsquo;s a diagnosis of what the engineering is compensating for.
+    </div>
+
+    <h3><span class="subnum">1.2</span>DAPO &mdash; Mitigating Entropy Collapse</h3>
+    <p>
+      Built to fix long-CoT entropy collapse &mdash; 50 points on AIME 2024 with a 32B base model. Standard symmetric clipping
+      (1&plusmn;0.2) traps low-probability exploration tokens: a token at p=0.01 can rise to at most p=0.012, making novel logic
+      almost impossible to reinforce. DAPO&rsquo;s four fixes:
+    </p>
+    <ul class="plain">
+      <li><b>Clip-Higher</b> &mdash; decoupled bounds, &epsilon;<sub>low</sub>=0.2 / &epsilon;<sub>high</sub>=0.28, giving exploration tokens real room to grow.</li>
+      <li><b>Dynamic Sampling</b> &mdash; over-samples until the batch is populated solely by 0&lt;k&lt;G groups.</li>
+      <li><b>Token-level policy gradient loss</b> &mdash; replaces sequence-level mean loss for fine-grained credit assignment across very long chains.</li>
+      <li><b>Overlong Reward Shaping</b> &mdash; soft penalty past a safety cache (L<sub>max</sub>=16384, L<sub>cache</sub>=4096) instead of a hard truncation cliff.</li>
+    </ul>
+
+    <h3><span class="subnum">1.3</span>SAPO &mdash; Continuous Trust Regions</h3>
+    <p>
+      Hard clipping is brittle: once an importance ratio steps outside the clip band, GRPO zeroes the gradient outright,
+      discarding potentially informative signal. SAPO replaces this with a smooth gate that peaks at \(r_{i,t}(\theta){=}1\)
+      and decays continuously &mdash; with asymmetric temperatures (&tau;<sub>neg</sub> &gt; &tau;<sub>pos</sub>) damping the high-variance noise from
+      negative-advantage tokens diffusing across the vocabulary.
+    </p>
+
+    <div class="plotter">
+      <div class="plotter-controls" id="gateButtons">
+        <div class="gate-btn active" data-gate="sigmoid">Sigmoid Gate</div>
+        <div class="gate-btn" data-gate="erf">Error / CDF Gate</div>
+        <div class="gate-btn" data-gate="atan">Arctangent Gate</div>
+        <div class="gate-btn" data-gate="softsign">Softsign Gate</div>
+      </div>
+      <svg class="plot" viewBox="0 0 600 220" id="gatePlot">
+        <line class="plot-axis" x1="20" y1="200" x2="580" y2="200"></line>
+        <line class="plot-axis" x1="300" y1="10" x2="300" y2="200"></line>
+        <path class="plot-curve faint" id="gateCurvePrev" d=""></path>
+        <path class="plot-curve" id="gateCurve" d=""></path>
+        <text x="300" y="215" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#6E8A8F">r = 1 (on-policy)</text>
+      </svg>
+      <div class="decay-tag" id="decayTag">Decay characteristic: Exponential</div>
+      <div class="tau-row">
+        <label for="tauSlider">&tau; = <span id="tauVal">4.0</span></label>
+        <input type="range" id="tauSlider" min="1" max="10" value="4" step="0.5">
+      </div>
+    </div>
+
+    <h3><span class="subnum">1.4</span>GDPO &mdash; Preventing Reward Signal Collapse</h3>
+    <p>
+      Summing raw multi-objective rewards before normalizing conflates distinct behaviors: a correct-but-badly-formatted
+      response (1,0) and an incorrect-but-perfectly-formatted response (0,1) both sum to 1, collapsing to identical
+      advantage. GDPO normalizes each reward axis independently before aggregating:
+    </p>
+    <div class="formula-block">
+      <div class="formula-cap">GDPO decoupled advantage</div>
+      \[ A_{sum}^{(i,j)} = \frac{r_1^{(i,j)} - \mu_1}{\sigma_1} + \cdots + \frac{r_n^{(i,j)} - \mu_n}{\sigma_n} \]
+    </div>
+
+    <div class="barchart" id="gdpoChart"></div>
+
+    <h3><span class="subnum">1.5</span>PAPO &mdash; Enforcing Visual Grounding</h3>
+    <p>
+      In multimodal reasoning, 67% of errors trace to perceptual bottlenecks &mdash; hallucinated reasoning steps disconnected
+      from the actual image. PAPO injects an Implicit Perception Loss, a reverse-KL penalty that maximizes the distributional
+      distance between outputs conditioned on a pristine image vs. a corrupted one. Because that divergence is unbounded,
+      the model can &ldquo;KL-hack&rdquo; by destroying its own policy &mdash; countered with a Double Entropy Loss to keep optimization regularized.
+    </p>
+    <div class="stat-strip">
+      <div class="stat-card"><div class="stat-num">67%</div><div class="stat-label">errors from perceptual bottleneck</div></div>
+      <div class="stat-card"><div class="stat-num">&minus;30.5%</div><div class="stat-label">perception-driven errors</div></div>
+      <div class="stat-card"><div class="stat-num">+4.4&ndash;17.5%</div><div class="stat-label">overall multimodal benchmark gain</div></div>
+    </div>
+  </section>
+
+  <!-- ================= PART II ================= -->
+  <section id="p2">
+    <div class="section-head"><span class="section-num">II</span><h2>The &ldquo;Narrated Reasoning&rdquo; Trap</h2></div>
+    <p class="lede">
+      DAPO, SAPO, GDPO, and PAPO are real engineering achievements &mdash; and they&rsquo;re still treating the symptom. Optimizing
+      against weak scalar rewards forces an intricate dance of bias-shuffling. The deeper question: are these models
+      learning structural logic, or modeling <em class="term">narrated reasoning</em>?
+    </p>
+
+    <h3><span class="subnum">2.1</span>Imitating the Shape of Thought</h3>
+    <p>
+      Human reasoning is experiential; human <em>communication about</em> reasoning is narrative &mdash; assumptions, hypotheses,
+      backtracking, confirmation. LLMs trained via SFT or distillation from a stronger teacher (DeepSeek-R1, o1) learn to
+      reproduce that shape: &ldquo;Wait, let me rethink this,&rdquo; &ldquo;Let&rsquo;s assume X is true,&rdquo; &ldquo;This approach seems flawed.&rdquo; Generating
+      the syntax of self-correction is not the same as mechanically executing self-correction &mdash; the model imitates the
+      narrative of a human realizing a mistake, without experiencing a structural contradiction in its own world model.
+    </p>
+
+    <h3><span class="subnum">2.2</span>Why RLVR Doesn&rsquo;t Fully Break the Ceiling</h3>
+    <p>
+      RLVR was meant to be the antidote &mdash; remove human demonstrations, force exploration against an objective verifier.
+      But when the verifier is a single binary scalar at the end of a 10,000-token sequence, even SAPO-smoothed or
+      DAPO-clipped token gradients struggle with temporal credit assignment. If the final answer happens to be right, the
+      entire narrative gets reinforced &mdash; including rambling, human-like structure that merely raised the statistical odds
+      of stumbling onto the right tokens. KL penalties anchor the model to its pretrained behavior to prevent collapse into
+      gibberish, but that same anchor keeps it bound to the narrative style already baked into its weights.
+    </p>
+    <p>
+      Recent work (RLAD, TRRD, DAIL, the T1 framework) blends selective imitation with RLVR &mdash; guiding the student toward
+      a teacher only when it improves the current policy, or synthesizing CoT data with explicit trial-and-error baked in.
+      Useful, but telling: the model is still leaning heavily on learning the <em class="term">narrative</em> of doing math,
+      not necessarily the math itself.
+    </p>
+  </section>
+
+  <!-- ================= PART III ================= -->
+  <section id="p3">
+    <div class="section-head"><span class="section-num">III</span><h2>Experiential Learning and the Evolutionary Imperative</h2></div>
+    <p class="lede">
+      Evolution needs no decoupled advantage normalization, no clipped proximal bounds, no temperature-gated trust
+      regions. It runs one brutally simple loop &mdash; and it produced the human brain.
+    </p>
+
+    <h3><span class="subnum">3.1</span>Experiential Reinforcement Learning (ERL)</h3>
+    <p>
+      Standard RLVR gives a terminal scalar: fail, and the gradient just lowers the probability of the whole sequence &mdash;
+      the model implicitly guesses which of thousands of tokens caused it. ERL injects an explicit
+      experience &rarr; reflection &rarr; consolidation loop directly into training.
+    </p>
+
+    <div class="loop-wrap">
+      <svg class="loop" viewBox="0 0 400 400" id="erlSvg">
+        <defs>
+          <marker id="arrowhead2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#34606B"></path>
+          </marker>
+        </defs>
+        <path class="loop-arrow" d="M 130 55 A 150 150 0 0 1 345 200"></path>
+        <path class="loop-arrow" d="M 345 200 A 150 150 0 0 1 270 355"></path>
+        <path class="loop-arrow" d="M 270 355 A 150 150 0 0 1 55 270"></path>
+        <path class="loop-arrow" d="M 55 270 A 150 150 0 0 1 130 55"></path>
+
+        <g class="loop-step active" data-step="experience">
+          <circle class="loop-step-circle" cx="100" cy="60" r="50"></circle>
+          <text class="loop-step-text" x="100" y="56" text-anchor="middle">EXPERIENCE</text>
+          <text class="loop-step-text" x="100" y="72" text-anchor="middle" font-size="10" opacity="0.7">01</text>
+        </g>
+        <g class="loop-step" data-step="reflection">
+          <circle class="loop-step-circle" cx="340" cy="200" r="50"></circle>
+          <text class="loop-step-text" x="340" y="196" text-anchor="middle">REFLECTION</text>
+          <text class="loop-step-text" x="340" y="212" text-anchor="middle" font-size="10" opacity="0.7">02</text>
+        </g>
+        <g class="loop-step" data-step="refine">
+          <circle class="loop-step-circle" cx="240" cy="360" r="50"></circle>
+          <text class="loop-step-text" x="240" y="352" text-anchor="middle" font-size="11">REFINED</text>
+          <text class="loop-step-text" x="240" y="366" text-anchor="middle" font-size="11">ATTEMPT</text>
+        </g>
+        <g class="loop-step" data-step="consolidate">
+          <circle class="loop-step-circle" cx="40" cy="230" r="50"></circle>
+          <text class="loop-step-text" x="40" y="222" text-anchor="middle" font-size="10.5">CONSOLI-</text>
+          <text class="loop-step-text" x="40" y="236" text-anchor="middle" font-size="10.5">DATION</text>
+        </g>
+      </svg>
+      <div class="loop-detail" id="erlDetail">
+        <b>Experience</b> &mdash; the model attempts the task and interacts with the environment, receiving concrete feedback: an execution error, a failed test, a structural penalty.
+      </div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-card"><div class="stat-num">+81%</div><div class="stat-label">learning efficiency, sparse-reward multi-step tasks</div></div>
+      <div class="stat-card"><div class="stat-num">+11%</div><div class="stat-label">gain on agentic tool-using reasoning</div></div>
+      <div class="stat-card"><div class="stat-num">4</div><div class="stat-label">stage experience&ndash;reflection&ndash;consolidation loop</div></div>
+    </div>
+    <p>
+      If the refined attempt succeeds, the win isn&rsquo;t just reward-shaped &mdash; it&rsquo;s <em class="term">internalized</em> via
+      self-distillation, mapping the original input directly to the successful refined behavior so the model no longer
+      needs explicit reflection at inference time. A cross-episode reflection memory further stabilizes the search strategy
+      across episodes. The core reframe: the answer to weak reasoning isn&rsquo;t manipulating &sigma; through another GRPO variant &mdash;
+      it&rsquo;s enriching the feedback itself, from scalar evaluation to structural correction.
+    </p>
+  </section>
+
+  <!-- ================= PART IV ================= -->
+  <section id="p4">
+    <div class="section-head"><span class="section-num">IV</span><h2>Verification Substrates</h2></div>
+    <p class="lede">
+      If DAPO, SAPO, and GDPO are shuffling biases to compensate for weak scalar rewards, and true reasoning needs
+      experiential trial-and-error, the real bottleneck was never the optimizer. It&rsquo;s the environment.
+    </p>
+    <p>
+      A verification substrate is an interactive, deterministic environment that translates an LLM&rsquo;s outputs into
+      executable actions, checks them against axiomatic ground truth, and returns immediate, precise state feedback.
+      Correctness isn&rsquo;t decided by a reward model&rsquo;s style preference &mdash; it&rsquo;s decided by the substrate itself.
+    </p>
+
+    <div class="substrate-grid" id="substrateGrid">
+      <div class="substrate-card open" data-card="lean">
+        <div class="substrate-head"><span><span class="substrate-tag">Formal Math</span>Lean 4 &amp; Mathlib &mdash; LeanFlow / LeanProbe</span><span class="chevron">+</span></div>
+        <div class="substrate-body">
+          <p>In natural-language math an LLM can hallucinate a false step convincingly enough that a reward model scores
+          it positively. In Lean, the proof state is absolute. LeanProbe gives agent loops a cached, same-file verifier &mdash;
+          low-latency diagnostics and proof-state feedback after every tactic attempt, returning the exact compilation
+          error or unclosed goal on failure. The model cannot narrate its way past Lean; it experiences the structural
+          consequence directly.</p>
+        </div>
+      </div>
+      <div class="substrate-card" data-card="ckt">
+        <div class="substrate-head"><span><span class="substrate-tag">Hardware</span>CktFormalizer</span><span class="chevron">+</span></div>
+        <div class="substrate-body">
+          <p>Redirects LLM-driven hardware generation away from raw Verilog (prone to silent synthesis failures) into a
+          dependently-typed hardware DSL embedded in Lean. Bit-width constraints, case coverage, and acyclicity are
+          encoded directly into the type system, so hardware defects become compile-time errors &mdash; the compiler is the
+          verifier and the firewall, giving type-guided experiential refinement instead of blind syntactic search.</p>
+        </div>
+      </div>
+      <div class="substrate-card" data-card="averitec">
+        <div class="substrate-head"><span><span class="substrate-tag">Fact-Checking</span>AVeriTeC</span><span class="chevron">+</span></div>
+        <div class="substrate-body">
+          <p>Decomposes complex claims into sub-claims, executes targeted evidence queries, and evaluates each independently
+          (supports / refutes / mixed). Forcing the LLM to interact with an evidence-retrieval substrate via inference-time
+          argumentation externalizes and audits the reasoning process &mdash; bridging narrative hallucination and grounded fact
+          even in a domain traditionally reliant on human consensus.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:36px;">The Commodity Engine vs. the Differentiator</h3>
+    <p>
+      The language model itself &mdash; token-level policy gradients, decoupled clipping bounds and all &mdash; is becoming a
+      commodity input. The real differentiator is the quality, breadth, and integration of the verification substrate.
+      Inside a high-fidelity substrate, the need for DAPO- or SAPO-grade engineering shrinks: feedback stops being a
+      delayed, sparse binary scalar at token 10,000 and becomes a dense, step-by-step reality check. Generate &rarr; Test &rarr;
+      Select &rarr; Repeat runs cleanly because the Test phase is flawless. Without that substrate, practitioners keep
+      inventing GDPO-style decoupling or PAPO-style KL penalties as coping mechanisms for the absence of ground truth.
+    </p>
+  </section>
+
+  <!-- ================= CONCLUSION ================= -->
+  <section id="p5">
+    <div class="section-head"><span class="section-num">V</span><h2>Conclusion</h2></div>
+    <p>
+      The Group-Standard-Deviation Identity shows DAPO, SAPO, GDPO, and PAPO manipulating the same variance dial to
+      extract signal from sparse, binary rewards &mdash; asymmetric clipping against entropy collapse, smooth gating against
+      trust-region brittleness, decoupled normalization against multi-objective collapse.
+    </p>
+    <p>
+      Over-relying on those algorithms risks trapping development in narrated reasoning &mdash; models that mimic the linguistic
+      structure of thought without internalizing the mechanics of deduction, propped up by gradient-scaling tricks that
+      shuffle bias rather than build comprehension.
+    </p>
+    <p style="color:var(--ink); font-size:1.05rem;">
+      The real trajectory bends toward experiential learning &mdash; the evolutionary loop, formalized in ERL&rsquo;s
+      experience&ndash;reflection&ndash;consolidation cycle &mdash; and it cannot run in a vacuum. It needs a world to push against: Lean-based
+      theorem provers, dependently-typed hardware compilers, evidence-grounded fact-checking. The optimizer is the engine;
+      the verification substrate is the road that gives it traction.
+    </p>
+  </section>
+
+  <footer class="page-footer">
+    <div class="rule">
+      <span>Companion report &middot; GRPO/Dr.GRPO/DAPO objective comparison, SAPO gate function plotter, GDPO benchmark chart, ERL experience&ndash;reflection&ndash;consolidation loop, and verification substrate showcase (&sect;I&ndash;IV) are interactive.</span>
+      <a href="/" class="back-link">&#8592; Back to Hoosha AI Research</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // ---------- Reading progress bar ----------
+  const bar = document.getElementById('progress-bar');
+  document.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (scrolled / total * 100) + '%';
+  });
+
+  // ---------- Sigma calculator (shared formula) ----------
+  const gSlider = document.getElementById('gSlider');
+  const kSlider = document.getElementById('kSlider');
+  const gVal = document.getElementById('gVal');
+  const kVal = document.getElementById('kVal');
+  const sigmaVal = document.getElementById('sigmaVal');
+  const groupBar = document.getElementById('groupBar');
+  const verdict = document.getElementById('verdict');
+
+  function renderCalc(){
+    let G = parseInt(gSlider.value);
+    kSlider.max = G;
+    if (parseInt(kSlider.value) > G) kSlider.value = G;
+    let k = parseInt(kSlider.value);
+
+    const sigmaNorm = Math.sqrt(k * (G - k)) / G;
+    gVal.textContent = G;
+    kVal.textContent = k;
+    sigmaVal.textContent = sigmaNorm.toFixed(3);
+
+    groupBar.innerHTML = '';
+    const correctPct = (k / G) * 100;
+    const c = document.createElement('div'); c.className = 'correct'; c.style.width = correctPct + '%';
+    const i = document.createElement('div'); i.className = 'incorrect'; i.style.width = (100 - correctPct) + '%';
+    groupBar.appendChild(c); groupBar.appendChild(i);
+
+    if (k === 0 || k === G) {
+      verdict.innerHTML = '<b style="color:var(--amber)">&sigma; = 0 &mdash; unanimous group.</b> No contrast between correct and incorrect rollouts exists; the gradient vanishes. DAPO discards this group outright during dynamic sampling.';
+    } else if (Math.abs(correctPct - 50) < 12.5) {
+      verdict.innerHTML = '<b style="color:var(--cyan)">Near-maximal signal.</b> Close to an even split &mdash; &sigma;, and the gradient magnitude, peaks here.';
+    } else {
+      verdict.innerHTML = '<b style="color:var(--ink)">Partial signal.</b> Skewed but non-zero &mdash; some contrastive gradient exists, just less than an even split.';
+    }
+  }
+  gSlider.addEventListener('input', renderCalc);
+  kSlider.addEventListener('input', renderCalc);
+  renderCalc();
+
+  // ---------- GRPO / Dr.GRPO / DAPO objective tabs ----------
+  const objTabs = document.querySelectorAll('.obj-tab');
+  const objPanels = document.querySelectorAll('.obj-panel');
+  objTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      objTabs.forEach(t => t.classList.remove('active'));
+      objPanels.forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelector('.obj-panel[data-objpanel="' + tab.dataset.obj + '"]').classList.add('active');
+    });
+  });
+
+  // ---------- SAPO gate function plotter ----------
+  const gateBtns = document.querySelectorAll('.gate-btn');
+  const gateCurve = document.getElementById('gateCurve');
+  const gateCurvePrev = document.getElementById('gateCurvePrev');
+  const tauSlider = document.getElementById('tauSlider');
+  const tauVal = document.getElementById('tauVal');
+  const decayTag = document.getElementById('decayTag');
+
+  const gateFns = {
+    sigmoid: { fn: (x, t) => { const s = 1/(1+Math.exp(-t*(x-1))); return 4*s*(1-s); }, decay: 'Exponential Decay', norm: 1 },
+    erf:     { fn: (x, t) => Math.exp(-(t*t*(x-1)*(x-1))/2), decay: 'Gaussian Decay', norm: 1 },
+    atan:    { fn: (x, t) => 1/(1+t*t*(x-1)*(x-1)), decay: 'Polynomial Decay (1/r²)', norm: 1 },
+    softsign:{ fn: (x, t) => 1/Math.pow(1+t*t*(x-1)*(x-1), 1.5), decay: 'Polynomial Decay (1/r³)', norm: 1 },
+  };
+
+  let currentGate = 'sigmoid';
+  let prevGate = null;
+
+  function plotPath(gateKey, tau){
+    const w = 560, h = 190, x0 = 20, y0 = 200;
+    const fn = gateFns[gateKey].fn;
+    let pts = [];
+    const xMin = -0.6, xMax = 2.6;
+    const N = 120;
+    let maxVal = 0;
+    for (let idx=0; idx<=N; idx++){
+      const x = xMin + (xMax-xMin)*idx/N;
+      const v = fn(x, tau);
+      if (v > maxVal) maxVal = v;
+      pts.push([x, v]);
+    }
+    let d = '';
+    pts.forEach(([x,v], idx) => {
+      const px = x0 + ((x - xMin)/(xMax-xMin)) * w;
+      const py = y0 - (v/ (maxVal || 1)) * 170;
+      d += (idx===0 ? 'M' : 'L') + px.toFixed(1) + ',' + py.toFixed(1) + ' ';
+    });
+    return d;
+  }
+
+  function renderGatePlot(){
+    const tau = parseFloat(tauSlider.value);
+    tauVal.textContent = tau.toFixed(1);
+    gateCurve.setAttribute('d', plotPath(currentGate, tau));
+    if (prevGate) {
+      gateCurvePrev.setAttribute('d', plotPath(prevGate, tau));
+      gateCurvePrev.style.display = 'block';
+    } else {
+      gateCurvePrev.style.display = 'none';
+    }
+    decayTag.textContent = 'Decay characteristic: ' + gateFns[currentGate].decay;
+  }
+
+  gateBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (currentGate !== btn.dataset.gate) prevGate = currentGate;
+      currentGate = btn.dataset.gate;
+      gateBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGatePlot();
+    });
+  });
+  tauSlider.addEventListener('input', renderGatePlot);
+  renderGatePlot();
+
+  // ---------- GDPO benchmark bar chart ----------
+  const gdpoData = [
+    { bench: 'MATH · DeepSeek-R1-1.5B', grpo: 83.6, gdpo: 86.2 },
+    { bench: 'AIME · DeepSeek-R1-1.5B', grpo: 23.1, gdpo: 29.4 },
+    { bench: 'AIME · DeepSeek-R1-7B', grpo: 50.2, gdpo: 53.1 },
+    { bench: 'AMC · Qwen3-4B-Instruct', grpo: 85.2, gdpo: 84.3 },
+  ];
+  const gdpoChart = document.getElementById('gdpoChart');
+  let chartHtml = '<div class="calc-label" style="margin-bottom:14px;">Pass@1 Accuracy — GRPO vs. GDPO</div>';
+  gdpoData.forEach(row => {
+    const max = 100;
+    chartHtml += `
+      <div class="bc-row">
+        <div class="bc-label"><span>${row.bench}</span></div>
+        <div class="bc-track" style="margin-bottom:4px;">
+          <div class="bc-fill grpo" style="width:${(row.grpo/max*100).toFixed(1)}%;"></div>
+        </div>
+        <div class="bc-track">
+          <div class="bc-fill gdpo" style="width:${(row.gdpo/max*100).toFixed(1)}%;"></div>
+        </div>
+        <div class="bc-label" style="margin-top:4px;"><span style="color:var(--amber-dim)">GRPO ${row.grpo}%</span><span style="color:var(--cyan-dim)">GDPO ${row.gdpo}%</span></div>
+      </div>`;
+  });
+  chartHtml += '<div class="bc-legend"><span><span class="dot" style="background:var(--amber-dim); display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px;"></span>GRPO</span><span><span class="dot" style="background:var(--cyan-dim); display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px;"></span>GDPO</span></div>';
+  gdpoChart.innerHTML = chartHtml;
+
+  // ---------- ERL loop ----------
+  const erlSteps = document.querySelectorAll('#erlSvg .loop-step');
+  const erlDetail = document.getElementById('erlDetail');
+  const erlText = {
+    experience: '<b>Experience</b> &mdash; the model attempts the task and interacts with the environment, receiving concrete feedback: an execution error, a failed test, a structural penalty.',
+    reflection: '<b>Reflection</b> &mdash; instead of a bare zero reward, the model is prompted to verbally analyze the specific feedback and identify the logical flaw in its prior attempt.',
+    refine: '<b>Refined Attempt</b> &mdash; conditioned on its own reflection and the environmental feedback, the model generates a revised, second attempt.',
+    consolidate: '<b>Consolidation</b> &mdash; a successful refined attempt is internalized via self-distillation, mapping the original input directly to the successful behavior &mdash; no reflection needed at inference time.'
+  };
+  erlSteps.forEach(step => {
+    step.addEventListener('click', () => {
+      erlSteps.forEach(s => s.classList.remove('active'));
+      step.classList.add('active');
+      erlDetail.innerHTML = erlText[step.dataset.step];
+    });
+  });
+  let erlIdx = 0;
+  const erlOrder = ['experience','reflection','refine','consolidate'];
+  setInterval(() => {
+    erlIdx = (erlIdx + 1) % erlOrder.length;
+    erlSteps.forEach(s => s.classList.toggle('active', s.dataset.step === erlOrder[erlIdx]));
+    erlDetail.innerHTML = erlText[erlOrder[erlIdx]];
+  }, 4200);
+
+  // ---------- Substrate cards ----------
+  document.querySelectorAll('.substrate-head').forEach(head => {
+    head.addEventListener('click', () => {
+      const card = head.parentElement;
+      card.classList.toggle('open');
+    });
+  });
+</script>
+
+</body>
+</html>

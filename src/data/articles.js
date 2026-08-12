@@ -1,5 +1,37 @@
 export const ALL_ARTICLES = [
   {
+    id: "art-grpo-explosion",
+    title: "The GRPO Variant Explosion",
+    link: "/articles/grpo-variant-explosion.html",
+    externalLink: false,
+    pubDate: "Wed, 13 Aug 2026",
+    wordCount: "3,600 words",
+    readTime: "14 min read",
+    snippet: "From imitating narrated reasoning to experiential verification: Deconstructing DAPO, SAPO, GDPO, and PAPO, the Group-Standard-Deviation Identity, and Lean 4 / CktFormalizer substrates.",
+    category: "verification",
+    categoryName: "Verification",
+    katex: true,
+    interactive: true,
+    author: 'Mohammad Taha Majlesi',
+    authorRole: 'Co-Founder & Lead AI Architect @ Hoosha AI'
+  },
+  {
+    id: "art-grpo-verification",
+    title: "The Imitation vs. Experience Paradigm",
+    link: "/articles/imitation-vs-experience.html",
+    externalLink: false,
+    pubDate: "Wed, 13 Aug 2026",
+    wordCount: "3,200 words",
+    readTime: "13 min read",
+    snippet: "Why the GRPO variant explosion is a symptom, not a solution — and what a verification substrate actually fixes. GRPO, DAPO, Dr.GRPO, SAPO, GDPO, and PAPO analyzed through cognitive science and dynamical systems theory.",
+    category: "verification",
+    categoryName: "Verification",
+    katex: true,
+    interactive: true,
+    author: 'Mohammad Taha Majlesi',
+    authorRole: 'Co-Founder & Lead AI Architect @ Hoosha AI'
+  },
+  {
     id: "art-1",
     title: "Scaling Transformers: How Linear Attention is Reshaping Cross-Task AI",
     link: "https://hooshaai.substack.com/p/scaling-transformers-how-linear-attention",

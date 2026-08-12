@@ -230,7 +230,7 @@ const GRPOSimulator = () => {
       </div>
 
       <p className="text-zinc-400 text-sm mb-4 leading-relaxed font-light">
-        Group Relative Policy Optimization (GRPO) replaces critic networks by sampling a group of outputs $G=\{o_1, \dots, o_G\}$ per query, computing advantages $\hat{A}_i$ relative to the group mean, with KL divergence penalty $\beta$.
+        Group Relative Policy Optimization (GRPO) replaces critic networks by sampling a group of outputs G = &#123;o_1, ..., o_G&#125; per query, computing advantages relative to the group mean, with KL divergence penalty &beta;.
       </p>
 
       {/* KaTeX Math Formula */}

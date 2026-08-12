@@ -172,7 +172,7 @@ const RAGUncertaintySimulator = () => {
       </div>
 
       <p className="text-zinc-400 text-sm mb-4 leading-relaxed font-light">
-        Epistemic uncertainty calculates token entropy $\mathcal{H}(X)$. When average token entropy exceeds threshold $\tau$, the system halts parametric generation and triggers external Knowledge Base RAG retrieval.
+        Epistemic uncertainty calculates token entropy H(X). When average token entropy exceeds threshold &tau;, the system halts parametric generation and triggers external Knowledge Base RAG retrieval.
       </p>
 
       {/* KaTeX Math Formula */}
@@ -296,7 +296,7 @@ const RAGUncertaintySimulator = () => {
             </button>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-zinc-300">
-            <div>Entropy $\mathcal{H}$: <span className="text-white font-bold">{entropyData[selectedTokenIndex].ent.toFixed(3)}</span></div>
+            <div>Entropy H: <span className="text-white font-bold">{entropyData[selectedTokenIndex].ent.toFixed(3)}</span></div>
             <div>Confidence: <span className="text-emerald-400 font-bold">{entropyData[selectedTokenIndex].conf.toFixed(1)}%</span></div>
             <div>Status: <span className={entropyData[selectedTokenIndex].ent > threshold ? 'text-red-400 font-bold' : 'text-emerald-400 font-bold'}>
               {entropyData[selectedTokenIndex].ent > threshold ? 'RAG Candidate' : 'High Certainty'}
