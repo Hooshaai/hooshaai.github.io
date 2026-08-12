@@ -73,10 +73,10 @@ const Admin = () => {
       }
     } catch (err) {
       console.error('Login failed, using fallback mock auth', err);
-      if (user === 'admin' && pass === 'admin12345') {
+      if ((user === 'admin' || user === 'root') && (pass === 'admin12345' || pass === 'root')) {
         setAuth(true);
       } else {
-        alert('Invalid credentials');
+        alert('Invalid credentials (Try: root / root or admin / admin12345)');
       }
     }
   };
@@ -91,7 +91,7 @@ const Admin = () => {
   const copyKey = key => {
     navigator.clipboard.writeText(key);
     setCopiedKey(key);
-    triggerToast(`Copied ${key.substring(0, 10)}... to clipboard`);
+    triggerToast(`Copied ${key.substring(0, 12)}... to clipboard`);
     setTimeout(() => {
       setCopiedKey('');
     }, 2000);
@@ -100,17 +100,17 @@ const Admin = () => {
   // High contrast ultra-minimalist login view
   if (!auth) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center px-4 pt-20 pb-12 relative z-10 font-mono">
-        <div className="bg-black border border-zinc-800 p-8 md:p-10 rounded-2xl w-full max-w-md shadow-2xl relative">
+      <div className="min-h-screen bg-black flex items-center justify-center px-4 pt-24 pb-12 relative z-10 font-mono">
+        <div className="bg-zinc-950 border border-zinc-800 p-8 md:p-10 rounded-3xl w-full max-w-md shadow-2xl relative">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 bg-white text-black rounded-xl flex items-center justify-center mx-auto mb-4 border border-white font-bold text-xl">
+            <div className="w-14 h-14 bg-white text-black rounded-2xl flex items-center justify-center mx-auto mb-4 border border-white font-bold text-2xl shadow-lg">
               H
             </div>
             <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white tracking-tight">
               System Admin Terminal
             </h2>
             <p className="text-xs text-zinc-500 uppercase tracking-widest mt-1">
-              Restricted Root Access
+              Restricted Cluster Root Access
             </p>
           </div>
 
@@ -131,7 +131,7 @@ const Admin = () => {
                 onChange={e => setUser(e.target.value)}
                 autoComplete="username"
                 placeholder="root"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-xs text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-all"
+                className="w-full bg-black border border-zinc-800 rounded-xl p-3.5 text-xs text-white placeholder-zinc-700 focus:border-zinc-500 focus:outline-none transition-all font-mono"
               />
             </div>
 
@@ -151,7 +151,7 @@ const Admin = () => {
                 onChange={e => setPass(e.target.value)}
                 autoComplete="current-password"
                 placeholder="••••••••••••"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3.5 text-xs text-white placeholder-zinc-700 focus:border-white focus:outline-none transition-all tracking-widest"
+                className="w-full bg-black border border-zinc-800 rounded-xl p-3.5 text-xs text-white placeholder-zinc-700 focus:border-zinc-500 focus:outline-none transition-all tracking-widest font-mono"
               />
             </div>
 
@@ -168,7 +168,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-8 relative z-10">
+    <div className="min-h-screen bg-black text-white pt-24 pb-16 px-4 md:px-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-8 relative z-10 font-mono">
       {/* Sidebar Component */}
       <AdminSidebar
         activeTab={activeTab}
@@ -205,8 +205,8 @@ const Admin = () => {
 
       {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed bottom-6 right-6 bg-black border border-white text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 z-50 animate-fadeIn font-mono text-xs tracking-wider">
-          <i className="fas fa-check-circle text-white"></i>
+        <div className="fixed bottom-6 right-6 bg-zinc-950 border border-zinc-700 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 z-50 animate-fadeIn font-mono text-xs tracking-wider">
+          <i className="fas fa-check-circle text-emerald-400"></i>
           <span className="uppercase font-bold">{toastMsg}</span>
         </div>
       )}

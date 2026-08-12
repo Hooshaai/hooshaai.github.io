@@ -15,48 +15,80 @@ const SystemLogs = ({ onToast = () => {} }) => {
   const [logLevel, setLogLevel] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [isStreaming, setIsStreaming] = useState(true);
+  const [streamRate, setStreamRate] = useState(2500);
+  const [autoScroll, setAutoScroll] = useState(true);
+
   const logEndRef = useRef(null);
 
-  // Auto stream simulation
+  // Auto stream log generation
   useEffect(() => {
     if (!isStreaming) return;
 
     const interval = setInterval(() => {
       const now = new Date();
-      const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
-      
+      const timeStr =
+        now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+
       const modules = ['scheduler', 'gpu-allocator', 'api-gateway', 'auth-service', 'cluster-daemon', 'vector-index'];
       const levels = ['INFO', 'INFO', 'INFO', 'WARN', 'DEBUG', 'ERROR'];
       const sampleMsgs = [
-        'Ingressed 1,420 token embeddings into vector memory.',
-        'Garbage collection completed in 4.2ms.',
-        'API Key sk-live-...a1b9 rate limit check OK.',
-        'Health check ping latency: 0.8ms.',
-        'Model weights Llama-3 shard 4 synchronized.',
-        'TCP connection socket pool recycled.'
+        'Ingressed 1,420 token embeddings into vector memory index.',
+        'Garbage collection and page table sync completed in 4.2ms.',
+        'API Key sk-live-...a1b9 rate limit quota check PASSED.',
+        'Health check ping latency to node-alpha-01: 0.8ms.',
+        'Model weights Llama-3 shard 4 synchronized over NVLink.',
+        'TCP socket connection pool recycled for worker node-beta-01.'
       ];
 
       const idx = Math.floor(Math.random() * sampleMsgs.length);
       const newLog = {
-        id: Date.now(),
+        id: Date.now() + Math.random(),
         time: timeStr,
         level: levels[idx],
         module: modules[idx],
         msg: sampleMsgs[idx]
       };
 
-      setLogs((prev) => [...prev.slice(-100), newLog]);
-    }, 2500);
+      setLogs((prev) => [...prev.slice(-150), newLog]);
+    }, streamRate);
 
     return () => clearInterval(interval);
-  }, [isStreaming]);
+  }, [isStreaming, streamRate]);
 
-  // Scroll to bottom when new logs arrive if streaming
+  // Auto Scroll ref effect
   useEffect(() => {
-    if (isStreaming && logEndRef.current) {
+    if (autoScroll && isStreaming && logEndRef.current) {
       logEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [logs, isStreaming]);
+  }, [logs, autoScroll, isStreaming]);
+
+  const triggerErrorEvent = () => {
+    const now = new Date();
+    const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+    const errLog = {
+      id: Date.now(),
+      time: timeStr,
+      level: 'ERROR',
+      module: 'gpu-allocator',
+      msg: 'CUDA OOM (Out Of Memory) Exception on node-beta-02 during FP8 kernel execution! Free VRAM: 12MB / Total: 81920MB.'
+    };
+    setLogs((prev) => [...prev, errLog]);
+    onToast('Simulated CUDA OOM Error Event injected.');
+  };
+
+  const triggerWarnEvent = () => {
+    const now = new Date();
+    const timeStr = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+    const warnLog = {
+      id: Date.now(),
+      time: timeStr,
+      level: 'WARN',
+      module: 'thermal-daemon',
+      msg: 'Thermal throttling warning on node-alpha-02 GPU #3: Core temperature reached 79.5°C.'
+    };
+    setLogs((prev) => [...prev, warnLog]);
+    onToast('Simulated Thermal Warning Event injected.');
+  };
 
   const filteredLogs = logs.filter((l) => {
     const matchesLevel = logLevel === 'ALL' || l.level === logLevel;
@@ -65,6 +97,14 @@ const SystemLogs = ({ onToast = () => {} }) => {
       l.module.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesLevel && matchesSearch;
   });
+
+  const levelCounts = {
+    ALL: logs.length,
+    INFO: logs.filter((l) => l.level === 'INFO').length,
+    WARN: logs.filter((l) => l.level === 'WARN').length,
+    ERROR: logs.filter((l) => l.level === 'ERROR').length,
+    DEBUG: logs.filter((l) => l.level === 'DEBUG').length
+  };
 
   const handleClear = () => {
     setLogs([]);
@@ -77,56 +117,105 @@ const SystemLogs = ({ onToast = () => {} }) => {
     onToast('Logs copied to clipboard.');
   };
 
+  const handleExportLogs = () => {
+    const text = filteredLogs.map((l) => `[${l.time}] [${l.level}] [${l.module}] ${l.msg}`).join('\n');
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `system_logs_${Date.now()}.log`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    onToast('Log buffer exported to file.');
+  };
+
   return (
     <div className="space-y-8 font-mono">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-white/20">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-zinc-800">
         <div>
-          <div className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-1">
+          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1">
             Telemetry // Audit Trail
           </div>
-          <h1 className="text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-3">
-            <i className="fas fa-terminal text-gray-300 text-2xl"></i> System Logs
+          <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-3">
+            <i className="fas fa-terminal text-zinc-300 text-xl"></i> System Log Streaming
           </h1>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => setIsStreaming(!isStreaming)}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest border transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all flex items-center gap-2 ${
               isStreaming
-                ? 'bg-white text-black border-white shadow-md'
-                : 'bg-black text-gray-400 border-white/20 hover:text-white'
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-md'
+                : 'bg-zinc-900 text-zinc-400 border-zinc-700'
             }`}
           >
-            <i className={`fas ${isStreaming ? 'fa-pause' : 'fa-play'}`}></i>
-            {isStreaming ? 'Pause Stream' : 'Resume Stream'}
+            <span className={`w-2 h-2 rounded-full ${isStreaming ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600'}`}></span>
+            {isStreaming ? 'Streaming Live' : 'Stream Paused'}
+          </button>
+
+          <select
+            value={streamRate}
+            onChange={(e) => setStreamRate(Number(e.target.value))}
+            className="bg-zinc-900 text-zinc-200 border border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none"
+          >
+            <option value={1000}>Fast (1.0s)</option>
+            <option value={2500}>Normal (2.5s)</option>
+            <option value={5000}>Slow (5.0s)</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Simulation Triggers Strip */}
+      <div className="flex flex-wrap items-center justify-between bg-zinc-950 border border-zinc-800 rounded-2xl p-4 gap-4 shadow-xl">
+        <div className="text-xs font-bold text-zinc-300 flex items-center gap-2">
+          <i className="fas fa-vial text-zinc-400"></i> Event Simulators:
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={triggerWarnEvent}
+            className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
+          >
+            <i className="fas fa-exclamation-triangle text-amber-400"></i> Thermal Warn Event
+          </button>
+          <button
+            onClick={triggerErrorEvent}
+            className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
+          >
+            <i className="fas fa-bug text-rose-400"></i> Inject CUDA OOM Error
           </button>
         </div>
       </div>
 
       {/* Control Strip */}
-      <div className="bg-white/[0.03] border border-white/20 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-md">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl">
         {/* Log Level Filters */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
           {['ALL', 'INFO', 'WARN', 'ERROR', 'DEBUG'].map((lvl) => (
             <button
               key={lvl}
               onClick={() => setLogLevel(lvl)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-1.5 ${
                 logLevel === lvl
                   ? 'bg-white text-black shadow-md'
-                  : 'bg-black text-gray-400 border border-white/20 hover:text-white hover:border-white/50'
+                  : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white hover:border-zinc-700'
               }`}
             >
-              {lvl}
+              <span>{lvl}</span>
+              <span className={`text-[9px] px-1.5 py-0.2 rounded ${logLevel === lvl ? 'bg-black text-white' : 'bg-zinc-800 text-zinc-300'}`}>
+                {levelCounts[lvl]}
+              </span>
             </button>
           ))}
         </div>
 
         {/* Search & Utility Actions */}
-        <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+            <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
             <input
               id="admin-system-logs-search"
               name="systemLogsSearch"
@@ -135,71 +224,87 @@ const SystemLogs = ({ onToast = () => {} }) => {
               placeholder="Search log stream..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black border border-white/20 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:border-white focus:outline-none transition-all font-mono"
+              className="w-full bg-black border border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none transition-all font-mono"
             />
           </div>
+
+          <button
+            onClick={handleExportLogs}
+            title="Download Log File"
+            className="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white rounded-xl transition-colors text-xs"
+          >
+            <i className="fas fa-download"></i>
+          </button>
           <button
             onClick={handleCopyLogs}
             title="Copy Logs"
-            className="p-2.5 bg-black hover:bg-white/10 border border-white/20 text-gray-300 hover:text-white rounded-xl transition-colors text-xs"
+            className="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white rounded-xl transition-colors text-xs"
           >
             <i className="fas fa-copy"></i>
           </button>
           <button
             onClick={handleClear}
             title="Clear Console"
-            className="p-2.5 bg-black hover:bg-white/10 border border-white/20 text-gray-300 hover:text-white rounded-xl transition-colors text-xs"
+            className="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white rounded-xl transition-colors text-xs"
           >
             <i className="fas fa-trash-alt"></i>
           </button>
         </div>
       </div>
 
-      {/* Terminal View Component */}
-      <div className="bg-white/[0.03] border border-white/20 rounded-2xl p-4 shadow-md">
-        {/* Terminal Header */}
-        <div className="flex justify-between items-center pb-3 mb-3 border-b border-white/20 text-[11px] text-gray-400">
+      {/* Terminal Output Window */}
+      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 shadow-xl">
+        {/* Terminal Header Bar */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 mb-3 border-b border-zinc-800 text-[11px] text-zinc-400 gap-2">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-white/20 border border-white/40"></span>
-            <span className="w-3 h-3 rounded-full bg-white/20 border border-white/40"></span>
-            <span className="w-3 h-3 rounded-full bg-white/20 border border-white/40"></span>
-            <span className="ml-2 font-bold text-gray-200">tty1 // live-stdout</span>
+            <span className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-600"></span>
+            <span className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-600"></span>
+            <span className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-600"></span>
+            <span className="ml-2 font-bold text-zinc-200">tty1 // live-stdout</span>
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-1.5 text-xs cursor-pointer select-none text-zinc-400">
+              <input
+                type="checkbox"
+                checked={autoScroll}
+                onChange={(e) => setAutoScroll(e.target.checked)}
+                className="rounded border-zinc-800 bg-black text-white focus:ring-0"
+              />
+              Auto-scroll
+            </label>
             <span>Buffer: {filteredLogs.length} events</span>
-            <span className="inline-flex items-center gap-1.5 text-gray-200 font-bold">
-              <span className={`w-2 h-2 rounded-full ${isStreaming ? 'bg-white animate-pulse' : 'bg-gray-500'}`}></span>
-              {isStreaming ? 'LIVE STREAM' : 'PAUSED'}
-            </span>
           </div>
         </div>
 
-        {/* Log Lines Output */}
-        <div className="h-[450px] overflow-y-auto space-y-2 p-3 bg-black rounded-xl border border-white/20 font-mono text-xs select-text shadow-inner">
+        {/* Log Stream Output Box */}
+        <div className="h-[460px] overflow-y-auto space-y-2 p-3 bg-black rounded-xl border border-zinc-800 font-mono text-xs select-text shadow-inner">
           {filteredLogs.length > 0 ? (
             filteredLogs.map((log) => (
-              <div key={log.id} className="flex items-start gap-3 hover:bg-white/5 p-1.5 rounded transition-colors leading-relaxed">
-                <span className="text-gray-400 text-[11px] shrink-0 font-mono">{log.time}</span>
+              <div key={log.id} className="flex items-start gap-3 hover:bg-zinc-900/60 p-1.5 rounded transition-colors leading-relaxed">
+                <span className="text-zinc-500 text-[11px] shrink-0 font-mono">{log.time}</span>
+                
                 <span
-                  className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 ${
+                  className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 border ${
                     log.level === 'ERROR'
-                      ? 'bg-white text-black font-bold'
+                      ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse'
                       : log.level === 'WARN'
-                      ? 'bg-white/20 text-white border border-white/40'
+                      ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
                       : log.level === 'INFO'
-                      ? 'bg-white/10 text-gray-200 border border-white/20'
-                      : 'bg-black text-gray-400 border border-white/10'
+                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                      : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
                   }`}
                 >
                   {log.level}
                 </span>
-                <span className="text-gray-300 font-bold shrink-0">[{log.module}]</span>
-                <span className="text-gray-200 break-all">{log.msg}</span>
+
+                <span className="text-zinc-300 font-bold shrink-0">[{log.module}]</span>
+                <span className="text-zinc-200 break-all">{log.msg}</span>
               </div>
             ))
           ) : (
-            <div className="text-center py-20 text-gray-500 font-mono">
-              Console buffer is empty or no log matches query.
+            <div className="text-center py-24 text-zinc-500 font-mono">
+              Log buffer is empty or no lines match current filter query.
             </div>
           )}
           <div ref={logEndRef} />

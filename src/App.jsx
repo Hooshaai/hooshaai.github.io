@@ -12,6 +12,9 @@ import Platform from './pages/Platform';
 import Admin from './pages/Admin';
 import SpotlightSearch from './components/ui/SpotlightSearch';
 import TTSBar from './components/ui/TTSBar';
+import { AuthProvider } from './contexts/AuthContext';
+import { TTSProvider } from './contexts/TTSContext';
+import ProtectedRoute from './components/ui/ProtectedRoute';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -69,8 +72,24 @@ const AnimatedRoutes = () => {
         <Route path="/ecosystem" element={<PageWrapper><Ecosystem /></PageWrapper>} />
         <Route path="/models" element={<PageWrapper><Models /></PageWrapper>} />
         <Route path="/labs" element={<PageWrapper><Labs /></PageWrapper>} />
-        <Route path="/platform" element={<PageWrapper><Platform /></PageWrapper>} />
-        <Route path="/admin" element={<PageWrapper><Admin /></PageWrapper>} />
+        <Route 
+          path="/platform" 
+          element={
+            <PageWrapper>
+              <ProtectedRoute>
+                <Platform />
+              </ProtectedRoute>
+            </PageWrapper>
+          } 
+        />
+        <Route 
+          path="/admin" 
+          element={
+            <PageWrapper>
+              <Admin />
+            </PageWrapper>
+          } 
+        />
       </Routes>
     </AnimatePresence>
   );
@@ -78,17 +97,21 @@ const AnimatedRoutes = () => {
 
 function App() {
   return (
-    <HashRouter>
-      <ErrorBoundary>
-        <Navbar />
-        <main>
-          <AnimatedRoutes />
-        </main>
-        <Footer />
-        <SpotlightSearch />
-        <TTSBar />
-      </ErrorBoundary>
-    </HashRouter>
+    <AuthProvider>
+      <TTSProvider>
+        <HashRouter>
+          <ErrorBoundary>
+            <Navbar />
+            <main>
+              <AnimatedRoutes />
+            </main>
+            <Footer />
+            <SpotlightSearch />
+            <TTSBar />
+          </ErrorBoundary>
+        </HashRouter>
+      </TTSProvider>
+    </AuthProvider>
   );
 }
 

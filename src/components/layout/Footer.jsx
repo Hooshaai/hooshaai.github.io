@@ -21,7 +21,7 @@ const Footer = () => {
     localStorage.setItem('hoosha_subscribers', JSON.stringify([...existing, newSub]));
 
     try {
-      await apiFetch('/api/v1/newsletter/subscribe/', {
+      await apiFetch('/api/v1/subscribe/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

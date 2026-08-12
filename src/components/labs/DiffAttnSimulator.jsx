@@ -1,129 +1,308 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { Play, Pause, Sliders, Activity, Eye, EyeOff, Radio } from 'lucide-react';
 import { MathBlock } from '../../utils/renderMath';
-
-const cardStyle = {
-  background: 'rgba(255, 255, 255, 0.03)',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-  borderRadius: '24px',
-  padding: '2.5rem',
-  marginBottom: '3rem',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1.25rem',
-  boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
-};
-
-const cardHover = {
-  borderColor: 'rgba(255, 255, 255, 0.5)',
-  transition: { duration: 0.3 }
-};
-
-const headerStyle = {
-  fontSize: '1.5rem',
-  fontWeight: '700',
-  letterSpacing: '-0.02em',
-  color: '#fff',
-  display: 'flex',
-  alignItems: 'center',
-  marginBottom: '0.25rem',
-  fontFamily: "'Space Grotesk', sans-serif"
-};
 
 const DiffAttnSimulator = () => {
   const canvasRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [lambda, setLambda] = useState(1.0);
-  const [snr, setSnr] = useState(0);
+  const [noiseLevel, setNoiseLevel] = useState(1.0);
+  const [frequency, setFrequency] = useState(1.0);
+  const [snr, setSnr] = useState('0.0');
+
+  const [showA1, setShowA1] = useState(true);
+  const [showA2, setShowA2] = useState(true);
+  const [showOut, setShowOut] = useState(true);
+
+  const [probeData, setProbeData] = useState(null);
+
+  // Pre-generate smooth, coherent fixed noise buffer (fixes 60fps frame jumping)
+  const noiseBuffer = useMemo(() => {
+    const arr = new Float32Array(1600);
+    for (let i = 0; i < arr.length; i++) {
+      // Harmonic combination for smooth noise shape
+      arr[i] = (Math.sin(i * 0.08) * 0.4 + Math.cos(i * 0.17) * 0.35 + (Math.random() * 0.25 - 0.125)) * 24;
+    }
+    return arr;
+  }, []);
+
+  const timeRef = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animationFrameId;
-    let time = 0;
     let frameCount = 0;
 
-    const noise = Array.from({length: 800}, () => (Math.random() * 2 - 1) * 20);
-
     const render = () => {
-      ctx.fillStyle = '#000000';
+      ctx.fillStyle = '#09090b';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       const w = canvas.width;
       const h = canvas.height;
       const cy = h / 2;
 
+      // Draw Center Baseline Grid
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, cy);
+      ctx.lineTo(w, cy);
+      ctx.stroke();
+
       let signalPow = 0;
       let noisePow = 0;
 
-      const drawWave = (color, fn, isOutput=false) => {
+      const drawWave = (color, width, fn, isOutput = false) => {
         ctx.strokeStyle = color;
-        ctx.lineWidth = isOutput ? 2 : 1;
+        ctx.lineWidth = width;
         ctx.beginPath();
+
         for (let x = 0; x < w; x++) {
-          const n = noise[(x + time) % noise.length];
+          const noiseIndex = Math.floor((x + timeRef.current) % noiseBuffer.length);
+          const n = noiseBuffer[noiseIndex] * noiseLevel;
           const y = cy + fn(x, n);
+
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
 
           if (isOutput) {
-            const sig = fn(x, 0); // ideal without noise
-            signalPow += sig*sig;
-            const err = fn(x, n) - sig;
-            noisePow += err*err;
+            const cleanSignal = fn(x, 0);
+            signalPow += cleanSignal * cleanSignal;
+            const noiseDiff = fn(x, n) - cleanSignal;
+            noisePow += noiseDiff * noiseDiff;
           }
         }
         ctx.stroke();
       };
 
-      // A1: gray
-      drawWave('rgba(255, 255, 255, 0.2)', (x, n) => Math.sin(x * 0.02 + time * 0.05) * 40 + n);
-      // A2: dark gray
-      drawWave('rgba(255, 255, 255, 0.1)', (x, n) => Math.sin((x + 20) * 0.02 + time * 0.05) * 35 + n);
-      // Output: white
-      drawWave('#ffffff', (x, n) => {
-        const v1 = Math.sin(x * 0.02 + time * 0.05) * 40 + n;
-        const v2 = Math.sin((x + 20) * 0.02 + time * 0.05) * 35 + n;
-        return v1 - lambda * v2;
-      }, true);
+      // 1. Attention Head 1 (A1 - Blue)
+      if (showA1) {
+        drawWave('rgba(59, 130, 246, 0.4)', 1.5, (x, n) => {
+          return Math.sin(x * 0.02 * frequency + timeRef.current * 0.04) * 45 + n;
+        });
+      }
 
-      if (frameCount % 15 === 0) {
+      // 2. Attention Head 2 (A2 - Purple)
+      if (showA2) {
+        drawWave('rgba(168, 85, 247, 0.4)', 1.5, (x, n) => {
+          return Math.sin((x + 25) * 0.02 * frequency + timeRef.current * 0.04) * 40 + n;
+        });
+      }
+
+      // 3. Differential Attention Output: (A1 - lambda * A2)
+      if (showOut) {
+        drawWave('#ffffff', 2.5, (x, n) => {
+          const a1 = Math.sin(x * 0.02 * frequency + timeRef.current * 0.04) * 45 + n;
+          const a2 = Math.sin((x + 25) * 0.02 * frequency + timeRef.current * 0.04) * 40 + n;
+          return a1 - lambda * a2;
+        }, true);
+      }
+
+      if (frameCount % 12 === 0) {
         const computedSnr = 10 * Math.log10((signalPow + 1) / (noisePow + 1));
         setSnr(computedSnr.toFixed(1));
       }
 
-      time += 2;
+      if (isPlaying) {
+        timeRef.current += 1.5;
+      }
       frameCount++;
       animationFrameId = requestAnimationFrame(render);
     };
+
     render();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [lambda]);
+  }, [lambda, noiseLevel, frequency, isPlaying, showA1, showA2, showOut, noiseBuffer]);
+
+  // Scaled Pointer Hover Probe Inspection
+  const handlePointerMove = (e) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const canvasX = (e.clientX - rect.left) * scaleX;
+
+    const noiseIndex = Math.floor((canvasX + timeRef.current) % noiseBuffer.length);
+    const n = noiseBuffer[noiseIndex] * noiseLevel;
+
+    const a1 = Math.sin(canvasX * 0.02 * frequency + timeRef.current * 0.04) * 45 + n;
+    const a2 = Math.sin((canvasX + 25) * 0.02 * frequency + timeRef.current * 0.04) * 40 + n;
+    const diff = a1 - lambda * a2;
+
+    setProbeData({
+      x: Math.round(canvasX),
+      a1: a1.toFixed(1),
+      a2: a2.toFixed(1),
+      diff: diff.toFixed(1)
+    });
+  };
 
   return (
-    <motion.div style={cardStyle} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} whileHover={cardHover}>
-      <h3 style={headerStyle}><span style={{color: '#fff', marginRight:'10px', fontSize: '0.8em'}}>◆</span>Differential Attention Noise</h3>
-      <MathBlock formula={String.raw`\text{DiffAttn}(Q,K,V) = (A_1 - \lambda A_2)\,V, \quad \lambda \in [0, 2]`} />
-      
-      <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', fontFamily: 'monospace', fontSize: '0.8rem' }}>
+    <motion.div
+      id="diffattn-lab"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-zinc-950/80 border border-zinc-800 rounded-3xl p-6 sm:p-8 hover:border-zinc-700/80 transition-all duration-300 shadow-2xl backdrop-blur-xl mb-12"
+    >
+      {/* Header & Badges */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
-          <label htmlFor="lambda-range" style={{ display: 'block', marginBottom: '0.5rem', color: '#9ca3af' }}>
-            LAMBDA (λ): {lambda.toFixed(2)}
-          </label>
-          <input id="lambda-range" name="lambda" aria-label="Lambda" type="range" min="0" max="2" step="0.05" value={lambda} onChange={e => setLambda(parseFloat(e.target.value))} style={{ width: '200px', accentColor: '#fff' }} />
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-purple-400 font-mono text-sm font-semibold">03 / SIMULATOR</span>
+            <span className="text-xs bg-purple-500/10 border border-purple-500/20 text-purple-300 px-2.5 py-0.5 rounded-full font-mono">
+              Transformer Architecture
+            </span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-['Space_Grotesk']">
+            Differential Attention (Diff Transformer)
+          </h2>
         </div>
-        <div style={{ textAlign: 'right', color: '#9ca3af' }}>
-          <div>LIVE_SNR: {snr} dB</div>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', fontSize: '0.7rem' }}>
-            <span style={{color: 'rgba(255, 255, 255, 0.4)'}}>■ A1</span>
-            <span style={{color: 'rgba(255, 255, 255, 0.2)'}}>■ A2</span>
-            <span style={{color: '#fff'}}>■ OUT</span>
+
+        {/* SNR Readout Indicator */}
+        <div className="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 px-4 py-2 rounded-2xl font-mono text-xs text-zinc-400">
+          <Radio className={`w-4 h-4 ${parseFloat(snr) > 12 ? 'text-emerald-400 animate-pulse' : 'text-amber-400'}`} />
+          <div>
+            <span className="text-zinc-500 block text-[10px]">LIVE SNR</span>
+            <span className={`font-bold ${parseFloat(snr) > 12 ? 'text-emerald-400' : 'text-amber-400'}`}>
+              {snr} dB
+            </span>
+          </div>
+          <div className="h-6 w-px bg-zinc-800" />
+          <div>
+            <span className="text-zinc-500 block text-[10px]">NOISE CANCELLATION</span>
+            <span className="text-purple-400 font-bold">
+              {Math.min(100, Math.max(0, Math.round((1 - Math.abs(1 - lambda)) * 100)))}%
+            </span>
           </div>
         </div>
       </div>
 
-      <canvas ref={canvasRef} width={800} height={300} style={{ width: '100%', height: '300px', borderRadius: '12px', background: '#000', border: '1px solid rgba(255,255,255,0.1)' }} />
+      <p className="text-zinc-400 text-sm mb-4 leading-relaxed font-light">
+        Differential Attention subtracts two separate attention maps $A_1 - \lambda A_2$ to cancel common-mode noise, enhancing signal-to-noise ratio (SNR) and key information retrieval in long context LLMs.
+      </p>
+
+      {/* KaTeX Formula */}
+      <MathBlock formula={String.raw`\text{DiffAttn}(Q,K,V) = (A_1 - \lambda A_2)\,V, \quad \lambda \in [0, 2]`} />
+
+      {/* Controls Bar */}
+      <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 mb-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        {/* Play/Pause Button */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsPlaying(!isPlaying)}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+              isPlaying
+                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30'
+                : 'bg-white text-black hover:bg-zinc-200'
+            }`}
+          >
+            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+            {isPlaying ? 'Pause' : 'Play Wave'}
+          </button>
+        </div>
+
+        {/* Lambda Slider */}
+        <div className="font-mono text-xs">
+          <div className="flex justify-between text-zinc-400 mb-1">
+            <label htmlFor="lambda-slider">LAMBDA (λ):</label>
+            <span className="text-white font-bold">{lambda.toFixed(2)}</span>
+          </div>
+          <input
+            id="lambda-slider"
+            type="range"
+            min="0.00"
+            max="2.00"
+            step="0.05"
+            value={lambda}
+            onChange={(e) => setLambda(parseFloat(e.target.value))}
+            className="w-full accent-purple-400 bg-zinc-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+
+        {/* Noise Level Slider */}
+        <div className="font-mono text-xs">
+          <div className="flex justify-between text-zinc-400 mb-1">
+            <label htmlFor="noise-level-slider">NOISE_AMP:</label>
+            <span className="text-white font-bold">{noiseLevel.toFixed(1)}</span>
+          </div>
+          <input
+            id="noise-level-slider"
+            type="range"
+            min="0.0"
+            max="2.0"
+            step="0.1"
+            value={noiseLevel}
+            onChange={(e) => setNoiseLevel(parseFloat(e.target.value))}
+            className="w-full accent-purple-400 bg-zinc-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+
+        {/* Layer Visibility Toggles */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <button
+            onClick={() => setShowA1(!showA1)}
+            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border ${
+              showA1
+                ? 'bg-blue-500/20 border-blue-500/40 text-blue-400'
+                : 'bg-zinc-800/50 border-zinc-700 text-zinc-500 line-through'
+            }`}
+          >
+            ■ A₁
+          </button>
+
+          <button
+            onClick={() => setShowA2(!showA2)}
+            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border ${
+              showA2
+                ? 'bg-purple-500/20 border-purple-500/40 text-purple-400'
+                : 'bg-zinc-800/50 border-zinc-700 text-zinc-500 line-through'
+            }`}
+          >
+            ■ A₂
+          </button>
+
+          <button
+            onClick={() => setShowOut(!showOut)}
+            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border ${
+              showOut
+                ? 'bg-white/20 border-white/40 text-white font-semibold'
+                : 'bg-zinc-800/50 border-zinc-700 text-zinc-500 line-through'
+            }`}
+          >
+            ■ OUT
+          </button>
+        </div>
+      </div>
+
+      {/* Canvas Display */}
+      <div className="relative rounded-2xl overflow-hidden border border-zinc-800 bg-black">
+        <canvas
+          ref={canvasRef}
+          width={800}
+          height={300}
+          className="w-full h-[280px] sm:h-[320px] block cursor-crosshair"
+          onPointerMove={handlePointerMove}
+          onPointerLeave={() => setProbeData(null)}
+        />
+
+        {/* Probe Hover Data Overlay */}
+        {probeData && (
+          <div className="absolute top-4 right-4 bg-zinc-900/90 border border-zinc-700 p-3 rounded-xl font-mono text-xs text-white backdrop-blur-md shadow-xl">
+            <div className="text-zinc-400 text-[10px] mb-1">PROBE POSITION x={probeData.x}px</div>
+            <div className="text-blue-400">A₁ Signal: {probeData.a1}</div>
+            <div className="text-purple-400">A₂ Signal: {probeData.a2}</div>
+            <div className="text-white font-bold border-t border-zinc-800 pt-1 mt-1">
+              Out (A₁ - λA₂): {probeData.diff}
+            </div>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 };
 
 export default DiffAttnSimulator;
+

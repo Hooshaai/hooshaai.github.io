@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateSubstackArticleModalHTML } from '../../utils/articleContent';
 import { renderMathInElement } from '../../utils/renderMath';
+import useTTSPlayer from '../../hooks/useTTSPlayer';
 
 const ArticleModal = ({ article, onClose }) => {
   const contentRef = useRef(null);
@@ -9,57 +10,23 @@ const ArticleModal = ({ article, onClose }) => {
   const [showBibtex, setShowBibtex] = useState(false);
   const [fontSize, setFontSize] = useState(18); // Default font size
   const [toc, setToc] = useState([]);
-  
-  // TTS State
-  const [voices, setVoices] = useState([]);
-  const [selectedVoice, setSelectedVoice] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  
-  useEffect(() => {
-    const synth = window.speechSynthesis;
-    const populateVoices = () => {
-      const availableVoices = synth.getVoices();
-      setVoices(availableVoices);
-      if (availableVoices.length > 0 && !selectedVoice) {
-        setSelectedVoice(availableVoices.find(v => v.lang.startsWith('en')) || availableVoices[0]);
-      }
-    };
-    populateVoices();
-    if (synth.onvoiceschanged !== undefined) {
-      synth.onvoiceschanged = populateVoices;
-    }
-    return () => {
-      synth.cancel(); // Stop speaking on unmount
-    };
-  }, []);
+
+  // Consume Global TTS Hook
+  const {
+    isPlaying,
+    isPaused,
+    currentArticle,
+    voices,
+    selectedVoice,
+    togglePlay,
+    stop,
+    changeVoice,
+  } = useTTSPlayer();
+
+  const isCurrentPlaying = currentArticle?.id === article?.id && isPlaying;
 
   const handlePlayPause = () => {
-    const synth = window.speechSynthesis;
-    if (isPlaying) {
-      if (isPaused) {
-        synth.resume();
-        setIsPaused(false);
-      } else {
-        synth.pause();
-        setIsPaused(true);
-      }
-    } else {
-      synth.cancel();
-      const textToSpeak = contentRef.current?.innerText || article.title;
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      if (selectedVoice) utterance.voice = selectedVoice;
-      utterance.onend = () => { setIsPlaying(false); setIsPaused(false); };
-      synth.speak(utterance);
-      setIsPlaying(true);
-      setIsPaused(false);
-    }
-  };
-
-  const handleStop = () => {
-    window.speechSynthesis.cancel();
-    setIsPlaying(false);
-    setIsPaused(false);
+    togglePlay(article);
   };
 
   useEffect(() => {
@@ -148,20 +115,33 @@ const ArticleModal = ({ article, onClose }) => {
           <div className="flex items-center gap-4">
              {/* TTS Controls */}
             <div className="flex items-center bg-white/10 border border-white/20 rounded-lg p-1 mr-4">
-              <select 
-                id="tts-voice-select"
-                name="ttsVoice"
-                aria-label="Select TTS Voice"
-                className="bg-transparent text-xs text-gray-200 max-w-24 outline-none mr-2"
-                onChange={(e) => setSelectedVoice(voices.find(v => v.name === e.target.value))}
-                value={selectedVoice?.name || ''}
+              {voices.length > 0 && (
+                <select 
+                  id="tts-voice-select"
+                  name="ttsVoice"
+                  aria-label="Select TTS Voice"
+                  className="bg-transparent text-xs text-gray-200 max-w-24 outline-none mr-2"
+                  onChange={(e) => changeVoice(e.target.value)}
+                  value={selectedVoice?.name || ''}
+                >
+                  {voices.map(v => <option key={v.name} value={v.name} className="bg-black text-white">{v.name}</option>)}
+                </select>
+              )}
+              <button 
+                onClick={handlePlayPause} 
+                className="text-white hover:bg-white hover:text-black w-8 h-8 flex items-center justify-center rounded bg-white/20 mx-1 transition-colors"
+                title={isCurrentPlaying && !isPaused ? 'Pause' : 'Listen Article'}
+                aria-label={isCurrentPlaying && !isPaused ? 'Pause' : 'Listen Article'}
               >
-                {voices.map(v => <option key={v.name} value={v.name} className="bg-black">{v.name}</option>)}
-              </select>
-              <button onClick={handlePlayPause} className="text-white hover:bg-white hover:text-black w-8 h-8 flex items-center justify-center rounded bg-white/20 mx-1 transition-colors">
-                <i className={`fas ${isPlaying && !isPaused ? 'fa-pause' : 'fa-play'}`}></i>
+                <i className={`fas ${isCurrentPlaying && !isPaused ? 'fa-pause' : 'fa-play'}`}></i>
               </button>
-              <button onClick={handleStop} className="text-gray-300 hover:text-white w-8 h-8 flex items-center justify-center rounded bg-white/10 mx-1" disabled={!isPlaying}>
+              <button 
+                onClick={stop} 
+                className="text-gray-300 hover:text-white w-8 h-8 flex items-center justify-center rounded bg-white/10 mx-1 disabled:opacity-40" 
+                disabled={!isCurrentPlaying}
+                title="Stop Audio"
+                aria-label="Stop Audio"
+              >
                 <i className="fas fa-stop"></i>
               </button>
             </div>

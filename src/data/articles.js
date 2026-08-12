@@ -284,79 +284,45 @@ export const ALL_ARTICLES = [
 import { apiFetch } from '../utils/api';
 
 export async function fetchRealArticles() {
-  let fetchedArticles = [];
-  
-  // Attempt 1: Django Backend API
   try {
     const apiRes = await apiFetch('/api/v1/articles/');
     if (apiRes.ok) {
       const data = await apiRes.json();
       if (data.results && data.results.length > 0) {
-        fetchedArticles = data.results.map((item) => ({
-          id: item.id || item.slug,
-          title: item.title,
-          link: `/research?article=${item.slug}`,
-          pubDate: new Date(item.published_at).toUTCString(),
-          wordCount: `${item.content?.split(' ').length || 0} words`,
-          readTime: `${Math.max(1, Math.ceil((item.content?.split(' ').length || 0) / 200))} min read`,
-          snippet: item.summary || (item.content?.substring(0, 200) + '...'),
-          category: (item.tags && item.tags[0]) || "research",
-          categoryName: (item.tags && item.tags[0]) || "Research",
-          katex: true,
-          author: item.author_name || 'Hoosha AI',
-          authorRole: 'Researcher',
-          content: item.content
-        }));
-        return fetchedArticles;
+        return data.results.map((item, idx) => {
+          const fallback = ALL_ARTICLES[idx] || ALL_ARTICLES[0];
+          return {
+            id: item.id || fallback.id,
+            title: item.title || fallback.title,
+            link: item.link || fallback.link,
+            pubDate: item.published_at ? new Date(item.published_at).toUTCString() : fallback.pubDate,
+            wordCount: fallback.wordCount,
+            readTime: fallback.readTime,
+            snippet: item.summary || fallback.snippet,
+            category: fallback.category,
+            categoryName: fallback.categoryName,
+            katex: true,
+            author: item.author_name || fallback.author,
+            authorRole: fallback.authorRole,
+            content: item.content
+          };
+        });
       }
     }
   } catch (err) {
-    console.warn('Backend API not available, falling back to static files', err);
+    console.warn('Backend API not available, falling back to static metadata', err);
   }
 
-  // Attempt 2: Static articles.json
-  try {
-    const response = await fetch('/articles.json');
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    fetchedArticles = await response.json();
-  } catch (error) {
-    console.warn('Failed to fetch articles.json, falling back to RSS to JSON API', error);
-    
-    // Attempt 3: RSS Feed
-    try {
-      const rssUrl = 'https://hooshaai.substack.com/feed';
-      const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`);
-      if (!response.ok) {
-        throw new Error('RSS fallback failed');
-      }
-      const data = await response.json();
-      fetchedArticles = data.items.map((item, index) => ({
-        id: `art-rss-${index}`,
-        title: item.title,
-        link: item.link,
-        pubDate: item.pubDate,
-        wordCount: "N/A",
-        readTime: "N/A",
-        snippet: (item.description || '').replace(/<[^>]*>?/gm, '').substring(0, 200) + '...',
-        category: "latest",
-        categoryName: "Latest Research",
-        katex: false,
-        author: item.author || 'Hoosha AI',
-        authorRole: 'Contributor'
-      }));
-    } catch (rssError) {
-      console.error('Failed to fetch RSS, falling back to mock data', rssError);
-      fetchedArticles = ALL_ARTICLES;
-    }
-  }
-
-  // Combine with Local CMS Drafts
   try {
     const cmsArticles = JSON.parse(localStorage.getItem('hoosha_cms_articles') || '[]');
-    return [...cmsArticles, ...fetchedArticles];
+    if (cmsArticles.length > 0) {
+      const existingIds = new Set(cmsArticles.map(a => a.id));
+      const filteredDefaults = ALL_ARTICLES.filter(a => !existingIds.has(a.id));
+      return [...cmsArticles, ...filteredDefaults];
+    }
   } catch (e) {
-    return fetchedArticles;
+    // ignore
   }
+
+  return ALL_ARTICLES;
 }

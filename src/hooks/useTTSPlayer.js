@@ -1,30 +1,31 @@
-import { useState } from 'react';
+import { useContext } from 'react';
+import { TTSContext } from '../contexts/TTSContext';
 
 const useTTSPlayer = () => {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [currentArticle, setCurrentArticle] = useState(null);
-  
-  const play = (article) => {
-    setCurrentArticle(article);
-    setIsPlaying(true);
-    setIsPaused(false);
-    // Real implementation would use window.speechSynthesis here
-  };
-  
-  const pause = () => setIsPaused(true);
-  const resume = () => setIsPaused(false);
-  
-  const stop = () => {
-    setIsPlaying(false);
-    setIsPaused(false);
-    setCurrentArticle(null);
-  };
-  
-  const next = () => {};
-  const prev = () => {};
-
-  return { isPlaying, isPaused, currentArticle, play, pause, resume, stop, next, prev };
+  const context = useContext(TTSContext);
+  if (!context) {
+    console.warn('useTTSPlayer must be used within a TTSProvider');
+    return {
+      isPlaying: false,
+      isPaused: false,
+      currentArticle: null,
+      voices: [],
+      selectedVoice: null,
+      playbackRate: 1,
+      progress: 0,
+      play: () => {},
+      pause: () => {},
+      resume: () => {},
+      stop: () => {},
+      togglePlay: () => {},
+      changeVoice: () => {},
+      changePlaybackRate: () => {},
+      next: () => {},
+      prev: () => {},
+    };
+  }
+  return context;
 };
 
 export default useTTSPlayer;
+

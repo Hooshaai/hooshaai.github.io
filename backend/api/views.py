@@ -7,12 +7,12 @@ import subprocess
 import tempfile
 import time
 
+from django.contrib.auth import get_user_model
+from django.db.models import Q
 from rest_framework import generics, status, permissions, filters
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
-from django.contrib.auth import get_user_model
 
 from .models import Subscriber, Article, ModelCheckpoint, TelemetryLog
 from .serializers import (
@@ -68,12 +68,13 @@ class LoginAPIView(TokenObtainPairView):
         response = super().post(request, *args, **kwargs)
         if response.status_code == status.HTTP_200_OK:
             username = request.data.get('username') or request.data.get('email')
-            try:
-                user = User.objects.get(username=username) if User.objects.filter(username=username).exists() else User.objects.get(email=username)
-                user_data = UserSerializer(user).data
-                response.data['user'] = user_data
-            except User.DoesNotExist:
-                pass
+            if username:
+                try:
+                    user = User.objects.filter(Q(username=username) | Q(email=username)).first()
+                    if user:
+                        response.data['user'] = UserSerializer(user).data
+                except Exception:
+                    pass
         return response
 
 
@@ -122,8 +123,8 @@ class ArticleListCreateAPIView(generics.ListCreateAPIView):
     ordering = ['-published_at']
 
     def get_queryset(self):
-        queryset = Article.objects.all()
-        # Non-staff users only see published articles
+        # Optimized database query using select_related for author FK to prevent N+1 queries
+        queryset = Article.objects.select_related('author')
         if not (self.request.user and self.request.user.is_staff):
             queryset = queryset.filter(is_published=True)
         return queryset
@@ -141,7 +142,7 @@ class ArticleDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     """
     API endpoint to retrieve, update, or delete a specific article by slug or ID.
     """
-    queryset = Article.objects.all()
+    queryset = Article.objects.select_related('author').all()
     serializer_class = ArticleSerializer
     lookup_field = 'slug'
 
@@ -189,10 +190,12 @@ class TelemetryLogListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = TelemetryLogSerializer
 
     def get_queryset(self):
+        # Optimized with select_related for user FK
+        base_qs = TelemetryLog.objects.select_related('user')
         if self.request.user and self.request.user.is_staff:
-            return TelemetryLog.objects.all()
+            return base_qs.all()
         elif self.request.user and self.request.user.is_authenticated:
-            return TelemetryLog.objects.filter(user=self.request.user)
+            return base_qs.filter(user=self.request.user)
         return TelemetryLog.objects.none()
 
     def get_permissions(self):
@@ -202,7 +205,6 @@ class TelemetryLogListCreateAPIView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         user = self.request.user if self.request.user.is_authenticated else None
-        # Extract IP address from request metadata
         x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0].strip()
@@ -256,7 +258,9 @@ class CUDACompileAPIView(generics.GenericAPIView):
                         compiled_real = True
                         status_msg = 'compiled'
                     else:
-                        compiler_stdout = proc.stderr or proc.stdout
+                        compiler_stdout = proc.stderr or proc.stdout or "nvcc compilation failed."
+            except subprocess.TimeoutExpired:
+                compiler_stdout = "nvcc execution error: Compilation process timed out."
             except Exception as e:
                 compiler_stdout = f"nvcc execution error: {str(e)}"
 
@@ -291,7 +295,8 @@ class CUDACompileAPIView(generics.GenericAPIView):
                 f"    ret;\n"
                 f"}}\n"
             )
-            compiler_stdout = f"Simulated CUDA PTX code generated for architecture {arch}. (nvcc binary not present)."
+            if not compiler_stdout:
+                compiler_stdout = f"Simulated CUDA PTX code generated for architecture {arch}. (nvcc binary not present)."
 
         t_end = time.perf_counter()
         elapsed_ms = round((t_end - t_start) * 1000, 2)
@@ -339,6 +344,12 @@ class CFMSolveAPIView(generics.GenericAPIView):
         sigma_min = data.get('sigma_min', 0.01)
 
         t_0, t_1 = float(t_span[0]), float(t_span[1])
+        if num_steps <= 0 or t_1 <= t_0:
+            return Response(
+                {'error': 'Invalid t_span or num_steps parameters.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         dt = (t_1 - t_0) / num_steps
 
         # Ensure matching dimensionality
@@ -348,88 +359,94 @@ class CFMSolveAPIView(generics.GenericAPIView):
 
         def velocity_field(x_vec, t_val):
             """Evaluate target CFM velocity field v(x, t)."""
-            v_out = []
+            v_out = [0.0] * dim
             eps = 1e-5
             if flow_type == 'linear':
                 # Optimal Transport (OT) linear vector field
                 denom = max(eps, 1.0 - (1.0 - sigma_min) * t_val)
                 for i in range(dim):
-                    v_val = (x1[i] - (1.0 - sigma_min) * x0[i]) / denom
-                    v_out.append(v_val)
+                    v_out[i] = (x1[i] - (1.0 - sigma_min) * x0[i]) / denom
             elif flow_type == 'harmonic':
+                cos_t = math.cos(math.pi * t_val)
+                sin_t = math.sin(math.pi * t_val)
                 for i in range(dim):
                     perp = -x_vec[(i + 1) % dim] if dim > 1 else -x_vec[0]
-                    v_val = (x1[i] - x_vec[i]) * math.cos(math.pi * t_val) + perp * math.sin(math.pi * t_val)
-                    v_out.append(v_val)
+                    v_out[i] = (x1[i] - x_vec[i]) * cos_t + perp * sin_t
             else:  # gaussian_vector_field
                 for i in range(dim):
-                    v_val = (x1[i] - x_vec[i]) + 0.1 * math.sin(2.0 * math.pi * t_val + i)
-                    v_out.append(v_val)
+                    v_out[i] = (x1[i] - x_vec[i]) + 0.1 * math.sin(2.0 * math.pi * t_val + i)
             return v_out
 
-        trajectory = []
-        velocities = []
-        velocity_magnitudes = []
-        timesteps = []
+        try:
+            trajectory = []
+            velocities = []
+            velocity_magnitudes = []
+            timesteps = []
 
-        curr_x = list(x0)
-        curr_t = t_0
+            curr_x = list(x0)
+            curr_t = t_0
 
-        total_path_length = 0.0
-        action_energy = 0.0
+            total_path_length = 0.0
+            action_energy = 0.0
 
-        for step in range(num_steps + 1):
-            timesteps.append(round(curr_t, 4))
-            trajectory.append([round(v, 6) for v in curr_x])
+            for step in range(num_steps + 1):
+                timesteps.append(round(curr_t, 4))
+                trajectory.append([round(v, 6) for v in curr_x])
 
-            v_curr = velocity_field(curr_x, curr_t)
-            v_mag = math.sqrt(sum(v_i ** 2 for v_i in v_curr))
-            velocities.append([round(v, 6) for v in v_curr])
-            velocity_magnitudes.append(round(v_mag, 6))
+                v_curr = velocity_field(curr_x, curr_t)
+                v_mag = math.sqrt(sum(v_i ** 2 for v_i in v_curr))
+                velocities.append([round(v, 6) for v in v_curr])
+                velocity_magnitudes.append(round(v_mag, 6))
 
-            action_energy += (v_mag ** 2) * dt
+                action_energy += (v_mag ** 2) * dt
 
-            if step < num_steps:
-                if solver_method == 'euler':
-                    next_x = [curr_x[i] + dt * v_curr[i] for i in range(dim)]
-                elif solver_method in ('dopri5', 'rk4'):
-                    # RK4 integration step
-                    k1 = v_curr
-                    x_k2 = [curr_x[i] + 0.5 * dt * k1[i] for i in range(dim)]
-                    k2 = velocity_field(x_k2, curr_t + 0.5 * dt)
-                    x_k3 = [curr_x[i] + 0.5 * dt * k2[i] for i in range(dim)]
-                    k3 = velocity_field(x_k3, curr_t + 0.5 * dt)
-                    x_k4 = [curr_x[i] + dt * k3[i] for i in range(dim)]
-                    k4 = velocity_field(x_k4, curr_t + dt)
+                if step < num_steps:
+                    if solver_method == 'euler':
+                        next_x = [curr_x[i] + dt * v_curr[i] for i in range(dim)]
+                    elif solver_method in ('dopri5', 'rk4'):
+                        # RK4 integration step
+                        k1 = v_curr
+                        x_k2 = [curr_x[i] + 0.5 * dt * k1[i] for i in range(dim)]
+                        k2 = velocity_field(x_k2, curr_t + 0.5 * dt)
+                        x_k3 = [curr_x[i] + 0.5 * dt * k2[i] for i in range(dim)]
+                        k3 = velocity_field(x_k3, curr_t + 0.5 * dt)
+                        x_k4 = [curr_x[i] + dt * k3[i] for i in range(dim)]
+                        k4 = velocity_field(x_k4, curr_t + dt)
 
-                    next_x = [
-                        curr_x[i] + (dt / 6.0) * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i])
-                        for i in range(dim)
-                    ]
+                        next_x = [
+                            curr_x[i] + (dt / 6.0) * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i])
+                            for i in range(dim)
+                        ]
 
-                step_dist = math.sqrt(sum((next_x[i] - curr_x[i]) ** 2 for i in range(dim)))
-                total_path_length += step_dist
+                    step_dist = math.sqrt(sum((next_x[i] - curr_x[i]) ** 2 for i in range(dim)))
+                    total_path_length += step_dist
 
-                curr_x = next_x
-                curr_t += dt
+                    curr_x = next_x
+                    curr_t += dt
 
-        t_end = time.perf_counter()
-        elapsed_ms = round((t_end - t_start) * 1000, 2)
+            t_end = time.perf_counter()
+            elapsed_ms = round((t_end - t_start) * 1000, 2)
 
-        return Response({
-            'success': True,
-            'solver': solver_method,
-            'flow_type': flow_type,
-            'num_steps': num_steps,
-            'timesteps': timesteps,
-            'trajectory': trajectory,
-            'velocities': velocities,
-            'velocity_magnitudes': velocity_magnitudes,
-            'total_path_length': round(total_path_length, 6),
-            'action_energy': round(action_energy, 6),
-            'final_state': [round(v, 6) for v in curr_x],
-            'computation_time_ms': elapsed_ms,
-        }, status=status.HTTP_200_OK)
+            return Response({
+                'success': True,
+                'solver': solver_method,
+                'flow_type': flow_type,
+                'num_steps': num_steps,
+                'timesteps': timesteps,
+                'trajectory': trajectory,
+                'velocities': velocities,
+                'velocity_magnitudes': velocity_magnitudes,
+                'total_path_length': round(total_path_length, 6),
+                'action_energy': round(action_energy, 6),
+                'final_state': [round(v, 6) for v in curr_x],
+                'computation_time_ms': elapsed_ms,
+            }, status=status.HTTP_200_OK)
+
+        except (OverflowError, ValueError) as e:
+            return Response(
+                {'error': f'Numerical instability encountered during integration: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class RAGProbeAPIView(generics.GenericAPIView):
@@ -445,94 +462,105 @@ class RAGProbeAPIView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        query = serializer.validated_data['query']
+        query = serializer.validated_data['query'].strip()
         top_k = serializer.validated_data.get('top_k', 5)
         similarity_threshold = serializer.validated_data.get('similarity_threshold', 0.0)
         include_checkpoints = serializer.validated_data.get('include_checkpoints', True)
 
+        query_lower = query.lower()
         query_terms = [t.lower() for t in re.findall(r'\w+', query) if len(t) > 1]
         results = []
 
-        # Probe Articles
-        articles = Article.objects.filter(is_published=True)
-        for art in articles:
-            text_corpus = f"{art.title} {art.summary} {art.content} {' '.join(art.tags or [])}".lower()
-            score = 0.0
-            if query.lower() in art.title.lower():
-                score += 0.5
-            if query.lower() in text_corpus:
-                score += 0.3
-
-            term_matches = sum(1 for term in query_terms if term in text_corpus)
-            if query_terms:
-                score += 0.4 * (term_matches / len(query_terms))
-
-            score = min(1.0, round(score, 4))
-            if score >= similarity_threshold and score > 0.0:
-                results.append({
-                    'id': art.id,
-                    'type': 'article',
-                    'title': art.title,
-                    'slug': art.slug,
-                    'summary': art.summary,
-                    'relevance_score': score,
-                    'tags': art.tags,
-                    'url': f"/api/v1/articles/{art.slug}/",
-                    'content_snippet': (art.summary or art.content)[:250] + "..."
-                })
-
-        # Probe Model Checkpoints
-        if include_checkpoints:
-            checkpoints = ModelCheckpoint.objects.filter(is_public=True)
-            for ckpt in checkpoints:
-                ckpt_corpus = f"{ckpt.name} {ckpt.architecture} {ckpt.description} {ckpt.version}".lower()
+        try:
+            # Probe Articles using only needed fields
+            articles = Article.objects.filter(is_published=True).only(
+                'id', 'title', 'slug', 'summary', 'content', 'tags'
+            )
+            for art in articles:
+                text_corpus = f"{art.title} {art.summary} {art.content} {' '.join(art.tags or [])}".lower()
                 score = 0.0
-                if query.lower() in ckpt.name.lower():
-                    score += 0.6
-                if query.lower() in ckpt_corpus:
+                if query_lower in art.title.lower():
+                    score += 0.5
+                if query_lower in text_corpus:
                     score += 0.3
 
-                term_matches = sum(1 for term in query_terms if term in ckpt_corpus)
                 if query_terms:
-                    score += 0.3 * (term_matches / len(query_terms))
+                    term_matches = sum(1 for term in query_terms if term in text_corpus)
+                    score += 0.4 * (term_matches / len(query_terms))
 
                 score = min(1.0, round(score, 4))
                 if score >= similarity_threshold and score > 0.0:
                     results.append({
-                        'id': ckpt.id,
-                        'type': 'checkpoint',
-                        'title': f"{ckpt.name} ({ckpt.version})",
-                        'summary': ckpt.description,
+                        'id': art.id,
+                        'type': 'article',
+                        'title': art.title,
+                        'slug': art.slug,
+                        'summary': art.summary,
                         'relevance_score': score,
-                        'tags': [ckpt.architecture, ckpt.parameters_count],
-                        'url': f"/api/v1/checkpoints/{ckpt.id}/",
-                        'content_snippet': f"Model Checkpoint: {ckpt.name}, Architecture: {ckpt.architecture}, Parameters: {ckpt.parameters_count}"
+                        'tags': art.tags,
+                        'url': f"/api/v1/articles/{art.slug}/",
+                        'content_snippet': (art.summary or art.content)[:250] + ("..." if len(art.summary or art.content) > 250 else "")
                     })
 
-        # Sort results by relevance score descending
-        results.sort(key=lambda item: item['relevance_score'], reverse=True)
-        top_results = results[:top_k]
+            # Probe Model Checkpoints
+            if include_checkpoints:
+                checkpoints = ModelCheckpoint.objects.filter(is_public=True).only(
+                    'id', 'name', 'architecture', 'description', 'version', 'parameters_count'
+                )
+                for ckpt in checkpoints:
+                    ckpt_corpus = f"{ckpt.name} {ckpt.architecture} {ckpt.description} {ckpt.version}".lower()
+                    score = 0.0
+                    if query_lower in ckpt.name.lower():
+                        score += 0.6
+                    if query_lower in ckpt_corpus:
+                        score += 0.3
 
-        # Synthesize RAG answer / response context
-        if top_results:
-            doc_highlights = "\n".join([f"- **{res['title']}** (Score: {res['relevance_score']}): {res['content_snippet']}" for res in top_results[:3]])
-            synthesized_context = (
-                f"### Synthesized RAG Answer for Query: \"{query}\"\n\n"
-                f"Retrieved {len(results)} relevant items matching query terms. Top insights:\n\n"
-                f"{doc_highlights}\n\n"
-                f"*Context synthesized automatically by Hoosha AI Vector Probe Engine.*"
+                    if query_terms:
+                        term_matches = sum(1 for term in query_terms if term in ckpt_corpus)
+                        score += 0.3 * (term_matches / len(query_terms))
+
+                    score = min(1.0, round(score, 4))
+                    if score >= similarity_threshold and score > 0.0:
+                        results.append({
+                            'id': ckpt.id,
+                            'type': 'checkpoint',
+                            'title': f"{ckpt.name} ({ckpt.version})",
+                            'summary': ckpt.description,
+                            'relevance_score': score,
+                            'tags': [ckpt.architecture, ckpt.parameters_count],
+                            'url': f"/api/v1/checkpoints/{ckpt.id}/",
+                            'content_snippet': f"Model Checkpoint: {ckpt.name}, Architecture: {ckpt.architecture}, Parameters: {ckpt.parameters_count}"
+                        })
+
+            # Sort results by relevance score descending
+            results.sort(key=lambda item: item['relevance_score'], reverse=True)
+            top_results = results[:top_k]
+
+            # Synthesize RAG answer / response context
+            if top_results:
+                doc_highlights = "\n".join([f"- **{res['title']}** (Score: {res['relevance_score']}): {res['content_snippet']}" for res in top_results[:3]])
+                synthesized_context = (
+                    f"### Synthesized RAG Answer for Query: \"{query}\"\n\n"
+                    f"Retrieved {len(results)} relevant items matching query terms. Top insights:\n\n"
+                    f"{doc_highlights}\n\n"
+                    f"*Context synthesized automatically by Hoosha AI Vector Probe Engine.*"
+                )
+            else:
+                synthesized_context = f"No matching documents found in knowledge base for query: \"{query}\"."
+
+            t_end = time.perf_counter()
+            elapsed_ms = round((t_end - t_start) * 1000, 2)
+
+            return Response({
+                'query': query,
+                'total_matches': len(results),
+                'results': top_results,
+                'synthesized_context': synthesized_context,
+                'latency_ms': elapsed_ms,
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {'error': f'RAG probe search error: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        else:
-            synthesized_context = f"No matching documents found in knowledge base for query: \"{query}\"."
-
-        t_end = time.perf_counter()
-        elapsed_ms = round((t_end - t_start) * 1000, 2)
-
-        return Response({
-            'query': query,
-            'total_matches': len(results),
-            'results': top_results,
-            'synthesized_context': synthesized_context,
-            'latency_ms': elapsed_ms,
-        }, status=status.HTTP_200_OK)
-

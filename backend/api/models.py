@@ -37,6 +37,10 @@ class Subscriber(models.Model):
 
     class Meta:
         ordering = ['-subscribed_at']
+        indexes = [
+            models.Index(fields=['-subscribed_at']),
+            models.Index(fields=['is_active']),
+        ]
 
     def __str__(self):
         return self.email
@@ -66,10 +70,14 @@ class Article(models.Model):
 
     class Meta:
         ordering = ['-published_at', '-created_at']
+        indexes = [
+            models.Index(fields=['is_published', '-published_at']),
+            models.Index(fields=['slug']),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base_slug = slugify(self.title)
+            base_slug = slugify(self.title) or 'article'
             slug = base_slug
             counter = 1
             while Article.objects.filter(slug=slug).exclude(pk=self.pk).exists():
@@ -98,6 +106,10 @@ class ModelCheckpoint(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['is_public', '-created_at']),
+            models.Index(fields=['architecture']),
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.version})"
@@ -122,6 +134,11 @@ class TelemetryLog(models.Model):
 
     class Meta:
         ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['-timestamp']),
+            models.Index(fields=['event_type']),
+        ]
 
     def __str__(self):
         return f"[{self.event_type}] {self.endpoint} at {self.timestamp}"
+

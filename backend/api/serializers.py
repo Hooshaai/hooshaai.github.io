@@ -91,6 +91,7 @@ class TelemetryLogSerializer(serializers.ModelSerializer):
 class CUDACompileSerializer(serializers.Serializer):
     code = serializers.CharField(
         required=True,
+        allow_blank=False,
         help_text="CUDA C/C++ source code containing global kernels or inline device functions."
     )
     arch = serializers.CharField(
@@ -109,6 +110,22 @@ class CUDACompileSerializer(serializers.Serializer):
         default=list,
         help_text="Additional custom flags passed directly to nvcc compiler."
     )
+
+    def validate_code(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("CUDA source code cannot be empty or whitespace.")
+        return value
+
+    def validate_arch(self, value):
+        import re
+        if not re.match(r'^(sm_\d+|compute_\d+)$', value):
+            raise serializers.ValidationError("Invalid GPU architecture format (e.g. sm_80, compute_80).")
+        return value
+
+    def validate_opt_level(self, value):
+        if value not in ['-O0', '-O1', '-O2', '-O3', '-Ofast']:
+            raise serializers.ValidationError("Invalid optimization flag. Allowed values: -O0, -O1, -O2, -O3, -Ofast.")
+        return value
 
 
 class CFMSolveSerializer(serializers.Serializer):
@@ -150,13 +167,23 @@ class CFMSolveSerializer(serializers.Serializer):
     sigma_min = serializers.FloatField(
         required=False,
         default=0.01,
+        min_value=0.0,
+        max_value=1.0,
         help_text="Minimum noise variance threshold for CFM schedule."
     )
+
+    def validate_t_span(self, value):
+        if len(value) != 2:
+            raise serializers.ValidationError("t_span must contain exactly 2 numbers: [t_start, t_end].")
+        if value[0] >= value[1]:
+            raise serializers.ValidationError("t_span start time must be less than end time.")
+        return value
 
 
 class RAGProbeSerializer(serializers.Serializer):
     query = serializers.CharField(
         required=True,
+        allow_blank=False,
         help_text="Natural language query or probe text for semantic vector search."
     )
     top_k = serializers.IntegerField(
@@ -178,4 +205,11 @@ class RAGProbeSerializer(serializers.Serializer):
         default=True,
         help_text="Include AI Model Checkpoints in search pool alongside articles."
     )
+
+    def validate_query(self, value):
+        stripped = value.strip()
+        if not stripped:
+            raise serializers.ValidationError("Query text cannot be empty or whitespace.")
+        return stripped
+
 
