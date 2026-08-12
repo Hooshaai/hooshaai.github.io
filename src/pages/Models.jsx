@@ -5,6 +5,7 @@ import ModelsHeader from '../components/models/ModelsHeader';
 import ComparisonMatrix from '../components/models/ComparisonMatrix';
 import ModelCard from '../components/models/ModelCard';
 import DownloadModal from '../components/models/DownloadModal';
+import SEO from '../components/common/SEO';
 
 const Models = () => {
   const [models, setModels] = useState([]);
@@ -112,6 +113,12 @@ const Models = () => {
 
   return (
     <div className="models-page pt-32 px-4 max-w-7xl mx-auto mb-20 relative">
+      <SEO 
+        title="Model Checkpoints & Weights"
+        description="Browse, benchmark, and download open-weights .safetensors checkpoints for Hoosha AI models including CFM-7B, GRPO Reasoner, and MoE architectures."
+        keywords="Safetensors, Open Weights, Model Checkpoints, GRPO Reasoner, Continuous Flow Matching Weights, HuggingFace Models"
+      />
+
       <ModelsHeader 
         totalModels={models.length} 
         totalSize="110.3 GB" 
@@ -121,80 +128,90 @@ const Models = () => {
       <ComparisonMatrix models={models} onDownload={handleDownload} />
 
       {/* Grid Header & Filters */}
-      <div className="mb-8">
+      <section aria-labelledby="checkpoint-repository-heading" className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight">
+            <h2 id="checkpoint-repository-heading" className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight">
               Checkpoint Repository
             </h2>
-            <p className="text-sm text-gray-400 font-light mt-1">
+            <p className="text-sm text-gray-300 font-light mt-1">
               Browse weights, quantizations, and specialized architecture variants.
             </p>
           </div>
 
           <div className="relative w-full md:w-72">
-            <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+            <label htmlFor="models-search-input" className="sr-only">Search checkpoints by name or type</label>
+            <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs" aria-hidden="true"></i>
             <input 
+              id="models-search-input"
               type="text" 
               placeholder="Search checkpoints..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/[0.04] border border-white/20 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-white/50 font-mono transition-colors"
+              className="w-full bg-white/[0.04] border border-white/20 rounded-xl pl-10 pr-8 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-cyan-400 font-mono transition-colors"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white text-xs"
+                aria-label="Clear search"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded"
               >
-                <i className="fas fa-times"></i>
+                <i className="fas fa-times" aria-hidden="true"></i>
               </button>
             )}
           </div>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex flex-wrap gap-2">
-          {availableTypes.map(t => (
-            <button
-              key={t}
-              onClick={() => setSelectedType(t)}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border ${
-                selectedType === t 
-                  ? 'bg-white text-black border-white shadow' 
-                  : 'bg-white/5 border-white/15 text-gray-400 hover:text-white hover:border-white/40 hover:bg-white/10'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
+        <div role="tablist" aria-label="Architecture Filter" className="flex flex-wrap gap-2">
+          {availableTypes.map(t => {
+            const isSelected = selectedType === t;
+            return (
+              <button
+                key={t}
+                role="tab"
+                aria-selected={isSelected}
+                onClick={() => setSelectedType(t)}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+                  isSelected 
+                    ? 'bg-white text-black border-white shadow' 
+                    : 'bg-white/5 border-white/15 text-gray-300 hover:text-white hover:border-white/40 hover:bg-white/10'
+                }`}
+              >
+                {t}
+              </button>
+            );
+          })}
         </div>
-      </div>
+      </section>
 
       {/* Model Cards Grid */}
-      {filteredModels.length === 0 ? (
-        <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-12 text-center text-gray-400 mb-12">
-          <i className="fas fa-box-open text-3xl text-gray-600 mb-3 block"></i>
-          <h3 className="text-lg font-bold text-white mb-1">No Checkpoints Match Your Filter</h3>
-          <p className="text-xs text-gray-500 max-w-sm mx-auto mb-4">Try resetting search query or switching architecture filter.</p>
-          <button 
-            onClick={() => { setSearchQuery(''); setSelectedType('All'); }}
-            className="px-4 py-2 bg-white/10 hover:bg-white text-white hover:text-black rounded-xl text-xs font-bold transition-all border border-white/20"
-          >
-            Reset Filters
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {filteredModels.map((model, i) => (
-            <ModelCard 
-              key={model.name || i} 
-              model={model} 
-              index={i} 
-              onDownload={handleDownload} 
-            />
-          ))}
-        </div>
-      )}
+      <section aria-label="Model Checkpoints Grid">
+        {filteredModels.length === 0 ? (
+          <div role="status" className="bg-white/[0.02] border border-white/10 rounded-3xl p-12 text-center text-gray-300 mb-12">
+            <i className="fas fa-box-open text-3xl text-gray-500 mb-3 block" aria-hidden="true"></i>
+            <h3 className="text-lg font-bold text-white mb-1">No Checkpoints Match Your Filter</h3>
+            <p className="text-xs text-gray-400 max-w-sm mx-auto mb-4 font-light">Try resetting search query or switching architecture filter.</p>
+            <button 
+              onClick={() => { setSearchQuery(''); setSelectedType('All'); }}
+              className="px-4 py-2 bg-white/10 hover:bg-white text-white hover:text-black rounded-xl text-xs font-bold transition-all border border-white/20 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none"
+            >
+              Reset Filters
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            {filteredModels.map((model, i) => (
+              <ModelCard 
+                key={model.name || i} 
+                model={model} 
+                index={i} 
+                onDownload={handleDownload} 
+              />
+            ))}
+          </div>
+        )}
+      </section>
 
       <AnimatePresence>
         {downloadModal && (
