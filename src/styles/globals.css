@@ -61,6 +61,7 @@ body {
   align-items: center;
   padding: 1.1rem 4%;
   background: rgba(3, 7, 18, 0.85);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   z-index: 100;
@@ -119,7 +120,8 @@ section {
   text-align: center;
   background: linear-gradient(to right, #fff, var(--text-muted));
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background-clip: text;
+-webkit-text-fill-color: transparent;
 }
 
 /* Hero Section */
@@ -173,7 +175,8 @@ section {
 .gradient-text {
   background: linear-gradient(135deg, var(--cyan), var(--purple));
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background-clip: text;
+-webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
@@ -236,6 +239,7 @@ section {
   border: 1px solid var(--border);
   padding: 2.5rem 2rem;
   border-radius: 16px;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -431,6 +435,7 @@ footer {
   padding: 2.5rem;
   max-width: 900px;
   margin: 0 auto;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -558,6 +563,7 @@ footer {
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.8);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
@@ -759,6 +765,7 @@ footer {
   flex-direction: column;
   justify-content: space-between;
   gap: 1.25rem;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   transition: all 0.3s ease;
   position: relative;
@@ -995,6 +1002,7 @@ footer {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1.5rem;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
@@ -1147,6 +1155,7 @@ footer {
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.25rem;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
@@ -1366,6 +1375,7 @@ footer {
   position: sticky;
   top: 0;
   z-index: 10;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -1637,6 +1647,7 @@ footer {
   padding: 3.5rem 3rem;
   position: relative;
   overflow: hidden;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
 }
@@ -1815,6 +1826,7 @@ footer {
   padding: 3.5rem 3rem;
   position: relative;
   overflow: hidden;
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 240, 255, 0.08);
   max-width: 900px;
@@ -2131,6 +2143,7 @@ footer {
   background: rgba(8, 14, 28, 0.94);
   border: 1px solid var(--border);
   border-radius: 14px;
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 240, 255, 0.15);
   overflow: hidden;
@@ -2299,6 +2312,7 @@ footer {
   background: rgba(10, 15, 30, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   text-align: center;
 }
@@ -2389,6 +2403,7 @@ footer {
   padding: 0.25rem 0.6rem;
   border-radius: 6px;
   border: 1px solid transparent;
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
@@ -2438,6 +2453,7 @@ footer {
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 2rem;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
@@ -2618,6 +2634,7 @@ footer {
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 2.5rem;
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 240, 255, 0.05);
   margin-top: 3rem;
@@ -2804,6 +2821,7 @@ footer {
   justify-content: space-between;
   gap: 1.25rem;
   transition: all 0.3s ease;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
@@ -2932,6 +2950,7 @@ footer {
   align-items: center;
   gap: 0.5rem;
   transition: all 0.25s ease;
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
@@ -2972,6 +2991,7 @@ footer {
   width: 100vw;
   height: 100vh;
   background: rgba(3, 7, 18, 0.85);
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   z-index: 2000;
   display: flex;
@@ -3293,6 +3313,7 @@ footer {
   border-radius: 16px;
   padding: 2.2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 103, 25, 0.05);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   margin-top: 3rem;
 }
@@ -3498,7 +3519,8 @@ footer {
   margin-bottom: 1.2rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  line-clamp: 3;
+-webkit-box-orient: vertical;
   overflow: hidden;
 }
 
@@ -3620,6 +3642,7 @@ footer {
   align-items: center;
   gap: 0.6rem;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
@@ -3672,6 +3695,7 @@ footer {
   border-radius: 20px;
   padding: 2.25rem;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
@@ -4031,6 +4055,7 @@ footer {
   z-index: 9999;
   background: rgba(3, 7, 18, 0.95);
   border-top: 1px solid rgba(0, 240, 255, 0.3);
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 240, 255, 0.15);
   padding: 0.75rem 1.5rem;
@@ -4336,6 +4361,7 @@ footer {
   width: 100vw;
   height: 100vh;
   background: rgba(3, 7, 18, 0.85);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   z-index: 10000;
   display: flex;
@@ -4565,6 +4591,7 @@ footer {
   border-radius: 20px;
   padding: 2.25rem;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.15);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   margin-bottom: 3rem;
 }
