@@ -33,12 +33,12 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-12 text-center text-white font-mono bg-black min-h-[50vh] flex flex-col items-center justify-center">
+        <div className="p-12 text-center text-white font-mono bg-black min-h-[50vh] flex flex-col items-center justify-center" role="alert">
           <h2 className="text-xl font-bold mb-4">View Restored</h2>
           <p className="text-xs text-gray-400 mb-6">DOM state re-synchronized cleanly.</p>
           <button 
             onClick={() => this.setState({ hasError: false })} 
-            className="px-4 py-2 bg-white text-black font-bold text-xs rounded-xl hover:bg-gray-200 uppercase tracking-widest"
+            className="px-4 py-2 bg-white text-black font-bold text-xs rounded-xl hover:bg-gray-200 uppercase tracking-widest focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
           >
             Reload View
           </button>
@@ -101,8 +101,16 @@ function App() {
       <TTSProvider>
         <HashRouter>
           <ErrorBoundary>
+            {/* Accessible Skip Link */}
+            <a 
+              href="#main-content" 
+              className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-cyan-400 focus:text-black focus:font-mono focus:font-bold focus:rounded-xl focus:shadow-2xl focus:outline-none"
+            >
+              Skip to main content
+            </a>
+            
             <Navbar />
-            <main>
+            <main id="main-content" tabIndex={-1} className="outline-none">
               <AnimatedRoutes />
             </main>
             <Footer />
