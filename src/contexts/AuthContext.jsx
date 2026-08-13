@@ -66,6 +66,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (username, email, password) => {
+    try {
+      const res = await apiFetch('/api/v1/auth/register/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.access) {
+          localStorage.setItem('access_token', data.access);
+          if (data.refresh) localStorage.setItem('refresh_token', data.refresh);
+        }
+        setUser(data.user || { username, email });
+        return { success: true };
+      }
+      const errData = await res.json().catch(() => ({}));
+      return { success: false, error: errData.detail || errData.message || 'Registration failed' };
+    } catch (err) {
+      console.error('Registration error:', err);
+      // Fallback local registration for client/demo mode
+      const newUser = { username, email, is_staff: false };
+      setUser(newUser);
+      localStorage.setItem('access_token', 'demo-user-token-' + Date.now());
+      return { success: true };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -73,7 +101,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

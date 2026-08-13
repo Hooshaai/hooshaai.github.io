@@ -1,6 +1,8 @@
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../../contexts/AuthContext';
+import AuthModal from '../ui/AuthModal';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +29,9 @@ const Navbar = () => {
   ]);
 
   const location = useLocation();
+  const { user, logout } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authInitialMode, setAuthInitialMode] = useState('register');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -270,6 +275,31 @@ const Navbar = () => {
             <kbd className="bg-slate-950 border border-slate-700 px-1.5 py-0.5 rounded text-[10px] text-slate-400 font-mono">⌘K</kbd>
           </button>
 
+          {/* User Registration & Sign In Button / User Profile */}
+          {user ? (
+            <div className="flex items-center gap-2 bg-slate-900/90 border border-cyan-500/30 px-3 py-1.5 rounded-full font-mono text-xs text-white shadow-[0_0_15px_rgba(0,240,255,0.15)]">
+              <div className="w-5 h-5 rounded-full bg-cyan-400 text-black font-bold flex items-center justify-center text-[10px] uppercase">
+                {user.username ? user.username.charAt(0) : 'U'}
+              </div>
+              <span className="text-cyan-300 font-bold max-w-[90px] truncate">{user.username || 'User'}</span>
+              <button 
+                onClick={logout}
+                title="خروج از حساب"
+                className="text-slate-400 hover:text-red-400 transition-colors ml-1 cursor-pointer"
+              >
+                <i className="fas fa-sign-out-alt text-xs"></i>
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setAuthInitialMode('register'); setShowAuthModal(true); }}
+              className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black font-mono font-bold text-xs shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <i className="fas fa-user-plus text-[11px]"></i>
+              <span>ثبت‌نام کاربر</span>
+            </button>
+          )}
+
           {/* Mobile Drawer Hamburger */}
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -331,6 +361,12 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+        initialMode={authInitialMode} 
+      />
     </header>
   );
 };
