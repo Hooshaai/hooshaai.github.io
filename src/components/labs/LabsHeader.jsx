@@ -4,6 +4,7 @@ import { Sparkles, Cpu, Activity, Code2 } from 'lucide-react';
 const LabsHeader = ({ activeTab, setActiveTab }) => {
   const categories = [
     { id: 'all', label: 'All Labs' },
+    { id: 'linear', label: 'Linear Attention O(N)' },
     { id: 'cfm', label: 'Continuous Flow' },
     { id: 'grpo', label: 'GRPO Policy' },
     { id: 'diffattn', label: 'Diff Attention' },
@@ -25,14 +26,14 @@ const LabsHeader = ({ activeTab, setActiveTab }) => {
         Mathematical Foundations & Visual Simulators
       </h1>
       <p className="text-gray-400 mb-8 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base font-light">
-        Interactively manipulate equations, vector fields, policy alignment, and uncertainty metrics powering next-generation generative AI.
+        Interactively manipulate equations, vector fields, policy alignment, linear sub-quadratic scaling, and uncertainty metrics powering next-generation generative AI.
       </p>
 
       {/* Feature Badges */}
       <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap mb-10 text-xs font-mono">
         <span className="inline-flex items-center gap-1.5 bg-slate-900/80 border border-cyan-500/20 text-cyan-300 px-3.5 py-1.5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
           <Activity className="w-3.5 h-3.5 text-cyan-400" />
-          4 Interactive Simulators
+          5 Interactive Simulators
         </span>
         <span className="inline-flex items-center gap-1.5 bg-slate-900/80 border border-cyan-500/20 text-emerald-300 px-3.5 py-1.5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
           <Cpu className="w-3.5 h-3.5 text-emerald-400" />

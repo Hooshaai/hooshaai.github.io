@@ -4,6 +4,7 @@ import CFMSimulator from '../components/labs/CFMSimulator';
 import GRPOSimulator from '../components/labs/GRPOSimulator';
 import DiffAttnSimulator from '../components/labs/DiffAttnSimulator';
 import RAGUncertaintySimulator from '../components/labs/RAGUncertaintySimulator';
+import LinearAttnSimulator from '../components/labs/LinearAttnSimulator';
 import SEO from '../components/common/SEO';
 
 export default function Labs() {
@@ -13,8 +14,8 @@ export default function Labs() {
     <div className="pt-32 pb-24 px-4 sm:px-6 max-w-6xl mx-auto min-h-screen relative z-10 font-sans text-white">
       <SEO 
         title="Interactive AI Research Labs & Simulators"
-        description="Interact with continuous flow matching (CFM), GRPO policy alignment, Differential Attention, and RAG epistemic uncertainty visual simulators."
-        keywords="CFM Simulator, GRPO Policy Alignment, Differential Attention, Epistemic Uncertainty, KaTeX Math Simulators"
+        description="Interact with continuous flow matching (CFM), GRPO policy alignment, Linear Attention Sub-Quadratic scaling, Differential Attention, and RAG epistemic uncertainty visual simulators."
+        keywords="CFM Simulator, GRPO Policy Alignment, Linear Attention, Differential Attention, Epistemic Uncertainty, KaTeX Math Simulators"
       />
 
       {/* Ambient background lighting */}
@@ -25,6 +26,7 @@ export default function Labs() {
 
       {/* Simulators Container */}
       <div className="space-y-12">
+        {(activeTab === 'all' || activeTab === 'linear') && <LinearAttnSimulator />}
         {(activeTab === 'all' || activeTab === 'cfm') && <CFMSimulator />}
         {(activeTab === 'all' || activeTab === 'grpo') && <GRPOSimulator />}
         {(activeTab === 'all' || activeTab === 'diffattn') && <DiffAttnSimulator />}
