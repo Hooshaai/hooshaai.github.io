@@ -70,14 +70,14 @@ const Admin = () => {
         localStorage.setItem('access_token', data.access);
         setAuth(true);
       } else {
-        alert('Invalid credentials');
+        triggerToast('Invalid credentials');
       }
     } catch (err) {
       console.error('Login failed, using fallback mock auth', err);
       if ((user === 'admin' || user === 'root') && (pass === 'admin12345' || pass === 'root')) {
         setAuth(true);
       } else {
-        alert('Invalid credentials (Try: root / root or admin / admin12345)');
+        triggerToast('Invalid credentials (Try: root / root or admin / admin12345)');
       }
     }
   };

@@ -10,6 +10,7 @@ import Models from './pages/Models';
 import Labs from './pages/Labs';
 import Platform from './pages/Platform';
 import Admin from './pages/Admin';
+import NotFound from './pages/NotFound';
 import SpotlightSearch from './components/ui/SpotlightSearch';
 import TTSBar from './components/ui/TTSBar';
 import { AuthProvider } from './contexts/AuthContext';
@@ -90,6 +91,7 @@ const AnimatedRoutes = () => {
             </PageWrapper>
           } 
         />
+        <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
       </Routes>
     </AnimatePresence>
   );

@@ -8,6 +8,7 @@ const ArticleModal = ({ article, onClose }) => {
   const contentRef = useRef(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showBibtex, setShowBibtex] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [fontSize, setFontSize] = useState(18); // Default font size
   const [toc, setToc] = useState([]);
 
@@ -236,10 +237,19 @@ const ArticleModal = ({ article, onClose }) => {
               <h3 className="text-2xl font-bold mb-4 font-['Space_Grotesk'] flex items-center text-white"><i className="fas fa-book text-gray-300 mr-3"></i>Citation (BibTeX)</h3>
               <div className="bg-black p-4 rounded-xl border border-white/20 relative shadow-inner">
                 <button 
-                  onClick={() => { navigator.clipboard.writeText(bibtexString); alert('Copied!'); }}
-                  className="absolute top-3 right-3 text-xs bg-white text-black font-bold px-3 py-1 rounded"
+                  onClick={() => { 
+                    navigator.clipboard.writeText(bibtexString); 
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className={`absolute top-3 right-3 text-xs font-mono font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                    copied 
+                      ? 'bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.5)]' 
+                      : 'bg-cyan-400 hover:bg-cyan-300 text-black shadow-[0_0_10px_rgba(0,240,255,0.3)]'
+                  }`}
                 >
-                  <i className="fas fa-copy mr-1"></i> Copy
+                  <i className={`fas ${copied ? 'fa-check' : 'fa-copy'}`}></i>
+                  <span>{copied ? 'Copied!' : 'Copy BibTeX'}</span>
                 </button>
                 <pre className="text-gray-300 text-sm font-mono whitespace-pre-wrap">{bibtexString}</pre>
               </div>
