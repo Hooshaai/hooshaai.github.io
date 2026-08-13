@@ -24,10 +24,10 @@ const Counter = ({ to, suffix = "" }) => {
 
 const MetricsGrid = () => {
   const metrics = [
-    { label: 'Dispatches', count: 20, suffix: '' },
-    { label: 'Models Vault', count: 6, suffix: '' },
-    { label: 'Research Series', count: 4, suffix: '' },
-    { label: 'Downloads', count: 100, suffix: 'k+' },
+    { label: 'Dispatches', count: 20, suffix: '', icon: 'fa-newspaper', desc: 'Peer-reviewed dispatches' },
+    { label: 'Models Vault', count: 6, suffix: '', icon: 'fa-cube', desc: 'Open .safetensors checkpoints' },
+    { label: 'Research Series', count: 4, suffix: '', icon: 'fa-layer-group', desc: 'Core thematic tracks' },
+    { label: 'Downloads', count: 100, suffix: 'k+', icon: 'fa-download', desc: 'Community model pulls' },
   ];
 
   return (
@@ -35,21 +35,34 @@ const MetricsGrid = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.35, duration: 0.5 }}
-      className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-0 bg-gray-950/80 backdrop-blur-2xl border border-gray-800 rounded-3xl my-16 mx-4 md:mx-auto max-w-5xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden divide-y divide-x divide-gray-800/80"
+      className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-16 mx-4 md:mx-auto max-w-6xl"
     >
       {metrics.map((item, i) => (
-        <div 
-          key={item.label} 
-          className="text-center p-6 sm:p-8 hover:bg-gray-900/50 transition-colors duration-300 group cursor-default"
+        <motion.div 
+          key={item.label}
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.2 }}
+          className="relative p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl shadow-xl hover:border-cyan-500/40 hover:shadow-[0_0_25px_rgba(0,240,255,0.15)] transition-all group overflow-hidden"
         >
-          <h3 className="text-3xl sm:text-5xl font-light text-white font-mono tracking-tight group-hover:text-cyan-300 transition-colors">
+          {/* Top subtle glow line */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-mono tracking-widest text-slate-400 uppercase font-semibold">
+              {item.label}
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-400 group-hover:text-black transition-all">
+              <i className={`fas ${item.icon} text-sm`}></i>
+            </div>
+          </div>
+
+          <h3 className="text-4xl font-bold text-white font-mono tracking-tight group-hover:text-cyan-300 transition-colors mb-1">
             <Counter to={item.count} suffix={item.suffix} />
           </h3>
-          <p className="text-gray-400 mt-3 font-mono uppercase tracking-widest text-[10px] font-semibold flex items-center justify-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 opacity-60 group-hover:opacity-100 transition-opacity"></span>
-            {item.label}
+          <p className="text-slate-500 text-xs font-sans">
+            {item.desc}
           </p>
-        </div>
+        </motion.div>
       ))}
     </motion.section>
   );

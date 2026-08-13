@@ -17,19 +17,23 @@ const FeaturedTech = () => {
   const marqueeItems = [...techItems, ...techItems, ...techItems, ...techItems];
 
   return (
-    <div className="w-full overflow-hidden bg-gray-950/40 py-8 border-y border-gray-800/80 mb-24 relative z-10">
-      <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black via-black/80 to-transparent z-10 pointer-events-none"></div>
-      <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black via-black/80 to-transparent z-10 pointer-events-none"></div>
+    <div className="w-full overflow-hidden bg-slate-900/40 backdrop-blur-xl py-6 border-y border-slate-800/80 mb-28 relative z-10">
+      <div className="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-950 via-slate-950/80 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-slate-950 via-slate-950/80 to-transparent z-10 pointer-events-none" />
+      
       <motion.div 
         animate={{ x: ['0%', '-50%'] }} 
-        transition={{ repeat: Infinity, duration: 35, ease: "linear" }}
-        className="flex gap-12 sm:gap-16 items-center whitespace-nowrap text-gray-500 font-mono text-sm sm:text-base tracking-wider w-max"
+        transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+        className="flex gap-10 items-center whitespace-nowrap text-slate-400 font-mono text-xs sm:text-sm tracking-wider w-max"
       >
         {marqueeItems.map((tech, i) => (
-          <span key={`${tech.name}-${i}`} className="hover:text-cyan-400 transition-colors duration-300 flex items-center gap-3 cursor-default group">
-            <i className={`${tech.icon} opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all text-base`}></i>
-            <span className="text-gray-400 group-hover:text-white font-medium">{tech.name}</span>
-          </span>
+          <div 
+            key={`${tech.name}-${i}`} 
+            className="flex items-center gap-2.5 px-4 py-2 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 hover:bg-cyan-500/10 transition-all cursor-default group"
+          >
+            <i className={`${tech.icon} text-cyan-400 opacity-70 group-hover:opacity-100 group-hover:scale-110 transition-all text-xs`}></i>
+            <span className="text-slate-300 group-hover:text-white font-medium">{tech.name}</span>
+          </div>
         ))}
       </motion.div>
     </div>
