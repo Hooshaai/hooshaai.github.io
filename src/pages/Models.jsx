@@ -112,7 +112,10 @@ const Models = () => {
   }, [models, selectedType, searchQuery]);
 
   return (
-    <div className="models-page pt-32 px-4 max-w-7xl mx-auto mb-20 relative">
+    <div className="models-page pt-32 px-4 max-w-7xl mx-auto mb-20 relative min-h-screen">
+      {/* Ambient background lighting */}
+      <div className="fixed top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[150px] pointer-events-none -z-10" />
+
       <SEO 
         title="Model Checkpoints & Weights"
         description="Browse, benchmark, and download open-weights .safetensors checkpoints for Hoosha AI models including CFM-7B, GRPO Reasoner, and MoE architectures."
@@ -131,30 +134,30 @@ const Models = () => {
       <section aria-labelledby="checkpoint-repository-heading" className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 id="checkpoint-repository-heading" className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight">
-              Checkpoint Repository
+            <h2 id="checkpoint-repository-heading" className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-2">
+              <span className="text-cyan-400">📦</span> Checkpoint Repository
             </h2>
-            <p className="text-sm text-gray-300 font-light mt-1">
+            <p className="text-xs text-gray-400 font-light mt-1">
               Browse weights, quantizations, and specialized architecture variants.
             </p>
           </div>
 
           <div className="relative w-full md:w-72">
             <label htmlFor="models-search-input" className="sr-only">Search checkpoints by name or type</label>
-            <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs" aria-hidden="true"></i>
+            <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-cyan-400/60 text-xs" aria-hidden="true"></i>
             <input 
               id="models-search-input"
               type="text" 
               placeholder="Search checkpoints..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/[0.04] border border-white/20 rounded-xl pl-10 pr-8 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-cyan-400 font-mono transition-colors"
+              className="w-full bg-slate-950/80 border border-cyan-500/20 rounded-xl pl-10 pr-8 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-colors shadow-inner"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery('')}
                 aria-label="Clear search"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded cursor-pointer"
               >
                 <i className="fas fa-times" aria-hidden="true"></i>
               </button>
@@ -172,10 +175,10 @@ const Models = () => {
                 role="tab"
                 aria-selected={isSelected}
                 onClick={() => setSelectedType(t)}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+                className={`px-4 py-1.5 rounded-full text-xs font-mono font-semibold transition-all duration-200 border cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
                   isSelected 
-                    ? 'bg-white text-black border-white shadow' 
-                    : 'bg-white/5 border-white/15 text-gray-300 hover:text-white hover:border-white/40 hover:bg-white/10'
+                    ? 'bg-cyan-400 text-black border-cyan-400 shadow-[0_0_15px_rgba(0,240,255,0.4)]' 
+                    : 'bg-slate-900/60 border-cyan-500/20 text-gray-300 hover:text-cyan-300 hover:border-cyan-500/40 hover:bg-cyan-500/10'
                 }`}
               >
                 {t}
@@ -188,13 +191,13 @@ const Models = () => {
       {/* Model Cards Grid */}
       <section aria-label="Model Checkpoints Grid">
         {filteredModels.length === 0 ? (
-          <div role="status" className="bg-white/[0.02] border border-white/10 rounded-3xl p-12 text-center text-gray-300 mb-12">
-            <i className="fas fa-box-open text-3xl text-gray-500 mb-3 block" aria-hidden="true"></i>
+          <div role="status" className="bg-slate-950/70 border border-cyan-500/20 rounded-3xl p-12 text-center text-gray-300 mb-12 backdrop-blur-xl">
+            <i className="fas fa-box-open text-3xl text-cyan-500/40 mb-3 block" aria-hidden="true"></i>
             <h3 className="text-lg font-bold text-white mb-1">No Checkpoints Match Your Filter</h3>
             <p className="text-xs text-gray-400 max-w-sm mx-auto mb-4 font-light">Try resetting search query or switching architecture filter.</p>
             <button 
               onClick={() => { setSearchQuery(''); setSelectedType('All'); }}
-              className="px-4 py-2 bg-white/10 hover:bg-white text-white hover:text-black rounded-xl text-xs font-bold transition-all border border-white/20 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none"
+              className="px-4 py-2 bg-cyan-500/10 hover:bg-cyan-400 text-cyan-300 hover:text-black rounded-xl text-xs font-mono font-bold transition-all border border-cyan-500/30 cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none"
             >
               Reset Filters
             </button>
@@ -230,3 +233,4 @@ const Models = () => {
 };
 
 export default Models;
+

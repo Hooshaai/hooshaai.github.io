@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ListTodo, Play, Plus, Download, Search, ArrowUp, StopCircle, RotateCcw, Trash2, Clock, Cpu, CheckCircle2, XCircle, AlertCircle, X } from 'lucide-react';
 
 const JobQueue = ({ onToast = () => {} }) => {
   const [jobs, setJobs] = useState([
@@ -96,7 +97,6 @@ const JobQueue = ({ onToast = () => {} }) => {
   // Job details modal
   const [selectedJob, setSelectedJob] = useState(null);
 
-  // Format seconds into HH:MM:SS
   const formatTime = (sec) => {
     const h = Math.floor(sec / 3600);
     const m = Math.floor((sec % 3600) / 60);
@@ -104,7 +104,6 @@ const JobQueue = ({ onToast = () => {} }) => {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  // Live Updates Simulation loop
   useEffect(() => {
     if (!isLive) return;
 
@@ -127,7 +126,6 @@ const JobQueue = ({ onToast = () => {} }) => {
           return job;
         });
 
-        // Auto promote queued job if one finished
         if (hasCompletedJob) {
           const queuedIdx = updated.findIndex((j) => j.status === 'QUEUED');
           if (queuedIdx !== -1) {
@@ -232,13 +230,13 @@ const JobQueue = ({ onToast = () => {} }) => {
   return (
     <div className="space-y-8 font-mono">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-zinc-800">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-zinc-800/80">
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1">
-            Scheduler // Workload Manager
+          <div className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold mb-1">
+            Scheduler // Workload Orchestration
           </div>
           <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-3">
-            <i className="fas fa-tasks text-zinc-300 text-xl"></i> Job Queue
+            <ListTodo className="w-7 h-7 text-cyan-400" /> Job Queue
           </h1>
         </div>
 
@@ -247,45 +245,45 @@ const JobQueue = ({ onToast = () => {} }) => {
             onClick={() => setIsLive(!isLive)}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all flex items-center gap-2 ${
               isLive
-                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                ? 'bg-cyan-950/70 text-cyan-300 border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.2)]'
                 : 'bg-zinc-900 text-zinc-400 border-zinc-700'
             }`}
           >
-            <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600'}`}></span>
-            {isLive ? 'Live Queue Updates' : 'Updates Paused'}
+            <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-cyan-400 animate-ping' : 'bg-zinc-600'}`}></span>
+            {isLive ? 'Live Stream' : 'Paused'}
           </button>
 
           <button
             onClick={() => setShowSubmitModal(true)}
-            className="px-4 py-2.5 bg-white hover:bg-zinc-200 text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2"
+            className="px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center gap-2"
           >
-            <i className="fas fa-plus"></i> Submit Workload
+            <Plus className="w-4 h-4" /> Submit Workload
           </button>
         </div>
       </div>
 
       {/* Summary Metrics */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-2xl shadow-xl">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Active Jobs</div>
-          <div className="text-2xl font-bold text-white mt-1">
+        <div className="bg-zinc-950/80 backdrop-blur-xl border border-zinc-800/80 p-4 rounded-2xl shadow-xl">
+          <div className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Active Jobs</div>
+          <div className="text-2xl font-bold text-cyan-300 mt-1">
             {jobs.filter((j) => j.status === 'RUNNING').length}
           </div>
         </div>
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-2xl shadow-xl">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Queued</div>
+        <div className="bg-zinc-950/80 backdrop-blur-xl border border-zinc-800/80 p-4 rounded-2xl shadow-xl">
+          <div className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Queued</div>
           <div className="text-2xl font-bold text-amber-400 mt-1">
             {jobs.filter((j) => j.status === 'QUEUED').length}
           </div>
         </div>
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-2xl shadow-xl">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Completed</div>
+        <div className="bg-zinc-950/80 backdrop-blur-xl border border-zinc-800/80 p-4 rounded-2xl shadow-xl">
+          <div className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Completed</div>
           <div className="text-2xl font-bold text-emerald-400 mt-1">
             {jobs.filter((j) => j.status === 'COMPLETED').length}
           </div>
         </div>
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-2xl shadow-xl">
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Failed</div>
+        <div className="bg-zinc-950/80 backdrop-blur-xl border border-zinc-800/80 p-4 rounded-2xl shadow-xl">
+          <div className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Failed</div>
           <div className="text-2xl font-bold text-rose-400 mt-1">
             {jobs.filter((j) => j.status === 'FAILED').length}
           </div>
@@ -293,17 +291,17 @@ const JobQueue = ({ onToast = () => {} }) => {
       </div>
 
       {/* Main Table Container */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-6 shadow-xl">
-        {/* Controls Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+      <div className="bg-zinc-950/80 backdrop-blur-xl border border-zinc-800/80 hover:border-cyan-500/30 transition-all rounded-3xl p-6 shadow-xl space-y-6">
+        {/* Controls Bar */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
             {['ALL', 'RUNNING', 'QUEUED', 'COMPLETED', 'FAILED'].map((st) => (
               <button
                 key={st}
                 onClick={() => setActiveTab(st)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all uppercase tracking-wider ${
                   activeTab === st
-                    ? 'bg-white text-black shadow-md'
+                    ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)]'
                     : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white hover:border-zinc-700'
                 }`}
               >
@@ -314,7 +312,7 @@ const JobQueue = ({ onToast = () => {} }) => {
 
           <div className="flex items-center gap-3 w-full md:w-auto">
             <div className="relative flex-1 md:w-64">
-              <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input
                 id="admin-job-search"
                 name="jobSearch"
@@ -323,23 +321,23 @@ const JobQueue = ({ onToast = () => {} }) => {
                 placeholder="Search job ID, task name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black border border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none transition-all font-mono"
+                className="w-full bg-black/90 border border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-500 focus:border-cyan-500 focus:outline-none transition-all font-mono"
               />
             </div>
 
             <button
               onClick={exportJobsCSV}
-              className="text-xs font-bold tracking-wider uppercase bg-zinc-900 hover:bg-zinc-800 text-white px-3.5 py-2 rounded-xl border border-zinc-700 transition-colors flex items-center gap-2 whitespace-nowrap"
+              className="text-xs font-bold tracking-wider uppercase bg-cyan-950/70 hover:bg-cyan-900/70 text-cyan-300 border border-cyan-500/40 px-3.5 py-2 rounded-xl transition-colors flex items-center gap-2 whitespace-nowrap shadow-md"
             >
-              <i className="fas fa-download text-xs text-zinc-300"></i> Export CSV
+              <Download className="w-4 h-4 text-cyan-400" /> Export CSV
             </button>
           </div>
         </div>
 
         {/* Jobs Table */}
-        <div className="overflow-x-auto bg-black rounded-xl border border-zinc-800">
+        <div className="overflow-x-auto bg-black/90 rounded-2xl border border-zinc-800">
           <table className="w-full text-left text-xs font-mono whitespace-nowrap">
-            <thead className="text-zinc-400 border-b border-zinc-800 text-[10px] uppercase tracking-widest bg-zinc-900/60 font-bold">
+            <thead className="text-zinc-400 border-b border-zinc-800 text-[10px] uppercase tracking-widest bg-zinc-900/80 font-bold">
               <tr>
                 <th className="py-4 pl-6">Job ID</th>
                 <th className="py-4">Workload Name</th>
@@ -356,33 +354,33 @@ const JobQueue = ({ onToast = () => {} }) => {
                 filteredJobs.map((job) => (
                   <tr
                     key={job.id}
-                    className="hover:bg-zinc-900/40 transition-colors cursor-pointer"
+                    className="hover:bg-zinc-900/60 transition-colors cursor-pointer"
                     onClick={() => setSelectedJob(job)}
                   >
                     <td className="py-4 pl-6 font-bold text-white tracking-wider">{job.id}</td>
                     <td className="py-4 max-w-xs truncate text-zinc-200">
-                      <div className="font-semibold truncate">{job.name}</div>
-                      <div className="text-[9px] text-zinc-500 uppercase">{job.framework} • Owner: {job.owner}</div>
+                      <div className="font-semibold truncate text-white">{job.name}</div>
+                      <div className="text-[9px] text-zinc-400 uppercase">{job.framework} • Owner: {job.owner}</div>
                     </td>
                     <td className="py-4">
                       <span
-                        className={`text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 rounded border ${
+                        className={`text-[9px] uppercase tracking-widest font-bold px-2.5 py-0.5 rounded border ${
                           job.priority === 'CRITICAL'
-                            ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
+                            ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse'
                             : job.priority === 'HIGH'
                             ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
-                            : 'bg-zinc-900 text-zinc-400 border-zinc-800'
+                            : 'bg-cyan-950 text-cyan-300 border-cyan-500/30'
                         }`}
                       >
                         {job.priority}
                       </span>
                     </td>
-                    <td className="py-4 text-zinc-300 font-bold">{job.node}</td>
+                    <td className="py-4 text-cyan-200 font-bold">{job.node}</td>
                     <td className="py-4">
                       <span
-                        className={`text-[9px] uppercase tracking-widest font-bold px-2 py-0.5 rounded border ${
+                        className={`text-[9px] uppercase tracking-widest font-bold px-2.5 py-0.5 rounded border ${
                           job.status === 'RUNNING'
-                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 animate-pulse'
+                            ? 'bg-cyan-950 text-cyan-300 border-cyan-500/40 shadow-[0_0_8px_rgba(0,240,255,0.2)]'
                             : job.status === 'QUEUED'
                             ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                             : job.status === 'COMPLETED'
@@ -395,15 +393,17 @@ const JobQueue = ({ onToast = () => {} }) => {
                     </td>
                     <td className="py-4 w-36">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 bg-zinc-900 h-1.5 rounded-full overflow-hidden border border-zinc-800">
+                        <div className="flex-1 bg-zinc-950 h-1.5 rounded-full overflow-hidden border border-zinc-800">
                           <div
                             className={`h-full transition-all duration-300 ${
-                              job.status === 'FAILED' ? 'bg-rose-500' : 'bg-white'
+                              job.status === 'FAILED'
+                                ? 'bg-rose-500'
+                                : 'bg-gradient-to-r from-cyan-500 to-blue-400 shadow-[0_0_8px_rgba(0,240,255,0.4)]'
                             }`}
                             style={{ width: `${job.progress}%` }}
                           ></div>
                         </div>
-                        <span className="text-[10px] text-zinc-300 w-8 text-right font-bold">
+                        <span className="text-[10px] text-cyan-300 w-8 text-right font-bold">
                           {job.progress}%
                         </span>
                       </div>
@@ -415,16 +415,16 @@ const JobQueue = ({ onToast = () => {} }) => {
                           <button
                             onClick={() => handleJobAction(job.id, 'Prioritize')}
                             title="Escalate Priority"
-                            className="text-zinc-400 hover:text-white mr-2 p-1.5 hover:bg-zinc-800 rounded transition-colors"
+                            className="text-zinc-400 hover:text-cyan-300 mr-2 p-1.5 hover:bg-zinc-800 rounded transition-colors"
                           >
-                            <i className="fas fa-arrow-up text-xs"></i>
+                            <ArrowUp className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleJobAction(job.id, 'Cancel')}
                             title="Terminate Job"
                             className="text-zinc-400 hover:text-rose-400 p-1.5 hover:bg-zinc-800 rounded transition-colors"
                           >
-                            <i className="fas fa-stop text-xs"></i>
+                            <StopCircle className="w-3.5 h-3.5" />
                           </button>
                         </>
                       )}
@@ -434,16 +434,16 @@ const JobQueue = ({ onToast = () => {} }) => {
                           title="Remove from Queue"
                           className="text-zinc-400 hover:text-rose-400 p-1.5 hover:bg-zinc-800 rounded transition-colors"
                         >
-                          <i className="fas fa-trash text-xs"></i>
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       )}
                       {(job.status === 'FAILED' || job.status === 'COMPLETED') && (
                         <button
                           onClick={() => handleJobAction(job.id, 'Retry')}
                           title="Re-run Job"
-                          className="text-zinc-400 hover:text-white p-1.5 hover:bg-zinc-800 rounded transition-colors"
+                          className="text-zinc-400 hover:text-cyan-300 p-1.5 hover:bg-zinc-800 rounded transition-colors"
                         >
-                          <i className="fas fa-redo text-xs"></i>
+                          <RotateCcw className="w-3.5 h-3.5" />
                         </button>
                       )}
                     </td>
@@ -463,14 +463,14 @@ const JobQueue = ({ onToast = () => {} }) => {
 
       {/* Submit Workload Modal */}
       {showSubmitModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-zinc-950 border border-zinc-700 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative font-mono">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-950 border border-cyan-500/30 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-[0_0_50px_rgba(0,240,255,0.15)] relative font-mono">
             <div className="flex justify-between items-center border-b border-zinc-800 pb-4">
               <h3 className="text-lg font-bold text-white font-['Space_Grotesk'] flex items-center gap-2">
-                <i className="fas fa-plus-circle text-zinc-300"></i> Submit New Compute Workload
+                <ListTodo className="w-5 h-5 text-cyan-400" /> Submit New Compute Workload
               </h3>
-              <button onClick={() => setShowSubmitModal(false)} className="text-zinc-400 hover:text-white">
-                <i className="fas fa-times"></i>
+              <button onClick={() => setShowSubmitModal(false)} className="text-zinc-400 hover:text-white p-1">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -484,7 +484,7 @@ const JobQueue = ({ onToast = () => {} }) => {
                   placeholder="e.g. Distributed Attention Profiling Step 100"
                   value={newJobName}
                   onChange={(e) => setNewJobName(e.target.value)}
-                  className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-zinc-500 focus:outline-none"
+                  className="w-full bg-black/90 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-cyan-500 focus:outline-none"
                   required
                 />
               </div>
@@ -498,7 +498,7 @@ const JobQueue = ({ onToast = () => {} }) => {
                     type="text"
                     value={newJobOwner}
                     onChange={(e) => setNewJobOwner(e.target.value)}
-                    className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-zinc-500 focus:outline-none"
+                    className="w-full bg-black/90 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
 
@@ -509,7 +509,7 @@ const JobQueue = ({ onToast = () => {} }) => {
                   <select
                     value={newJobPriority}
                     onChange={(e) => setNewJobPriority(e.target.value)}
-                    className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-zinc-500 focus:outline-none"
+                    className="w-full bg-black/90 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-cyan-500 focus:outline-none"
                   >
                     <option value="CRITICAL">CRITICAL</option>
                     <option value="HIGH">HIGH</option>
@@ -526,7 +526,7 @@ const JobQueue = ({ onToast = () => {} }) => {
                   <select
                     value={newJobNode}
                     onChange={(e) => setNewJobNode(e.target.value)}
-                    className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-zinc-500 focus:outline-none"
+                    className="w-full bg-black/90 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-cyan-500 focus:outline-none"
                   >
                     <option value="node-alpha-01">node-alpha-01 (H100)</option>
                     <option value="node-beta-01">node-beta-01 (H100)</option>
@@ -544,7 +544,7 @@ const JobQueue = ({ onToast = () => {} }) => {
                     value={newJobFramework}
                     onChange={(e) => setNewJobFramework(e.target.value)}
                     placeholder="e.g. PyTorch / DeepSpeed"
-                    className="w-full bg-black border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-zinc-500 focus:outline-none"
+                    className="w-full bg-black/90 border border-zinc-800 rounded-xl p-3 text-xs text-white focus:border-cyan-500 focus:outline-none"
                   />
                 </div>
               </div>
@@ -559,7 +559,7 @@ const JobQueue = ({ onToast = () => {} }) => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-white hover:bg-zinc-200 text-black rounded-xl text-xs font-bold uppercase tracking-wider"
+                  className="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black rounded-xl text-xs font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(0,240,255,0.3)]"
                 >
                   Queue Workload
                 </button>
@@ -569,37 +569,38 @@ const JobQueue = ({ onToast = () => {} }) => {
         </div>
       )}
 
-      {/* Job Details Modal */}
+      {/* Inspector Modal */}
       {selectedJob && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-zinc-950 border border-zinc-700 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative font-mono">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-zinc-950 border border-cyan-500/30 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-[0_0_50px_rgba(0,240,255,0.15)] relative font-mono">
             <div className="flex justify-between items-start border-b border-zinc-800 pb-3">
               <div>
-                <h3 className="text-lg font-bold text-white font-['Space_Grotesk']">
+                <h3 className="text-lg font-bold text-white font-['Space_Grotesk'] flex items-center gap-2">
+                  <ListTodo className="w-5 h-5 text-cyan-400" />
                   {selectedJob.id}: {selectedJob.name}
                 </h3>
                 <p className="text-xs text-zinc-400">Framework: {selectedJob.framework}</p>
               </div>
-              <button onClick={() => setSelectedJob(null)} className="text-zinc-400 hover:text-white">
-                <i className="fas fa-times"></i>
+              <button onClick={() => setSelectedJob(null)} className="text-zinc-400 hover:text-white p-1">
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800">
-                <span className="text-zinc-500 block text-[10px] uppercase">Status</span>
-                <span className="font-bold text-white">{selectedJob.status} ({selectedJob.progress}%)</span>
+              <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+                <span className="text-zinc-400 block text-[10px] uppercase font-bold">Status</span>
+                <span className="font-bold text-cyan-300">{selectedJob.status} ({selectedJob.progress}%)</span>
               </div>
-              <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800">
-                <span className="text-zinc-500 block text-[10px] uppercase">Priority</span>
+              <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+                <span className="text-zinc-400 block text-[10px] uppercase font-bold">Priority</span>
                 <span className="font-bold text-white">{selectedJob.priority}</span>
               </div>
-              <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800">
-                <span className="text-zinc-500 block text-[10px] uppercase">Assigned Node</span>
+              <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+                <span className="text-zinc-400 block text-[10px] uppercase font-bold">Assigned Node</span>
                 <span className="font-bold text-white">{selectedJob.node}</span>
               </div>
-              <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800">
-                <span className="text-zinc-500 block text-[10px] uppercase">Elapsed Time</span>
+              <div className="bg-zinc-900/80 p-3 rounded-2xl border border-zinc-800">
+                <span className="text-zinc-400 block text-[10px] uppercase font-bold">Elapsed Time</span>
                 <span className="font-bold text-white">{formatTime(selectedJob.elapsedSec)}</span>
               </div>
             </div>
@@ -607,7 +608,7 @@ const JobQueue = ({ onToast = () => {} }) => {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setSelectedJob(null)}
-                className="px-4 py-2 bg-zinc-800 text-white rounded-xl text-xs font-bold"
+                className="px-5 py-2.5 bg-cyan-950 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-900 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-md"
               >
                 Close
               </button>

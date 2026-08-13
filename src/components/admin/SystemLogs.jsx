@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Terminal, Play, Pause, Search, Download, Copy, Trash2, AlertTriangle, Bug, Activity, Radio, Check } from 'lucide-react';
 
 const SystemLogs = ({ onToast = () => {} }) => {
   const initialLogs = [
@@ -17,10 +18,10 @@ const SystemLogs = ({ onToast = () => {} }) => {
   const [isStreaming, setIsStreaming] = useState(true);
   const [streamRate, setStreamRate] = useState(2500);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   const logEndRef = useRef(null);
 
-  // Auto stream log generation
   useEffect(() => {
     if (!isStreaming) return;
 
@@ -55,7 +56,6 @@ const SystemLogs = ({ onToast = () => {} }) => {
     return () => clearInterval(interval);
   }, [isStreaming, streamRate]);
 
-  // Auto Scroll ref effect
   useEffect(() => {
     if (autoScroll && isStreaming && logEndRef.current) {
       logEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -114,6 +114,8 @@ const SystemLogs = ({ onToast = () => {} }) => {
   const handleCopyLogs = () => {
     const text = filteredLogs.map((l) => `[${l.time}] [${l.level}] [${l.module}] ${l.msg}`).join('\n');
     navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
     onToast('Logs copied to clipboard.');
   };
 
@@ -133,14 +135,14 @@ const SystemLogs = ({ onToast = () => {} }) => {
 
   return (
     <div className="space-y-8 font-mono">
-      {/* Top Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-zinc-800">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-zinc-800/80">
         <div>
-          <div className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1">
-            Telemetry // Audit Trail
+          <div className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold mb-1">
+            Telemetry // Real-Time Audit Trail
           </div>
           <h1 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-3">
-            <i className="fas fa-terminal text-zinc-300 text-xl"></i> System Log Streaming
+            <Terminal className="w-7 h-7 text-cyan-400" /> System Log Streaming
           </h1>
         </div>
 
@@ -149,18 +151,18 @@ const SystemLogs = ({ onToast = () => {} }) => {
             onClick={() => setIsStreaming(!isStreaming)}
             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border transition-all flex items-center gap-2 ${
               isStreaming
-                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-md'
+                ? 'bg-cyan-950/70 text-cyan-300 border-cyan-500/40 shadow-[0_0_12px_rgba(0,240,255,0.2)]'
                 : 'bg-zinc-900 text-zinc-400 border-zinc-700'
             }`}
           >
-            <span className={`w-2 h-2 rounded-full ${isStreaming ? 'bg-emerald-400 animate-pulse' : 'bg-zinc-600'}`}></span>
+            <span className={`w-2 h-2 rounded-full ${isStreaming ? 'bg-cyan-400 animate-ping' : 'bg-zinc-600'}`}></span>
             {isStreaming ? 'Streaming Live' : 'Stream Paused'}
           </button>
 
           <select
             value={streamRate}
             onChange={(e) => setStreamRate(Number(e.target.value))}
-            className="bg-zinc-900 text-zinc-200 border border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none"
+            className="bg-zinc-900/90 text-zinc-200 border border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono focus:outline-none focus:border-cyan-500"
           >
             <option value={1000}>Fast (1.0s)</option>
             <option value={2500}>Normal (2.5s)</option>
@@ -169,53 +171,53 @@ const SystemLogs = ({ onToast = () => {} }) => {
         </div>
       </div>
 
-      {/* Simulation Triggers Strip */}
-      <div className="flex flex-wrap items-center justify-between bg-zinc-950 border border-zinc-800 rounded-2xl p-4 gap-4 shadow-xl">
+      {/* Simulators Bar */}
+      <div className="flex flex-wrap items-center justify-between bg-zinc-950/80 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-4 gap-4 shadow-xl">
         <div className="text-xs font-bold text-zinc-300 flex items-center gap-2">
-          <i className="fas fa-vial text-zinc-400"></i> Event Simulators:
+          <Activity className="w-4 h-4 text-cyan-400" /> Event Simulators:
         </div>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={triggerWarnEvent}
-            className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
+            className="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
           >
-            <i className="fas fa-exclamation-triangle text-amber-400"></i> Thermal Warn Event
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" /> Thermal Warn Event
           </button>
           <button
             onClick={triggerErrorEvent}
-            className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
+            className="px-3.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5"
           >
-            <i className="fas fa-bug text-rose-400"></i> Inject CUDA OOM Error
+            <Bug className="w-3.5 h-3.5 text-rose-400" /> Inject CUDA OOM Error
           </button>
         </div>
       </div>
 
       {/* Control Strip */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl">
+      <div className="bg-zinc-950/80 backdrop-blur-xl border border-zinc-800/80 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-xl">
         {/* Log Level Filters */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
           {['ALL', 'INFO', 'WARN', 'ERROR', 'DEBUG'].map((lvl) => (
             <button
               key={lvl}
               onClick={() => setLogLevel(lvl)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all uppercase tracking-wider flex items-center gap-1.5 ${
                 logLevel === lvl
-                  ? 'bg-white text-black shadow-md'
+                  ? 'bg-cyan-500 text-black shadow-[0_0_12px_rgba(0,240,255,0.4)]'
                   : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:text-white hover:border-zinc-700'
               }`}
             >
               <span>{lvl}</span>
-              <span className={`text-[9px] px-1.5 py-0.2 rounded ${logLevel === lvl ? 'bg-black text-white' : 'bg-zinc-800 text-zinc-300'}`}>
+              <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono ${logLevel === lvl ? 'bg-black text-cyan-300 font-bold' : 'bg-zinc-800 text-zinc-300'}`}>
                 {levelCounts[lvl]}
               </span>
             </button>
           ))}
         </div>
 
-        {/* Search & Utility Actions */}
+        {/* Search & Actions */}
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               id="admin-system-logs-search"
               name="systemLogsSearch"
@@ -224,43 +226,43 @@ const SystemLogs = ({ onToast = () => {} }) => {
               placeholder="Search log stream..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black border border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none transition-all font-mono"
+              className="w-full bg-black/90 border border-zinc-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-zinc-500 focus:border-cyan-500 focus:outline-none transition-all font-mono"
             />
           </div>
 
           <button
             onClick={handleExportLogs}
             title="Download Log File"
-            className="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white rounded-xl transition-colors text-xs"
+            className="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-cyan-300 rounded-xl transition-colors text-xs"
           >
-            <i className="fas fa-download"></i>
+            <Download className="w-4 h-4" />
           </button>
           <button
             onClick={handleCopyLogs}
             title="Copy Logs"
-            className="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white rounded-xl transition-colors text-xs"
+            className="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-cyan-300 rounded-xl transition-colors text-xs"
           >
-            <i className="fas fa-copy"></i>
+            {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
           </button>
           <button
             onClick={handleClear}
             title="Clear Console"
-            className="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white rounded-xl transition-colors text-xs"
+            className="p-2.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-rose-400 rounded-xl transition-colors text-xs"
           >
-            <i className="fas fa-trash-alt"></i>
+            <Trash2 className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Terminal Output Window */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 shadow-xl">
-        {/* Terminal Header Bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 mb-3 border-b border-zinc-800 text-[11px] text-zinc-400 gap-2">
+      {/* Cyberpunk Terminal Window */}
+      <div className="bg-zinc-950/80 backdrop-blur-xl border border-cyan-500/20 rounded-3xl p-5 shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+        {/* Terminal Top Window Bar */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-3 mb-3 border-b border-zinc-800/80 text-[11px] text-zinc-400 gap-2">
           <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-600"></span>
-            <span className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-600"></span>
-            <span className="w-3 h-3 rounded-full bg-zinc-800 border border-zinc-600"></span>
-            <span className="ml-2 font-bold text-zinc-200">tty1 // live-stdout</span>
+            <span className="w-3 h-3 rounded-full bg-rose-500/80"></span>
+            <span className="w-3 h-3 rounded-full bg-amber-500/80"></span>
+            <span className="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+            <span className="ml-2 font-bold text-cyan-300 font-mono">tty1 // live-stdout</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -269,36 +271,36 @@ const SystemLogs = ({ onToast = () => {} }) => {
                 type="checkbox"
                 checked={autoScroll}
                 onChange={(e) => setAutoScroll(e.target.checked)}
-                className="rounded border-zinc-800 bg-black text-white focus:ring-0"
+                className="rounded border-zinc-800 bg-black text-cyan-400 focus:ring-0"
               />
               Auto-scroll
             </label>
-            <span>Buffer: {filteredLogs.length} events</span>
+            <span className="text-cyan-200/80 font-bold">Buffer: {filteredLogs.length} events</span>
           </div>
         </div>
 
-        {/* Log Stream Output Box */}
-        <div className="h-[460px] overflow-y-auto space-y-2 p-3 bg-black rounded-xl border border-zinc-800 font-mono text-xs select-text shadow-inner">
+        {/* Log Stream Box */}
+        <div className="h-[460px] overflow-y-auto space-y-2 p-3 bg-black/95 rounded-2xl border border-zinc-800/90 font-mono text-xs select-text shadow-inner">
           {filteredLogs.length > 0 ? (
             filteredLogs.map((log) => (
-              <div key={log.id} className="flex items-start gap-3 hover:bg-zinc-900/60 p-1.5 rounded transition-colors leading-relaxed">
+              <div key={log.id} className="flex items-start gap-3 hover:bg-zinc-900/60 p-1.5 rounded-lg transition-colors leading-relaxed">
                 <span className="text-zinc-500 text-[11px] shrink-0 font-mono">{log.time}</span>
                 
                 <span
-                  className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 border ${
+                  className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider shrink-0 border ${
                     log.level === 'ERROR'
                       ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse'
                       : log.level === 'WARN'
                       ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
                       : log.level === 'INFO'
-                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                      ? 'bg-cyan-950 text-cyan-300 border-cyan-500/40'
                       : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
                   }`}
                 >
                   {log.level}
                 </span>
 
-                <span className="text-zinc-300 font-bold shrink-0">[{log.module}]</span>
+                <span className="text-cyan-400 font-bold shrink-0">[{log.module}]</span>
                 <span className="text-zinc-200 break-all">{log.msg}</span>
               </div>
             ))

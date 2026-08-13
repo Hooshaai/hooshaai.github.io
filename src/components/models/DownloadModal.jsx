@@ -45,7 +45,7 @@ const DownloadModal = ({ downloadModal, onClose, progress = 0, speedData = [], c
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
-      className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/85 backdrop-blur-2xl z-50 flex items-center justify-center p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
     >
@@ -54,10 +54,13 @@ const DownloadModal = ({ downloadModal, onClose, progress = 0, speedData = [], c
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95, y: 20 }}
         onClick={(e) => e.stopPropagation()}
-        className="bg-gray-900 border border-white/15 rounded-[2rem] p-6 md:p-8 max-w-3xl w-full relative shadow-2xl overflow-hidden my-auto"
+        className="bg-slate-950 border border-cyan-500/30 rounded-[2.5rem] p-6 md:p-8 max-w-3xl w-full relative shadow-[0_0_80px_rgba(0,240,255,0.2)] overflow-hidden my-auto"
       >
+        {/* Background Ambient Radial Glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
+
         <button 
-          className="absolute top-6 right-6 text-gray-400 hover:text-white hover:bg-white/10 text-base w-9 h-9 rounded-full flex items-center justify-center transition-colors border border-transparent hover:border-white/10"
+          className="absolute top-6 right-6 text-gray-400 hover:text-cyan-300 hover:bg-cyan-500/10 text-base w-9 h-9 rounded-full flex items-center justify-center transition-all border border-transparent hover:border-cyan-500/20 cursor-pointer"
           onClick={onClose}
           aria-label="Close modal"
         >
@@ -66,21 +69,21 @@ const DownloadModal = ({ downloadModal, onClose, progress = 0, speedData = [], c
         
         {/* Header Info */}
         <div className="flex items-center gap-5 mb-8">
-          <div className="w-14 h-14 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center text-white text-2xl shrink-0">
+          <div className="w-14 h-14 bg-cyan-500/10 rounded-2xl border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl shrink-0 shadow-[0_0_20px_rgba(0,240,255,0.2)]">
             <i className="fas fa-cube"></i>
           </div>
           <div>
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-3 mb-1">
               <h2 className="text-2xl md:text-3xl font-bold font-['Space_Grotesk'] tracking-tight text-white">{safeName}</h2>
-              <span className="text-[10px] font-mono font-bold bg-white/10 text-gray-200 px-2 py-0.5 rounded border border-white/15 uppercase">
+              <span className="text-[10px] font-mono font-bold bg-cyan-500/10 text-cyan-300 px-2.5 py-0.5 rounded-full border border-cyan-500/30 uppercase">
                 {safePrecision}
               </span>
             </div>
             <p className="text-xs md:text-sm text-gray-400 font-mono flex flex-wrap items-center gap-2">
-              <span>Size: <strong className="text-gray-200">{safeSize}</strong></span>
-              <span className="w-1 h-1 rounded-full bg-gray-600"></span>
+              <span>Size: <strong className="text-cyan-300">{safeSize}</strong></span>
+              <span className="w-1 h-1 rounded-full bg-cyan-500/40"></span>
               <span>Type: <strong className="text-gray-200">{safeType}</strong></span>
-              <span className="w-1 h-1 rounded-full bg-gray-600"></span>
+              <span className="w-1 h-1 rounded-full bg-cyan-500/40"></span>
               <span className="text-emerald-400 flex items-center gap-1 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                 <i className="fas fa-check-circle text-[10px]"></i> SHA256 Verified
               </span>
@@ -88,8 +91,8 @@ const DownloadModal = ({ downloadModal, onClose, progress = 0, speedData = [], c
           </div>
         </div>
         
-        {/* Progress & Speed Chart */}
-        <div className="mb-8 bg-black/40 p-6 rounded-2xl border border-white/10 shadow-inner">
+        {/* Progress & Speed Chart Box */}
+        <div className="mb-8 bg-slate-900/80 p-6 rounded-2xl border border-cyan-500/20 shadow-inner">
           <div className="flex justify-between items-center text-xs md:text-sm font-mono mb-3">
             <span className="text-gray-300 font-medium flex items-center gap-2">
               {progress >= 100 ? (
@@ -98,63 +101,67 @@ const DownloadModal = ({ downloadModal, onClose, progress = 0, speedData = [], c
                 </span>
               ) : (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
-                  <span>Downloading weights (<code className="text-gray-400">.safetensors</code>)...</span>
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping shadow-[0_0_8px_#00f0ff]"></span>
+                  <span>Downloading weights (<code className="text-cyan-300">.safetensors</code>)...</span>
                 </>
               )}
             </span>
-            <span className="text-white font-bold">{Math.min(100, Math.floor(progress))}%</span>
+            <span className="text-cyan-400 font-bold">{Math.min(100, Math.floor(progress))}%</span>
           </div>
           
-          <div className="w-full bg-gray-950 rounded-full h-2.5 overflow-hidden mb-4 border border-white/10">
+          <div className="w-full bg-black rounded-full h-3 overflow-hidden mb-4 border border-cyan-500/20 p-0.5">
             <motion.div 
-              className={`h-full rounded-full ${progress >= 100 ? 'bg-emerald-400' : 'bg-gradient-to-r from-blue-500 to-white'}`} 
+              className={`h-full rounded-full ${
+                progress >= 100 
+                  ? 'bg-emerald-400 shadow-[0_0_12px_#10b981]' 
+                  : 'bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 shadow-[0_0_15px_rgba(0,240,255,0.6)]'
+              }`} 
               animate={{ width: `${Math.min(100, progress)}%` }}
               transition={{ ease: "easeOut" }}
             />
           </div>
 
-          <div className="h-24 w-full bg-gray-950 rounded-xl p-2 border border-white/5 relative">
+          <div className="h-24 w-full bg-black/80 rounded-xl p-2 border border-cyan-500/10 relative overflow-hidden">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={speedData}>
                 <YAxis domain={[0, 100]} hide />
-                <Line type="monotone" dataKey="speed" stroke="#ffffff" strokeWidth={1.5} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="speed" stroke="#00f0ff" strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
           
           <div className="flex justify-between items-center text-xs text-gray-400 mt-3 font-mono tracking-wide">
-            <span>Status: <strong className="text-gray-300">{etaText}</strong></span>
+            <span>Status: <strong className="text-gray-200">{etaText}</strong></span>
             {progress < 100 && (
-              <span>Speed: <strong className="text-white font-bold">{currentSpeed.toFixed(1)} MB/s</strong></span>
+              <span>Speed: <strong className="text-cyan-300 font-bold">{currentSpeed.toFixed(1)} MB/s</strong></span>
             )}
           </div>
         </div>
 
         {/* Code Snippets Section */}
         <div>
-          <div className="flex items-center justify-between border-b border-white/10 mb-4">
+          <div className="flex items-center justify-between border-b border-cyan-500/20 mb-4">
             <div className="flex gap-2">
               <button 
                 onClick={() => setActiveTab('wget')}
-                className={`pb-2.5 px-3 text-xs font-mono font-bold border-b-2 transition-colors ${
-                  activeTab === 'wget' ? 'border-white text-white' : 'border-transparent text-gray-400 hover:text-gray-200'
+                className={`pb-2.5 px-3 text-xs font-mono font-bold border-b-2 transition-colors cursor-pointer ${
+                  activeTab === 'wget' ? 'border-cyan-400 text-cyan-300' : 'border-transparent text-gray-400 hover:text-gray-200'
                 }`}
               >
                 Wget Command
               </button>
               <button 
                 onClick={() => setActiveTab('hf')}
-                className={`pb-2.5 px-3 text-xs font-mono font-bold border-b-2 transition-colors ${
-                  activeTab === 'hf' ? 'border-white text-white' : 'border-transparent text-gray-400 hover:text-gray-200'
+                className={`pb-2.5 px-3 text-xs font-mono font-bold border-b-2 transition-colors cursor-pointer ${
+                  activeTab === 'hf' ? 'border-cyan-400 text-cyan-300' : 'border-transparent text-gray-400 hover:text-gray-200'
                 }`}
               >
                 Hugging Face CLI
               </button>
               <button 
                 onClick={() => setActiveTab('python')}
-                className={`pb-2.5 px-3 text-xs font-mono font-bold border-b-2 transition-colors ${
-                  activeTab === 'python' ? 'border-white text-white' : 'border-transparent text-gray-400 hover:text-gray-200'
+                className={`pb-2.5 px-3 text-xs font-mono font-bold border-b-2 transition-colors cursor-pointer ${
+                  activeTab === 'python' ? 'border-cyan-400 text-cyan-300' : 'border-transparent text-gray-400 hover:text-gray-200'
                 }`}
               >
                 Python Code
@@ -166,7 +173,7 @@ const DownloadModal = ({ downloadModal, onClose, progress = 0, speedData = [], c
                 const targetText = activeTab === 'wget' ? wgetCmd : activeTab === 'hf' ? hfCmd : pySnippet;
                 onCopyCode && onCopyCode(targetText, activeTab);
               }} 
-              className="text-xs text-gray-300 hover:text-white font-medium transition-colors bg-white/10 hover:bg-white/20 px-3 py-1 rounded-md mb-2 flex items-center gap-1.5"
+              className="text-xs text-cyan-300 hover:text-white font-mono font-medium transition-all bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 px-3 py-1 rounded-lg mb-2 flex items-center gap-1.5 cursor-pointer"
             >
               {copied === activeTab ? (
                 <>
@@ -182,7 +189,7 @@ const DownloadModal = ({ downloadModal, onClose, progress = 0, speedData = [], c
             </button>
           </div>
 
-          <div className="bg-black/90 p-4 rounded-xl border border-white/10 font-mono text-xs leading-relaxed text-gray-300 overflow-x-auto min-h-20 flex items-center">
+          <div className="bg-black/90 p-4 rounded-xl border border-cyan-500/20 font-mono text-xs leading-relaxed text-cyan-200 overflow-x-auto min-h-20 flex items-center shadow-inner">
             <code className="whitespace-pre-wrap font-mono">
               {activeTab === 'wget' && wgetCmd}
               {activeTab === 'hf' && hfCmd}
@@ -196,3 +203,4 @@ const DownloadModal = ({ downloadModal, onClose, progress = 0, speedData = [], c
 };
 
 export default DownloadModal;
+

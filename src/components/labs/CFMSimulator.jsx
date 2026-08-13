@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, RotateCcw, Sliders, Eye, EyeOff, Move, Activity } from 'lucide-react';
+import { Play, Pause, RotateCcw, Eye, EyeOff, Move } from 'lucide-react';
 import { MathBlock } from '../../utils/renderMath';
 
 const CFMSimulator = () => {
@@ -54,14 +54,14 @@ const CFMSimulator = () => {
     let animationFrameId;
 
     const render = () => {
-      ctx.fillStyle = '#09090b';
+      ctx.fillStyle = '#030712';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const target = targetRef.current;
 
-      // 1. Draw subtle background grid & vector field if enabled
+      // 1. Draw background grid & electric cyan vector field if enabled
       if (showVectorField) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.06)';
         ctx.lineWidth = 1;
         const gridSpacing = 40;
         for (let x = gridSpacing; x < canvas.width; x += gridSpacing) {
@@ -69,17 +69,17 @@ const CFMSimulator = () => {
             const dx = target.x - x;
             const dy = target.y - y;
             const angle = Math.atan2(dy, dx);
-            const len = 12;
+            const len = 14;
 
             ctx.beginPath();
             ctx.moveTo(x, y);
             ctx.lineTo(x + Math.cos(angle) * len, y + Math.sin(angle) * len);
             ctx.stroke();
 
-            // Arrow tip
+            // Arrow tip dot with cyan glow
             ctx.beginPath();
-            ctx.arc(x + Math.cos(angle) * len, y + Math.sin(angle) * len, 1.5, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(0, 240, 255, 0.15)';
+            ctx.arc(x + Math.cos(angle) * len, y + Math.sin(angle) * len, 1.8, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 240, 255, 0.35)';
             ctx.fill();
           }
         }
@@ -88,29 +88,29 @@ const CFMSimulator = () => {
       // 2. Draw source cluster p0 (start region)
       ctx.beginPath();
       ctx.arc(100, 150, 55, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(59, 130, 246, 0.06)';
-      ctx.strokeStyle = 'rgba(59, 130, 246, 0.2)';
+      ctx.fillStyle = 'rgba(59, 130, 246, 0.08)';
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.3)';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([4, 4]);
       ctx.fill();
       ctx.stroke();
       ctx.setLineDash([]);
 
-      ctx.fillStyle = 'rgba(147, 197, 253, 0.6)';
+      ctx.fillStyle = 'rgba(147, 197, 253, 0.8)';
       ctx.font = '10px monospace';
       ctx.fillText('Source p₀', 75, 154);
 
-      // 3. Draw Target p1 node (draggable)
+      // 3. Draw Target p1 node (draggable electric cyan target)
       ctx.beginPath();
-      ctx.arc(target.x, target.y, isDraggingRef.current ? 16 : 12, 0, Math.PI * 2);
-      ctx.fillStyle = isDraggingRef.current ? 'rgba(6, 182, 212, 0.3)' : 'rgba(6, 182, 212, 0.15)';
+      ctx.arc(target.x, target.y, isDraggingRef.current ? 20 : 14, 0, Math.PI * 2);
+      ctx.fillStyle = isDraggingRef.current ? 'rgba(0, 240, 255, 0.35)' : 'rgba(0, 240, 255, 0.15)';
       ctx.fill();
 
       ctx.beginPath();
       ctx.arc(target.x, target.y, 7, 0, Math.PI * 2);
-      ctx.fillStyle = '#06b6d4';
-      ctx.shadowColor = '#06b6d4';
-      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#00f0ff';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 18;
       ctx.fill();
       ctx.shadowBlur = 0;
 
@@ -154,23 +154,28 @@ const CFMSimulator = () => {
         totalVelSum += currentVel;
         activeCount++;
 
-        // Draw particle trail
+        // Draw particle trail with cyan gradient glow
         if (p.trail.length > 1) {
           ctx.beginPath();
           ctx.moveTo(p.trail[0].x, p.trail[0].y);
           for (let t = 1; t < p.trail.length; t++) {
             ctx.lineTo(p.trail[t].x, p.trail[t].y);
           }
-          ctx.strokeStyle = 'rgba(6, 182, 212, 0.2)';
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+          ctx.lineWidth = 1.2;
           ctx.stroke();
         }
 
         // Draw particle node
         ctx.beginPath();
         ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = p.active ? '#e0f2fe' : '#475569';
+        ctx.fillStyle = p.active ? '#ffffff' : '#475569';
+        if (p.active) {
+          ctx.shadowColor = '#00f0ff';
+          ctx.shadowBlur = 6;
+        }
         ctx.fill();
+        ctx.shadowBlur = 0;
       }
 
       if (isPlaying) {
@@ -207,7 +212,6 @@ const CFMSimulator = () => {
   const handlePointerMove = (e) => {
     if (isDraggingRef.current) {
       const coords = getCanvasCoords(e);
-      // Keep target within canvas bounds
       targetRef.current = {
         x: Math.max(30, Math.min(770, coords.x)),
         y: Math.max(30, Math.min(270, coords.y))
@@ -234,14 +238,14 @@ const CFMSimulator = () => {
       id="cfm-lab"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-950/80 border border-zinc-800 rounded-3xl p-6 sm:p-8 hover:border-zinc-700/80 transition-all duration-300 shadow-2xl backdrop-blur-xl mb-12"
+      className="bg-slate-950/80 border border-cyan-500/25 rounded-3xl p-6 sm:p-8 hover:border-cyan-400/50 transition-all duration-300 shadow-[0_16px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl mb-12 relative overflow-hidden group"
     >
       {/* Header & Badges */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-cyan-400 font-mono text-sm font-semibold">01 / SIMULATOR</span>
-            <span className="text-xs bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 px-2.5 py-0.5 rounded-full font-mono">
+            <span className="text-cyan-400 font-mono text-xs font-semibold tracking-wider">01 / SIMULATOR</span>
+            <span className="text-xs bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 px-2.5 py-0.5 rounded-full font-mono">
               Generative Dynamics
             </span>
           </div>
@@ -251,25 +255,25 @@ const CFMSimulator = () => {
         </div>
 
         {/* Live Status Indicators */}
-        <div className="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 px-4 py-2 rounded-2xl font-mono text-xs text-zinc-400">
+        <div className="flex items-center gap-3 bg-slate-900/90 border border-cyan-500/20 px-4 py-2 rounded-2xl font-mono text-xs text-gray-300 shadow-inner">
           <div>
-            <span className="text-zinc-500 block text-[10px]">ACTIVE</span>
+            <span className="text-gray-500 block text-[10px]">ACTIVE</span>
             <span className="text-cyan-400 font-bold">{stats.active}</span> / {particleCount}
           </div>
-          <div className="h-6 w-px bg-zinc-800" />
+          <div className="h-6 w-px bg-cyan-500/20" />
           <div>
-            <span className="text-zinc-500 block text-[10px]">STEP</span>
+            <span className="text-gray-500 block text-[10px]">STEP</span>
             <span className="text-white font-bold">{stats.step}</span>
           </div>
-          <div className="h-6 w-px bg-zinc-800" />
+          <div className="h-6 w-px bg-cyan-500/20" />
           <div>
-            <span className="text-zinc-500 block text-[10px]">AVG VEL</span>
+            <span className="text-gray-500 block text-[10px]">AVG VEL</span>
             <span className="text-emerald-400 font-bold">{stats.avgVel}</span>
           </div>
         </div>
       </div>
 
-      <p className="text-zinc-400 text-sm mb-4 leading-relaxed font-light">
+      <p className="text-gray-300 text-sm mb-4 leading-relaxed font-light">
         CFM constructs continuous vector fields $v_\theta(t, x_t)$ pushing particles directly from source noise $p_0$ to target data distribution $p_1$ without stochastic diffusion noise schedules.
       </p>
 
@@ -277,15 +281,15 @@ const CFMSimulator = () => {
       <MathBlock formula={String.raw`dx_t = v_\theta(t, x_t)\,dt, \quad x_0 \sim p_0, \quad x_1 \sim p_1`} />
 
       {/* Interactive Controls Bar */}
-      <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+      <div className="bg-slate-900/60 border border-cyan-500/20 rounded-2xl p-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-center backdrop-blur-md">
         {/* Play/Pause & Reset */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
               isPlaying
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'
-                : 'bg-cyan-500 text-black hover:bg-cyan-400'
+                : 'bg-cyan-400 text-black hover:bg-cyan-300 shadow-[0_0_15px_rgba(0,240,255,0.4)]'
             }`}
           >
             {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
@@ -294,7 +298,7 @@ const CFMSimulator = () => {
 
           <button
             onClick={initParticles}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white text-xs font-mono transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white text-xs font-mono transition-all cursor-pointer border border-white/10"
             title="Reset Particles"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -303,10 +307,10 @@ const CFMSimulator = () => {
 
           <button
             onClick={() => setShowVectorField(!showVectorField)}
-            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono transition-all ${
+            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono transition-all cursor-pointer border ${
               showVectorField
-                ? 'bg-cyan-950/60 border border-cyan-500/30 text-cyan-400'
-                : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
+                : 'bg-slate-800/80 border-white/10 text-gray-400 hover:text-white'
             }`}
             title="Toggle Vector Field Grid"
           >
@@ -317,9 +321,9 @@ const CFMSimulator = () => {
 
         {/* Speed Slider */}
         <div className="font-mono text-xs">
-          <div className="flex justify-between text-zinc-400 mb-1">
+          <div className="flex justify-between text-gray-400 mb-1">
             <label htmlFor="flow-speed-slider">FLOW_SPEED:</label>
-            <span className="text-white font-bold">{flowSpeed.toFixed(1)}x</span>
+            <span className="text-cyan-300 font-bold">{flowSpeed.toFixed(1)}x</span>
           </div>
           <input
             id="flow-speed-slider"
@@ -329,15 +333,15 @@ const CFMSimulator = () => {
             step="0.1"
             value={flowSpeed}
             onChange={(e) => setFlowSpeed(parseFloat(e.target.value))}
-            className="w-full accent-cyan-400 bg-zinc-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+            className="w-full accent-cyan-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
           />
         </div>
 
         {/* Particle Count Slider */}
         <div className="font-mono text-xs">
-          <div className="flex justify-between text-zinc-400 mb-1">
-            <label htmlFor="particle-count-slider font-mono">PARTICLES:</label>
-            <span className="text-white font-bold">{particleCount}</span>
+          <div className="flex justify-between text-gray-400 mb-1">
+            <label htmlFor="particle-count-slider">PARTICLES:</label>
+            <span className="text-cyan-300 font-bold">{particleCount}</span>
           </div>
           <input
             id="particle-count-slider"
@@ -347,18 +351,18 @@ const CFMSimulator = () => {
             step="10"
             value={particleCount}
             onChange={(e) => setParticleCount(parseInt(e.target.value, 10))}
-            className="w-full accent-cyan-400 bg-zinc-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+            className="w-full accent-cyan-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
           />
         </div>
       </div>
 
-      {/* Responsive Canvas Container with Scaled Pointer Events */}
-      <div className="relative rounded-2xl overflow-hidden border border-zinc-800 bg-black group">
+      {/* Responsive Canvas Container */}
+      <div className="relative rounded-2xl overflow-hidden border border-cyan-500/20 bg-black group">
         <canvas
           ref={canvasRef}
           width={800}
           height={300}
-          className={`w-full h-[280px] sm:h-[320px] block touch-none transition-cursor ${
+          className={`w-full h-[280px] sm:h-[320px] block touch-none ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab'
           }`}
           onPointerDown={handlePointerDown}
@@ -368,7 +372,7 @@ const CFMSimulator = () => {
         />
 
         {/* Drag Target Tip Overlay */}
-        <div className="absolute top-3 right-3 pointer-events-none bg-zinc-900/90 backdrop-blur-md border border-zinc-800 text-zinc-400 px-3 py-1.5 rounded-xl font-mono text-[11px] flex items-center gap-1.5">
+        <div className="absolute top-3 right-3 pointer-events-none bg-slate-900/90 backdrop-blur-md border border-cyan-500/30 text-gray-300 px-3 py-1.5 rounded-xl font-mono text-[11px] flex items-center gap-1.5 shadow-lg">
           <Move className="w-3 h-3 text-cyan-400 animate-bounce" />
           <span>Click & Drag Target Node</span>
         </div>
@@ -378,4 +382,5 @@ const CFMSimulator = () => {
 };
 
 export default CFMSimulator;
+
 

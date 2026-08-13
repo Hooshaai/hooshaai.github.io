@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, RefreshCw, Sliders, BarChart2, Info } from 'lucide-react';
+import { Play, Pause, RefreshCw } from 'lucide-react';
 import { MathBlock } from '../../utils/renderMath';
 
 const GRPOSimulator = () => {
@@ -64,7 +64,7 @@ const GRPOSimulator = () => {
     let animationFrameId;
 
     const render = () => {
-      ctx.fillStyle = '#09090b';
+      ctx.fillStyle = '#030712';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const w = canvas.width;
@@ -112,8 +112,8 @@ const GRPOSimulator = () => {
         // Gradient for bar
         const gradient = ctx.createLinearGradient(x, y, x, baselineY);
         if (isAdvantageous) {
-          gradient.addColorStop(0, isHovered ? '#22d3ee' : '#06b6d4');
-          gradient.addColorStop(1, 'rgba(6, 182, 212, 0.2)');
+          gradient.addColorStop(0, isHovered ? '#00f0ff' : '#06b6d4');
+          gradient.addColorStop(1, 'rgba(0, 240, 255, 0.2)');
         } else {
           gradient.addColorStop(0, isHovered ? '#f43f5e' : '#e11d48');
           gradient.addColorStop(1, 'rgba(225, 29, 72, 0.15)');
@@ -125,9 +125,12 @@ const GRPOSimulator = () => {
         ctx.fill();
 
         if (isHovered) {
-          ctx.strokeStyle = '#ffffff';
+          ctx.strokeStyle = '#00f0ff';
           ctx.lineWidth = 2;
+          ctx.shadowColor = '#00f0ff';
+          ctx.shadowBlur = 10;
           ctx.stroke();
+          ctx.shadowBlur = 0;
         }
 
         // Draw outcome label below bar
@@ -136,7 +139,7 @@ const GRPOSimulator = () => {
         ctx.fillText(`o_${i + 1}`, x + (barWidth / 2) - 8, baselineY + 16);
 
         // Draw value top badge
-        ctx.fillStyle = isAdvantageous ? '#38bdf8' : '#fb7185';
+        ctx.fillStyle = isAdvantageous ? '#00f0ff' : '#fb7185';
         ctx.font = '10px monospace';
         ctx.fillText(netVal.toFixed(2), x + (barWidth / 2) - 12, Math.max(20, y - 6));
       });
@@ -145,12 +148,15 @@ const GRPOSimulator = () => {
       const meanY = baselineY - (Math.max(0, currentMeanAdjusted) * maxH);
       ctx.strokeStyle = '#f59e0b';
       ctx.lineWidth = 1.5;
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 8;
       ctx.setLineDash([6, 4]);
       ctx.beginPath();
       ctx.moveTo(40, meanY);
       ctx.lineTo(w - 40, meanY);
       ctx.stroke();
       ctx.setLineDash([]);
+      ctx.shadowBlur = 0;
 
       ctx.fillStyle = '#f59e0b';
       ctx.font = '11px monospace';
@@ -194,14 +200,14 @@ const GRPOSimulator = () => {
       id="grpo-lab"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-950/80 border border-zinc-800 rounded-3xl p-6 sm:p-8 hover:border-zinc-700/80 transition-all duration-300 shadow-2xl backdrop-blur-xl mb-12"
+      className="bg-slate-950/80 border border-amber-500/25 rounded-3xl p-6 sm:p-8 hover:border-amber-400/50 transition-all duration-300 shadow-[0_16px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl mb-12 relative overflow-hidden group"
     >
       {/* Header & Badges */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-amber-400 font-mono text-sm font-semibold">02 / SIMULATOR</span>
-            <span className="text-xs bg-amber-500/10 border border-amber-500/20 text-amber-300 px-2.5 py-0.5 rounded-full font-mono">
+            <span className="text-amber-400 font-mono text-xs font-semibold tracking-wider">02 / SIMULATOR</span>
+            <span className="text-xs bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2.5 py-0.5 rounded-full font-mono">
               RL Alignment
             </span>
           </div>
@@ -211,25 +217,25 @@ const GRPOSimulator = () => {
         </div>
 
         {/* Live Metrics */}
-        <div className="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 px-4 py-2 rounded-2xl font-mono text-xs text-zinc-400">
+        <div className="flex items-center gap-3 bg-slate-900/90 border border-amber-500/20 px-4 py-2 rounded-2xl font-mono text-xs text-gray-300 shadow-inner">
           <div>
-            <span className="text-zinc-500 block text-[10px]">GROUP MEAN</span>
+            <span className="text-gray-500 block text-[10px]">GROUP MEAN</span>
             <span className="text-amber-400 font-bold">{stats.mean}</span>
           </div>
-          <div className="h-6 w-px bg-zinc-800" />
+          <div className="h-6 w-px bg-amber-500/20" />
           <div>
-            <span className="text-zinc-500 block text-[10px]">STD DEV (σ)</span>
+            <span className="text-gray-500 block text-[10px]">STD DEV (σ)</span>
             <span className="text-white font-bold">{stats.std}</span>
           </div>
-          <div className="h-6 w-px bg-zinc-800" />
+          <div className="h-6 w-px bg-amber-500/20" />
           <div>
-            <span className="text-zinc-500 block text-[10px]">MAX ADV (A_i)</span>
-            <span className="text-emerald-400 font-bold">{stats.maxAdv}</span>
+            <span className="text-gray-500 block text-[10px]">MAX ADV (A_i)</span>
+            <span className="text-cyan-400 font-bold">{stats.maxAdv}</span>
           </div>
         </div>
       </div>
 
-      <p className="text-zinc-400 text-sm mb-4 leading-relaxed font-light">
+      <p className="text-gray-300 text-sm mb-4 leading-relaxed font-light">
         Group Relative Policy Optimization (GRPO) replaces critic networks by sampling a group of outputs G = &#123;o_1, ..., o_G&#125; per query, computing advantages relative to the group mean, with KL divergence penalty &beta;.
       </p>
 
@@ -237,15 +243,15 @@ const GRPOSimulator = () => {
       <MathBlock formula={String.raw`\mathcal{L}_{GRPO} = -\mathbb{E}\left[\hat{A}_i \log \pi_\theta(o_i|q)\right] + \beta\,\mathbb{KL}(\pi_\theta \| \pi_{ref})`} />
 
       {/* Controls Bar */}
-      <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 mb-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+      <div className="bg-slate-900/60 border border-amber-500/20 rounded-2xl p-4 mb-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-center backdrop-blur-md">
         {/* Play/Pause & New Rollout */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsAutoRollout(!isAutoRollout)}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
               isAutoRollout
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'
-                : 'bg-white text-black hover:bg-zinc-200'
+                : 'bg-cyan-400 text-black hover:bg-cyan-300 shadow-[0_0_12px_rgba(0,240,255,0.4)]'
             }`}
           >
             {isAutoRollout ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
@@ -254,7 +260,7 @@ const GRPOSimulator = () => {
 
           <button
             onClick={newRollout}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white text-xs font-mono transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 text-gray-300 hover:bg-slate-700 hover:text-white text-xs font-mono transition-all cursor-pointer border border-white/10"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Rollout
@@ -263,9 +269,9 @@ const GRPOSimulator = () => {
 
         {/* KL Penalty Slider */}
         <div className="font-mono text-xs">
-          <div className="flex justify-between text-zinc-400 mb-1">
+          <div className="flex justify-between text-gray-400 mb-1">
             <label htmlFor="kl-penalty-slider">KL_PENALTY (β):</label>
-            <span className="text-white font-bold">{klPenalty.toFixed(2)}</span>
+            <span className="text-amber-300 font-bold">{klPenalty.toFixed(2)}</span>
           </div>
           <input
             id="kl-penalty-slider"
@@ -275,25 +281,25 @@ const GRPOSimulator = () => {
             step="0.01"
             value={klPenalty}
             onChange={(e) => setKlPenalty(parseFloat(e.target.value))}
-            className="w-full accent-amber-400 bg-zinc-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+            className="w-full accent-amber-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
           />
         </div>
 
         {/* Group Size Selector */}
         <div className="font-mono text-xs">
-          <div className="flex justify-between text-zinc-400 mb-1">
+          <div className="flex justify-between text-gray-400 mb-1">
             <label htmlFor="group-size-select">GROUP_SIZE (G):</label>
-            <span className="text-white font-bold">{groupSize}</span>
+            <span className="text-amber-300 font-bold">{groupSize}</span>
           </div>
           <div className="flex gap-1">
             {[4, 6, 8, 12].map(g => (
               <button
                 key={g}
                 onClick={() => setGroupSize(g)}
-                className={`flex-1 py-1 rounded-lg text-xs font-mono transition-all ${
+                className={`flex-1 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
                   groupSize === g
-                    ? 'bg-amber-500 text-black font-bold'
-                    : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                    ? 'bg-amber-400 text-black font-bold shadow-[0_0_10px_rgba(245,158,11,0.4)]'
+                    : 'bg-slate-800 text-gray-400 hover:text-white'
                 }`}
               >
                 {g}
@@ -304,9 +310,9 @@ const GRPOSimulator = () => {
 
         {/* Reward Variance Slider */}
         <div className="font-mono text-xs">
-          <div className="flex justify-between text-zinc-400 mb-1">
+          <div className="flex justify-between text-gray-400 mb-1">
             <label htmlFor="reward-var-slider">NOISE_VAR:</label>
-            <span className="text-white font-bold">{rewardVariance.toFixed(1)}</span>
+            <span className="text-amber-300 font-bold">{rewardVariance.toFixed(1)}</span>
           </div>
           <input
             id="reward-var-slider"
@@ -316,13 +322,13 @@ const GRPOSimulator = () => {
             step="0.1"
             value={rewardVariance}
             onChange={(e) => setRewardVariance(parseFloat(e.target.value))}
-            className="w-full accent-amber-400 bg-zinc-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+            className="w-full accent-amber-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
           />
         </div>
       </div>
 
       {/* Canvas Display */}
-      <div className="relative rounded-2xl overflow-hidden border border-zinc-800 bg-black">
+      <div className="relative rounded-2xl overflow-hidden border border-amber-500/20 bg-black">
         <canvas
           ref={canvasRef}
           width={800}
@@ -334,11 +340,11 @@ const GRPOSimulator = () => {
 
         {/* Hover Tooltip Overlay */}
         {hoveredIndex !== null && targetRewardsRef.current[hoveredIndex] !== undefined && (
-          <div className="absolute top-4 left-4 bg-zinc-900/95 border border-zinc-700 text-white p-3 rounded-xl font-mono text-xs shadow-2xl backdrop-blur-md">
+          <div className="absolute top-4 left-4 bg-slate-900/95 border border-cyan-500/30 text-white p-3 rounded-xl font-mono text-xs shadow-2xl backdrop-blur-md">
             <div className="text-amber-400 font-bold mb-1">Outcome o_{hoveredIndex + 1}</div>
-            <div className="text-zinc-300">Raw Reward: {(targetRewardsRef.current[hoveredIndex]).toFixed(3)}</div>
-            <div className="text-zinc-400">KL Penalty: -{(klPenalty * 0.3).toFixed(3)}</div>
-            <div className="text-emerald-400 font-semibold mt-1">
+            <div className="text-gray-300">Raw Reward: {(targetRewardsRef.current[hoveredIndex]).toFixed(3)}</div>
+            <div className="text-gray-400">KL Penalty: -{(klPenalty * 0.3).toFixed(3)}</div>
+            <div className="text-cyan-400 font-semibold mt-1">
               Net Reward: {(targetRewardsRef.current[hoveredIndex] - klPenalty * 0.3).toFixed(3)}
             </div>
           </div>
@@ -349,4 +355,5 @@ const GRPOSimulator = () => {
 };
 
 export default GRPOSimulator;
+
 

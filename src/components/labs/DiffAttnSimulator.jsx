@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Sliders, Activity, Eye, EyeOff, Radio } from 'lucide-react';
+import { Play, Pause, Radio } from 'lucide-react';
 import { MathBlock } from '../../utils/renderMath';
 
 const DiffAttnSimulator = () => {
@@ -8,7 +8,7 @@ const DiffAttnSimulator = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [lambda, setLambda] = useState(1.0);
   const [noiseLevel, setNoiseLevel] = useState(1.0);
-  const [frequency, setFrequency] = useState(1.0);
+  const [frequency] = useState(1.0);
   const [snr, setSnr] = useState('0.0');
 
   const [showA1, setShowA1] = useState(true);
@@ -37,7 +37,7 @@ const DiffAttnSimulator = () => {
     let frameCount = 0;
 
     const render = () => {
-      ctx.fillStyle = '#09090b';
+      ctx.fillStyle = '#030712';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const w = canvas.width;
@@ -58,6 +58,12 @@ const DiffAttnSimulator = () => {
       const drawWave = (color, width, fn, isOutput = false) => {
         ctx.strokeStyle = color;
         ctx.lineWidth = width;
+        if (isOutput) {
+          ctx.shadowColor = '#00f0ff';
+          ctx.shadowBlur = 12;
+        } else {
+          ctx.shadowBlur = 0;
+        }
         ctx.beginPath();
 
         for (let x = 0; x < w; x++) {
@@ -76,25 +82,26 @@ const DiffAttnSimulator = () => {
           }
         }
         ctx.stroke();
+        ctx.shadowBlur = 0;
       };
 
-      // 1. Attention Head 1 (A1 - Blue)
+      // 1. Attention Head 1 (A1 - Cyan/Blue)
       if (showA1) {
-        drawWave('rgba(59, 130, 246, 0.4)', 1.5, (x, n) => {
+        drawWave('rgba(59, 130, 246, 0.5)', 1.5, (x, n) => {
           return Math.sin(x * 0.02 * frequency + timeRef.current * 0.04) * 45 + n;
         });
       }
 
       // 2. Attention Head 2 (A2 - Purple)
       if (showA2) {
-        drawWave('rgba(168, 85, 247, 0.4)', 1.5, (x, n) => {
+        drawWave('rgba(168, 85, 247, 0.5)', 1.5, (x, n) => {
           return Math.sin((x + 25) * 0.02 * frequency + timeRef.current * 0.04) * 40 + n;
         });
       }
 
       // 3. Differential Attention Output: (A1 - lambda * A2)
       if (showOut) {
-        drawWave('#ffffff', 2.5, (x, n) => {
+        drawWave('#00f0ff', 2.5, (x, n) => {
           const a1 = Math.sin(x * 0.02 * frequency + timeRef.current * 0.04) * 45 + n;
           const a2 = Math.sin((x + 25) * 0.02 * frequency + timeRef.current * 0.04) * 40 + n;
           return a1 - lambda * a2;
@@ -145,14 +152,14 @@ const DiffAttnSimulator = () => {
       id="diffattn-lab"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-950/80 border border-zinc-800 rounded-3xl p-6 sm:p-8 hover:border-zinc-700/80 transition-all duration-300 shadow-2xl backdrop-blur-xl mb-12"
+      className="bg-slate-950/80 border border-purple-500/25 rounded-3xl p-6 sm:p-8 hover:border-purple-400/50 transition-all duration-300 shadow-[0_16px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl mb-12 relative overflow-hidden group"
     >
       {/* Header & Badges */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-purple-400 font-mono text-sm font-semibold">03 / SIMULATOR</span>
-            <span className="text-xs bg-purple-500/10 border border-purple-500/20 text-purple-300 px-2.5 py-0.5 rounded-full font-mono">
+            <span className="text-purple-400 font-mono text-xs font-semibold tracking-wider">03 / SIMULATOR</span>
+            <span className="text-xs bg-purple-500/10 border border-purple-500/30 text-purple-300 px-2.5 py-0.5 rounded-full font-mono">
               Transformer Architecture
             </span>
           </div>
@@ -162,25 +169,25 @@ const DiffAttnSimulator = () => {
         </div>
 
         {/* SNR Readout Indicator */}
-        <div className="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 px-4 py-2 rounded-2xl font-mono text-xs text-zinc-400">
-          <Radio className={`w-4 h-4 ${parseFloat(snr) > 12 ? 'text-emerald-400 animate-pulse' : 'text-amber-400'}`} />
+        <div className="flex items-center gap-3 bg-slate-900/90 border border-purple-500/20 px-4 py-2 rounded-2xl font-mono text-xs text-gray-300 shadow-inner">
+          <Radio className={`w-4 h-4 ${parseFloat(snr) > 12 ? 'text-cyan-400 animate-pulse' : 'text-amber-400'}`} />
           <div>
-            <span className="text-zinc-500 block text-[10px]">LIVE SNR</span>
-            <span className={`font-bold ${parseFloat(snr) > 12 ? 'text-emerald-400' : 'text-amber-400'}`}>
+            <span className="text-gray-500 block text-[10px]">LIVE SNR</span>
+            <span className={`font-bold ${parseFloat(snr) > 12 ? 'text-cyan-400' : 'text-amber-400'}`}>
               {snr} dB
             </span>
           </div>
-          <div className="h-6 w-px bg-zinc-800" />
+          <div className="h-6 w-px bg-purple-500/20" />
           <div>
-            <span className="text-zinc-500 block text-[10px]">NOISE CANCELLATION</span>
-            <span className="text-purple-400 font-bold">
+            <span className="text-gray-500 block text-[10px]">NOISE CANCELLATION</span>
+            <span className="text-purple-300 font-bold">
               {Math.min(100, Math.max(0, Math.round((1 - Math.abs(1 - lambda)) * 100)))}%
             </span>
           </div>
         </div>
       </div>
 
-      <p className="text-zinc-400 text-sm mb-4 leading-relaxed font-light">
+      <p className="text-gray-300 text-sm mb-4 leading-relaxed font-light">
         Differential Attention subtracts two separate attention maps $A_1 - \lambda A_2$ to cancel common-mode noise, enhancing signal-to-noise ratio (SNR) and key information retrieval in long context LLMs.
       </p>
 
@@ -188,15 +195,15 @@ const DiffAttnSimulator = () => {
       <MathBlock formula={String.raw`\text{DiffAttn}(Q,K,V) = (A_1 - \lambda A_2)\,V, \quad \lambda \in [0, 2]`} />
 
       {/* Controls Bar */}
-      <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 mb-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+      <div className="bg-slate-900/60 border border-purple-500/20 rounded-2xl p-4 mb-4 grid grid-cols-1 md:grid-cols-4 gap-4 items-center backdrop-blur-md">
         {/* Play/Pause Button */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all ${
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
               isPlaying
                 ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30'
-                : 'bg-white text-black hover:bg-zinc-200'
+                : 'bg-cyan-400 text-black hover:bg-cyan-300 shadow-[0_0_12px_rgba(0,240,255,0.4)]'
             }`}
           >
             {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
@@ -206,9 +213,9 @@ const DiffAttnSimulator = () => {
 
         {/* Lambda Slider */}
         <div className="font-mono text-xs">
-          <div className="flex justify-between text-zinc-400 mb-1">
+          <div className="flex justify-between text-gray-400 mb-1">
             <label htmlFor="lambda-slider">LAMBDA (λ):</label>
-            <span className="text-white font-bold">{lambda.toFixed(2)}</span>
+            <span className="text-cyan-300 font-bold">{lambda.toFixed(2)}</span>
           </div>
           <input
             id="lambda-slider"
@@ -218,15 +225,15 @@ const DiffAttnSimulator = () => {
             step="0.05"
             value={lambda}
             onChange={(e) => setLambda(parseFloat(e.target.value))}
-            className="w-full accent-purple-400 bg-zinc-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+            className="w-full accent-cyan-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
           />
         </div>
 
         {/* Noise Level Slider */}
         <div className="font-mono text-xs">
-          <div className="flex justify-between text-zinc-400 mb-1">
+          <div className="flex justify-between text-gray-400 mb-1">
             <label htmlFor="noise-level-slider">NOISE_AMP:</label>
-            <span className="text-white font-bold">{noiseLevel.toFixed(1)}</span>
+            <span className="text-purple-300 font-bold">{noiseLevel.toFixed(1)}</span>
           </div>
           <input
             id="noise-level-slider"
@@ -236,7 +243,7 @@ const DiffAttnSimulator = () => {
             step="0.1"
             value={noiseLevel}
             onChange={(e) => setNoiseLevel(parseFloat(e.target.value))}
-            className="w-full accent-purple-400 bg-zinc-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+            className="w-full accent-purple-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
           />
         </div>
 
@@ -244,10 +251,10 @@ const DiffAttnSimulator = () => {
         <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={() => setShowA1(!showA1)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border ${
+            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border cursor-pointer ${
               showA1
                 ? 'bg-blue-500/20 border-blue-500/40 text-blue-400'
-                : 'bg-zinc-800/50 border-zinc-700 text-zinc-500 line-through'
+                : 'bg-slate-800/50 border-gray-700 text-gray-500 line-through'
             }`}
           >
             ■ A₁
@@ -255,10 +262,10 @@ const DiffAttnSimulator = () => {
 
           <button
             onClick={() => setShowA2(!showA2)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border ${
+            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border cursor-pointer ${
               showA2
-                ? 'bg-purple-500/20 border-purple-500/40 text-purple-400'
-                : 'bg-zinc-800/50 border-zinc-700 text-zinc-500 line-through'
+                ? 'bg-purple-500/20 border-purple-500/40 text-purple-300'
+                : 'bg-slate-800/50 border-gray-700 text-gray-500 line-through'
             }`}
           >
             ■ A₂
@@ -266,19 +273,19 @@ const DiffAttnSimulator = () => {
 
           <button
             onClick={() => setShowOut(!showOut)}
-            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border ${
+            className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all border cursor-pointer ${
               showOut
-                ? 'bg-white/20 border-white/40 text-white font-semibold'
-                : 'bg-zinc-800/50 border-zinc-700 text-zinc-500 line-through'
+                ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-300 font-bold shadow-[0_0_10px_rgba(0,240,255,0.2)]'
+                : 'bg-slate-800/50 border-gray-700 text-gray-500 line-through'
             }`}
           >
-            ■ OUT
+            ■ OUT (Diff)
           </button>
         </div>
       </div>
 
       {/* Canvas Display */}
-      <div className="relative rounded-2xl overflow-hidden border border-zinc-800 bg-black">
+      <div className="relative rounded-2xl overflow-hidden border border-purple-500/20 bg-black">
         <canvas
           ref={canvasRef}
           width={800}
@@ -290,11 +297,11 @@ const DiffAttnSimulator = () => {
 
         {/* Probe Hover Data Overlay */}
         {probeData && (
-          <div className="absolute top-4 right-4 bg-zinc-900/90 border border-zinc-700 p-3 rounded-xl font-mono text-xs text-white backdrop-blur-md shadow-xl">
-            <div className="text-zinc-400 text-[10px] mb-1">PROBE POSITION x={probeData.x}px</div>
+          <div className="absolute top-4 right-4 bg-slate-900/95 border border-cyan-500/30 p-3 rounded-xl font-mono text-xs text-white backdrop-blur-md shadow-xl">
+            <div className="text-gray-400 text-[10px] mb-1">PROBE POSITION x={probeData.x}px</div>
             <div className="text-blue-400">A₁ Signal: {probeData.a1}</div>
-            <div className="text-purple-400">A₂ Signal: {probeData.a2}</div>
-            <div className="text-white font-bold border-t border-zinc-800 pt-1 mt-1">
+            <div className="text-purple-300">A₂ Signal: {probeData.a2}</div>
+            <div className="text-cyan-400 font-bold border-t border-white/10 pt-1 mt-1">
               Out (A₁ - λA₂): {probeData.diff}
             </div>
           </div>
@@ -305,4 +312,5 @@ const DiffAttnSimulator = () => {
 };
 
 export default DiffAttnSimulator;
+
 

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Code2, Terminal, Play, Copy, Trash2, Cpu, FileCode, Sliders, Check, Loader2 } from 'lucide-react';
 import { apiFetch } from '../../utils/api';
 
 const CODE_PRESETS = {
@@ -103,10 +104,10 @@ const CudaPlayground = () => {
   const [compilerOutput, setCompilerOutput] = useState('user@h100-sigma:~$ nvcc --version\nnvcc: NVIDIA (R) Cuda compiler driver v12.4');
   const [compiling, setCompiling] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   const terminalEndRef = useRef(null);
 
-  // Auto scroll terminal to bottom on content update
   useEffect(() => {
     if (autoScroll && terminalEndRef.current) {
       terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -154,7 +155,6 @@ const CudaPlayground = () => {
       console.warn('CUDA compiler API offline, using local simulation fallback', err);
     }
 
-    // Realistic multi-stage simulated compile output
     setTimeout(() => {
       setCompilerOutput(prev => prev + '\nptxas info    : 0 bytes gmem, 49152 bytes smem\nptxas info    : Compiling entry function \'flash_attn_v3_hopper\' for \'' + targetArch + '\'');
     }, 600);
@@ -175,17 +175,24 @@ const CudaPlayground = () => {
 
   const handleCopyTerminal = () => {
     navigator.clipboard.writeText(compilerOutput);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 md:p-8 flex flex-col h-full group hover:border-zinc-700 transition-colors shadow-2xl font-mono">
-      {/* Component Title & Controls */}
+    <div className="bg-zinc-950/80 backdrop-blur-xl border border-cyan-500/20 rounded-3xl p-6 md:p-8 flex flex-col h-full hover:border-cyan-500/30 transition-colors shadow-[0_0_40px_rgba(0,0,0,0.8)] font-mono">
+      {/* Title Header & Selectors */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-2">
-            <i className="fas fa-code text-zinc-300 text-lg"></i> CUDA / Triton JIT Workbench
-          </h2>
-          <p className="text-xs text-zinc-400 mt-0.5">High-performance GPU kernel JIT compilation & PTX profiler</p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-cyan-950/50 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+            <Code2 className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-xl md:text-2xl font-bold font-['Space_Grotesk'] text-white tracking-tight flex items-center gap-2">
+              CUDA / Triton Workbench
+            </h2>
+            <p className="text-xs text-zinc-400 mt-0.5">High-performance GPU kernel JIT compilation & PTX profiler</p>
+          </div>
         </div>
 
         {/* Arch & Preset Selectors */}
@@ -193,7 +200,7 @@ const CudaPlayground = () => {
           <select
             value={targetArch}
             onChange={(e) => setTargetArch(e.target.value)}
-            className="bg-zinc-900 text-zinc-200 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-zinc-500"
+            className="bg-zinc-900/90 text-zinc-200 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-cyan-500"
           >
             <option value="sm_90">H100 Hopper (sm_90)</option>
             <option value="sm_80">A100 Ampere (sm_80)</option>
@@ -204,7 +211,7 @@ const CudaPlayground = () => {
           <select
             onChange={(e) => handlePresetSelect(e.target.value)}
             defaultValue=""
-            className="bg-zinc-900 text-zinc-200 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-zinc-500"
+            className="bg-zinc-900/90 text-zinc-200 border border-zinc-700 rounded-xl px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-cyan-500"
           >
             <option value="" disabled>Load Snippet...</option>
             <option value="cuda_flash_attn">FlashAttention-3 (CUDA)</option>
@@ -216,58 +223,57 @@ const CudaPlayground = () => {
       </div>
 
       {/* Main Workbench Container */}
-      <div className="bg-black border border-zinc-800 rounded-2xl overflow-hidden font-mono text-sm flex-1 flex flex-col shadow-inner">
+      <div className="bg-black/90 border border-zinc-800/90 rounded-2xl overflow-hidden font-mono text-sm flex-1 flex flex-col shadow-inner">
         {/* Mode Tabs Header */}
-        <div className="bg-zinc-900/90 px-4 py-3 flex flex-wrap justify-between items-center text-zinc-300 border-b border-zinc-800 gap-3">
-          {/* Tabs */}
+        <div className="bg-zinc-900/90 backdrop-blur-md px-4 py-3 flex flex-wrap justify-between items-center text-zinc-300 border-b border-zinc-800 gap-3">
           <div className="flex items-center gap-1.5 overflow-x-auto">
             <button
               onClick={() => handleModeSwitch('cuda')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase flex items-center gap-2 ${
-                activeMode === 'cuda' ? 'bg-zinc-800 text-white border border-zinc-600' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all uppercase flex items-center gap-2 ${
+                activeMode === 'cuda' ? 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 shadow-[0_0_10px_rgba(0,240,255,0.2)]' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <i className="fas fa-file-code text-emerald-400 text-xs"></i> kernel.cu
+              <FileCode className="w-3.5 h-3.5 text-cyan-400" /> kernel.cu
             </button>
             <button
               onClick={() => handleModeSwitch('triton')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase flex items-center gap-2 ${
-                activeMode === 'triton' ? 'bg-zinc-800 text-white border border-zinc-600' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all uppercase flex items-center gap-2 ${
+                activeMode === 'triton' ? 'bg-amber-950/80 text-amber-300 border border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <i className="fab fa-python text-amber-400 text-xs"></i> kernel_triton.py
+              <Code2 className="w-3.5 h-3.5 text-amber-400" /> kernel_triton.py
             </button>
             <button
               onClick={() => handleModeSwitch('ptx')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase flex items-center gap-2 ${
-                activeMode === 'ptx' ? 'bg-zinc-800 text-white border border-zinc-600' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all uppercase flex items-center gap-2 ${
+                activeMode === 'ptx' ? 'bg-blue-950/80 text-blue-300 border border-blue-500/40' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <i className="fas fa-microchip text-blue-400 text-xs"></i> kernel.ptx
+              <Cpu className="w-3.5 h-3.5 text-blue-400" /> kernel.ptx
             </button>
             <button
               onClick={() => handleModeSwitch('ncu')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all uppercase flex items-center gap-2 ${
-                activeMode === 'ncu' ? 'bg-zinc-800 text-white border border-zinc-600' : 'text-zinc-400 hover:text-zinc-200'
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all uppercase flex items-center gap-2 ${
+                activeMode === 'ncu' ? 'bg-purple-950/80 text-purple-300 border border-purple-500/40' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              <i className="fas fa-tachometer-alt text-purple-400 text-xs"></i> NCU Profile
+              <Sliders className="w-3.5 h-3.5 text-purple-400" /> NCU Profile
             </button>
           </div>
 
-          {/* Action Button */}
+          {/* Action Button with Electric Cyan accent */}
           <button
             onClick={handleCompile}
             disabled={compiling}
-            className="bg-white hover:bg-zinc-200 text-black px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all disabled:opacity-50 flex items-center gap-2 shadow-md shrink-0"
+            className="bg-cyan-500 hover:bg-cyan-400 text-black px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all disabled:opacity-50 flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,255,0.4)] shrink-0"
           >
             {compiling ? (
               <>
-                <i className="fas fa-spinner fa-spin"></i> JIT Compiling...
+                <Loader2 className="w-4 h-4 animate-spin text-black" /> Compiling...
               </>
             ) : (
               <>
-                <i className="fas fa-play text-xs"></i> Compile & JIT
+                <Play className="w-3.5 h-3.5 fill-black" /> Compile & JIT
               </>
             )}
           </button>
@@ -280,16 +286,15 @@ const CudaPlayground = () => {
           aria-label="CUDA / Triton Code Editor"
           value={codeContent}
           onChange={(e) => setCodeContent(e.target.value)}
-          className="w-full h-64 bg-zinc-950/80 p-4 text-zinc-200 focus:outline-none resize-none leading-relaxed tracking-wide text-xs border-b border-zinc-800 font-mono"
+          className="w-full h-64 bg-zinc-950/90 p-4 text-cyan-100 focus:outline-none resize-none leading-relaxed tracking-wide text-xs border-b border-zinc-800 font-mono focus:border-cyan-500/50 selection:bg-cyan-500/30"
           spellCheck="false"
         />
 
         {/* Terminal Header & Log View */}
-        <div className="bg-black p-4 flex-1 flex flex-col min-h-[220px]">
-          {/* Terminal Toolbar */}
-          <div className="text-xs text-zinc-400 mb-2 font-bold flex justify-between items-center pb-2 border-b border-zinc-800">
-            <div className="flex items-center gap-2">
-              <i className="fas fa-terminal text-zinc-400 text-xs"></i> NVCC Compiler Output ({targetArch})
+        <div className="bg-black/95 p-4 flex-1 flex flex-col min-h-[220px]">
+          <div className="text-xs text-zinc-400 mb-2 font-bold flex justify-between items-center pb-2 border-b border-zinc-800/80">
+            <div className="flex items-center gap-2 text-cyan-300">
+              <Terminal className="w-4 h-4 text-cyan-400" /> NVCC Compiler Output ({targetArch})
             </div>
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-1.5 text-[10px] text-zinc-400 cursor-pointer select-none">
@@ -297,30 +302,29 @@ const CudaPlayground = () => {
                   type="checkbox"
                   checked={autoScroll}
                   onChange={(e) => setAutoScroll(e.target.checked)}
-                  className="rounded border-zinc-700 bg-zinc-900 text-white focus:ring-0"
+                  className="rounded border-zinc-700 bg-zinc-900 text-cyan-400 focus:ring-0"
                 />
                 Auto-scroll
               </label>
               <button
                 onClick={handleCopyTerminal}
-                className="hover:text-white transition-colors p-1"
+                className="text-zinc-400 hover:text-cyan-300 transition-colors p-1"
                 title="Copy Terminal Text"
               >
-                <i className="fas fa-copy text-xs"></i>
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
               </button>
               <button
                 onClick={handleClearTerminal}
-                className="hover:text-white transition-colors p-1"
+                className="text-zinc-400 hover:text-rose-400 transition-colors p-1"
                 title="Clear Output"
               >
-                <i className="fas fa-trash-alt text-xs"></i>
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
-          {/* Terminal Output scroll container */}
           <div className="h-44 overflow-y-auto font-mono text-xs text-zinc-300 leading-relaxed space-y-1 pr-2">
-            <pre className="whitespace-pre-wrap font-mono">{compilerOutput}</pre>
+            <pre className="whitespace-pre-wrap font-mono text-cyan-200/90">{compilerOutput}</pre>
             <div ref={terminalEndRef} />
           </div>
         </div>

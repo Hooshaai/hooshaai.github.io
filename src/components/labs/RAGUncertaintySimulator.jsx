@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Database, ShieldAlert, Sparkles, Sliders, Trash2, Info, Terminal } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Database, Sparkles, Terminal } from 'lucide-react';
 import { MathBlock } from '../../utils/renderMath';
 
 // Preset prompts demonstration
@@ -91,7 +91,7 @@ const RAGUncertaintySimulator = () => {
 
     const w = canvas.width;
     const h = canvas.height;
-    ctx.fillStyle = '#09090b';
+    ctx.fillStyle = '#030712';
     ctx.fillRect(0, 0, w, h);
 
     if (entropyData.length === 0) return;
@@ -129,7 +129,7 @@ const RAGUncertaintySimulator = () => {
       ctx.fill();
 
       // Token text preview underneath
-      ctx.fillStyle = '#71717a';
+      ctx.fillStyle = '#9ca3af';
       ctx.font = '9px monospace';
       const label = d.word.length > 5 ? d.word.slice(0, 4) + '…' : d.word;
       ctx.fillText(label, x, h - 14);
@@ -141,14 +141,14 @@ const RAGUncertaintySimulator = () => {
       id="rag-lab"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-950/80 border border-zinc-800 rounded-3xl p-6 sm:p-8 hover:border-zinc-700/80 transition-all duration-300 shadow-2xl backdrop-blur-xl mb-12"
+      className="bg-slate-950/80 border border-emerald-500/25 rounded-3xl p-6 sm:p-8 hover:border-emerald-400/50 transition-all duration-300 shadow-[0_16px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl mb-12 relative overflow-hidden group"
     >
       {/* Header & Badges */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-emerald-400 font-mono text-sm font-semibold">04 / SIMULATOR</span>
-            <span className="text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-mono">
+            <span className="text-emerald-400 font-mono text-xs font-semibold tracking-wider">04 / SIMULATOR</span>
+            <span className="text-xs bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-2.5 py-0.5 rounded-full font-mono">
               Epistemic Uncertainty & RAG
             </span>
           </div>
@@ -158,20 +158,20 @@ const RAGUncertaintySimulator = () => {
         </div>
 
         {/* Live Status Badge */}
-        <div className="flex items-center gap-3 bg-zinc-900/80 border border-zinc-800 px-4 py-2 rounded-2xl font-mono text-xs text-zinc-400">
+        <div className="flex items-center gap-3 bg-slate-900/90 border border-emerald-500/20 px-4 py-2 rounded-2xl font-mono text-xs text-gray-300 shadow-inner">
           <div>
-            <span className="text-zinc-500 block text-[10px]">AVG CONFIDENCE</span>
+            <span className="text-gray-500 block text-[10px]">AVG CONFIDENCE</span>
             <span className="text-emerald-400 font-bold">{stats.conf}%</span>
           </div>
-          <div className="h-6 w-px bg-zinc-800" />
+          <div className="h-6 w-px bg-emerald-500/20" />
           <div>
-            <span className="text-zinc-500 block text-[10px]">MEAN ENTROPY (H)</span>
-            <span className="text-white font-bold">{stats.meanEnt}</span>
+            <span className="text-gray-500 block text-[10px]">MEAN ENTROPY (H)</span>
+            <span className="text-cyan-300 font-bold">{stats.meanEnt}</span>
           </div>
         </div>
       </div>
 
-      <p className="text-zinc-400 text-sm mb-4 leading-relaxed font-light">
+      <p className="text-gray-300 text-sm mb-4 leading-relaxed font-light">
         Epistemic uncertainty calculates token entropy H(X). When average token entropy exceeds threshold &tau;, the system halts parametric generation and triggers external Knowledge Base RAG retrieval.
       </p>
 
@@ -179,10 +179,10 @@ const RAGUncertaintySimulator = () => {
       <MathBlock formula={String.raw`\mathcal{H}(X) = -\sum_i p_i \log p_i, \quad \text{RAG Gate Trigger: } \mathbb{1}[\mathcal{H} > \tau]`} />
 
       {/* Presets & Controls */}
-      <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-2xl p-4 mb-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="bg-slate-900/60 border border-emerald-500/20 rounded-2xl p-4 mb-4 flex flex-col md:flex-row gap-4 items-center justify-between backdrop-blur-md">
         {/* Preset Prompt Buttons */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs font-mono text-zinc-500 mr-1">PRESETS:</span>
+          <span className="text-xs font-mono text-gray-400 mr-1">PRESETS:</span>
           {PRESETS.map((p, idx) => (
             <button
               key={idx}
@@ -190,7 +190,7 @@ const RAGUncertaintySimulator = () => {
                 setPrompt(p.text);
                 setSelectedTokenIndex(null);
               }}
-              className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-mono transition-all"
+              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-cyan-500/20 text-gray-300 hover:text-cyan-300 border border-white/10 hover:border-cyan-500/30 text-xs font-mono transition-all cursor-pointer"
             >
               {p.label}
             </button>
@@ -199,9 +199,9 @@ const RAGUncertaintySimulator = () => {
 
         {/* Threshold Slider */}
         <div className="font-mono text-xs w-full md:w-64">
-          <div className="flex justify-between text-zinc-400 mb-1">
+          <div className="flex justify-between text-gray-400 mb-1">
             <label htmlFor="threshold-slider">THRESHOLD (τ):</label>
-            <span className="text-white font-bold">{threshold.toFixed(2)}</span>
+            <span className="text-emerald-300 font-bold">{threshold.toFixed(2)}</span>
           </div>
           <input
             id="threshold-slider"
@@ -211,7 +211,7 @@ const RAGUncertaintySimulator = () => {
             step="0.05"
             value={threshold}
             onChange={(e) => setThreshold(parseFloat(e.target.value))}
-            className="w-full accent-emerald-400 bg-zinc-800 h-1.5 rounded-lg appearance-none cursor-pointer"
+            className="w-full accent-emerald-400 bg-slate-800 h-1.5 rounded-lg appearance-none cursor-pointer"
           />
         </div>
       </div>
@@ -224,21 +224,21 @@ const RAGUncertaintySimulator = () => {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Type or paste any query prompt..."
-          className="w-full h-24 bg-black border border-zinc-800 rounded-2xl p-4 text-white font-sans text-sm sm:text-base focus:outline-none focus:border-zinc-600 transition-all resize-none"
+          className="w-full h-24 bg-black/90 border border-emerald-500/20 rounded-2xl p-4 text-white font-sans text-sm sm:text-base focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all resize-none shadow-inner"
         />
 
         {stats.trig ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute top-3 right-3 bg-red-500 text-white font-mono text-xs px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-lg animate-pulse"
+            className="absolute top-3 right-3 bg-red-500/90 text-white font-mono text-xs px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-[0_0_15px_rgba(239,68,68,0.5)] animate-pulse"
           >
             <Database className="w-3.5 h-3.5" />
             RAG RETRIEVAL TRIGGERED
           </motion.div>
         ) : (
-          <div className="absolute top-3 right-3 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-mono text-xs px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="absolute top-3 right-3 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono text-xs px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1.5 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
             Parametric Response Active
           </div>
         )}
@@ -246,7 +246,7 @@ const RAGUncertaintySimulator = () => {
 
       {/* Token Entropy Heatmap Spectrum */}
       <div className="mb-4">
-        <div className="text-xs font-mono text-zinc-400 mb-2 flex items-center justify-between">
+        <div className="text-xs font-mono text-gray-400 mb-2 flex items-center justify-between">
           <span>TOKEN ENTROPY HEATMAP (Click Token for Details):</span>
           <div className="flex gap-3 text-[10px]">
             <span className="text-emerald-400">■ Low Entropy (&lt;0.4)</span>
@@ -255,7 +255,7 @@ const RAGUncertaintySimulator = () => {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 p-4 rounded-2xl bg-black border border-zinc-800 min-h-[90px]">
+        <div className="flex flex-wrap gap-1.5 p-4 rounded-2xl bg-black/90 border border-emerald-500/20 min-h-[90px]">
           {entropyData.map((d, i) => {
             const isExceeded = d.ent > threshold;
             const isSelected = selectedTokenIndex === i;
@@ -269,8 +269,8 @@ const RAGUncertaintySimulator = () => {
               <button
                 key={i}
                 onClick={() => setSelectedTokenIndex(isSelected ? null : i)}
-                className={`flex flex-col items-center border rounded-xl px-2.5 py-1.5 text-xs font-mono transition-all ${badgeColor} ${
-                  isSelected ? 'ring-2 ring-white scale-105' : 'hover:scale-102'
+                className={`flex flex-col items-center border rounded-xl px-2.5 py-1.5 text-xs font-mono transition-all cursor-pointer ${badgeColor} ${
+                  isSelected ? 'ring-2 ring-cyan-400 scale-105 shadow-[0_0_10px_rgba(0,240,255,0.4)]' : 'hover:scale-102'
                 }`}
               >
                 <span className="font-medium text-white">{d.word}</span>
@@ -283,19 +283,19 @@ const RAGUncertaintySimulator = () => {
 
       {/* Selected Token Detail Modal/Panel */}
       {selectedTokenIndex !== null && entropyData[selectedTokenIndex] && (
-        <div className="mb-4 bg-zinc-900 border border-zinc-700 p-4 rounded-2xl font-mono text-xs text-white">
+        <div className="mb-4 bg-slate-900 border border-cyan-500/30 p-4 rounded-2xl font-mono text-xs text-white shadow-xl">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-emerald-400 font-bold">
+            <span className="text-cyan-300 font-bold">
               Token Detail: "{entropyData[selectedTokenIndex].word}"
             </span>
             <button
               onClick={() => setSelectedTokenIndex(null)}
-              className="text-zinc-500 hover:text-white"
+              className="text-gray-400 hover:text-white cursor-pointer"
             >
               ✕
             </button>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-zinc-300">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-gray-300">
             <div>Entropy H: <span className="text-white font-bold">{entropyData[selectedTokenIndex].ent.toFixed(3)}</span></div>
             <div>Confidence: <span className="text-emerald-400 font-bold">{entropyData[selectedTokenIndex].conf.toFixed(1)}%</span></div>
             <div>Status: <span className={entropyData[selectedTokenIndex].ent > threshold ? 'text-red-400 font-bold' : 'text-emerald-400 font-bold'}>
@@ -306,27 +306,27 @@ const RAGUncertaintySimulator = () => {
       )}
 
       {/* Canvas Spectrum Chart */}
-      <div className="relative rounded-2xl overflow-hidden border border-zinc-800 bg-black mb-4">
+      <div className="relative rounded-2xl overflow-hidden border border-emerald-500/20 bg-black mb-4">
         <canvas ref={canvasRef} width={800} height={120} className="w-full h-[120px] block" />
       </div>
 
       {/* RAG Event Log Stream */}
-      <div className="bg-black/80 border border-zinc-800/80 rounded-2xl p-3 font-mono text-xs text-zinc-500 h-24 overflow-y-auto">
-        <div className="flex justify-between items-center text-zinc-400 mb-1 border-b border-zinc-800/60 pb-1">
-          <span className="flex items-center gap-1.5 text-[10px]">
-            <Terminal className="w-3 h-3 text-emerald-400" /> SYSTEM AUDIT LOG
+      <div className="bg-black/90 border border-emerald-500/20 rounded-2xl p-4 font-mono text-xs text-emerald-400/80 h-28 overflow-y-auto shadow-inner">
+        <div className="flex justify-between items-center text-gray-400 mb-2 border-b border-white/10 pb-1.5">
+          <span className="flex items-center gap-1.5 text-[10px] text-cyan-300 font-bold tracking-wider">
+            <Terminal className="w-3.5 h-3.5 text-cyan-400" /> SYSTEM AUDIT LOG
           </span>
           {logs.length > 0 && (
-            <button onClick={() => setLogs([])} className="text-zinc-500 hover:text-white text-[10px]">
-              Clear
+            <button onClick={() => setLogs([])} className="text-gray-500 hover:text-white text-[10px] cursor-pointer">
+              Clear Log
             </button>
           )}
         </div>
         {logs.length === 0 ? (
-          <div className="text-zinc-600 text-center py-3">No RAG retrieval triggers logged yet.</div>
+          <div className="text-gray-600 text-center py-3 font-mono">No RAG retrieval triggers logged yet.</div>
         ) : (
           logs.map((log, i) => (
-            <div key={i} className="text-zinc-400 leading-tight py-0.5">
+            <div key={i} className="text-emerald-400 leading-relaxed py-0.5 font-mono">
               &gt; {log}
             </div>
           ))
@@ -337,4 +337,5 @@ const RAGUncertaintySimulator = () => {
 };
 
 export default RAGUncertaintySimulator;
+
 
