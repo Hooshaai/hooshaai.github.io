@@ -88,20 +88,20 @@ const Ecosystem = () => {
     switch (status) {
       case 'Active':
       case 'Core':
-        return 'text-cyan-400 bg-cyan-950/60 border-cyan-500/30';
+        return 'text-cyan-300 bg-cyan-950/70 border-cyan-500/40 shadow-[0_0_10px_rgba(0,240,255,0.15)]';
       case 'Optimized':
-        return 'text-emerald-400 bg-emerald-950/60 border-emerald-500/30';
+        return 'text-emerald-300 bg-emerald-950/70 border-emerald-500/40 shadow-[0_0_10px_rgba(52,211,153,0.15)]';
       case 'Partner':
-        return 'text-blue-400 bg-blue-950/60 border-blue-500/30';
+        return 'text-blue-300 bg-blue-950/70 border-blue-500/40 shadow-[0_0_10px_rgba(59,130,246,0.15)]';
       case 'Publications':
-        return 'text-amber-400 bg-amber-950/60 border-amber-500/30';
+        return 'text-amber-300 bg-amber-950/70 border-amber-500/40 shadow-[0_0_10px_rgba(245,158,11,0.15)]';
       default:
-        return 'text-purple-400 bg-purple-950/60 border-purple-500/30';
+        return 'text-purple-300 bg-purple-950/70 border-purple-500/40 shadow-[0_0_10px_rgba(168,85,247,0.15)]';
     }
   };
 
   return (
-    <div className="ecosystem-page pt-32 px-4 max-w-7xl mx-auto mb-20 relative z-10">
+    <div className="ecosystem-page pt-32 px-4 max-w-7xl mx-auto mb-20 relative z-10 font-sans">
       <SEO 
         title="Tech Ecosystem"
         description="Explore the compute infrastructure, custom CUDA/Triton kernels, framework integrations, and academic HPC partnerships powering Hoosha AI."
@@ -111,7 +111,7 @@ const Ecosystem = () => {
       {/* Ambient Background Blur */}
       <div 
         aria-hidden="true" 
-        className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[150px] pointer-events-none -z-10" 
+        className="absolute top-20 left-1/2 -translate-x-1/2 w-[650px] h-[650px] bg-cyan-500/10 rounded-full blur-[160px] pointer-events-none -z-10 animate-pulse" 
       />
 
       {/* Page Header */}
@@ -120,9 +120,9 @@ const Ecosystem = () => {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-950/40 border border-cyan-500/30 text-xs font-mono text-cyan-300 mb-6 shadow-[0_0_20px_rgba(0,240,255,0.15)] backdrop-blur-md"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-950/50 border border-cyan-500/30 text-xs font-mono text-cyan-300 mb-6 shadow-[0_0_25px_rgba(0,240,255,0.15)] backdrop-blur-md"
         >
-          <i className="fas fa-network-wired text-cyan-400" aria-hidden="true"></i>
+          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
           <span>Open Research Ecosystem</span>
         </motion.div>
         
@@ -132,14 +132,14 @@ const Ecosystem = () => {
           transition={{ duration: 0.5, delay: 0.05 }}
           className="text-4xl md:text-6xl lg:text-7xl font-bold font-['Space_Grotesk'] mb-6 tracking-tight text-white"
         >
-          Tech <span className="bg-gradient-to-r from-cyan-400 via-cyan-200 to-white bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(0,240,255,0.3)]">Ecosystem</span>
+          Tech <span className="bg-gradient-to-r from-cyan-400 via-cyan-200 to-white bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(0,240,255,0.35)]">Ecosystem</span>
         </motion.h1>
         
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-gray-300 max-w-2xl mx-auto text-base md:text-lg leading-relaxed font-light"
+          className="text-slate-300 max-w-2xl mx-auto text-base md:text-lg leading-relaxed font-light"
         >
           The compute infrastructure, custom kernels, frameworks, and academic partnerships powering Hoosha AI's research platform.
         </motion.p>
@@ -150,7 +150,7 @@ const Ecosystem = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.15 }}
-        className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 bg-gray-950/70 p-4 md:p-6 rounded-3xl border border-gray-800/90 backdrop-blur-xl shadow-2xl"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 bg-slate-950/80 p-4 md:p-6 rounded-3xl border border-slate-800 backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.8)]"
       >
         {/* Category Tabs */}
         <div role="tablist" aria-label="Ecosystem Category Filter" className="flex flex-wrap gap-2">
@@ -165,22 +165,22 @@ const Ecosystem = () => {
                   setActiveTab(tab);
                   setSelectedLayer(null);
                 }}
-                className={`relative px-5 py-2.5 rounded-full text-xs font-mono tracking-wider transition-colors duration-200 flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
+                className={`relative px-5 py-2.5 rounded-full text-xs font-mono tracking-wider transition-all duration-200 flex items-center gap-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
                   isSelected
-                    ? 'text-black font-bold' 
-                    : 'text-gray-400 hover:text-white font-medium hover:bg-gray-900/60'
+                    ? 'text-slate-950 font-bold' 
+                    : 'text-slate-400 hover:text-white font-medium hover:bg-slate-900/80'
                 }`}
               >
                 {isSelected && (
                   <motion.div
                     layoutId="ecosystemActiveTab"
-                    className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-cyan-300 to-white rounded-full -z-10 shadow-[0_0_20px_rgba(0,240,255,0.4)]"
+                    className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-cyan-300 to-white rounded-full -z-10 shadow-[0_0_25px_rgba(0,240,255,0.4)]"
                     transition={{ type: 'spring', stiffness: 450, damping: 32 }}
                   />
                 )}
                 <span className="relative z-10">{tab}</span>
                 <span className={`relative z-10 px-2 py-0.5 rounded-full text-[10px] font-mono transition-colors ${
-                  isSelected ? 'bg-black/15 text-black font-bold border border-black/20' : 'bg-gray-900 text-cyan-400 border border-cyan-500/20'
+                  isSelected ? 'bg-black/20 text-black font-bold border border-black/20' : 'bg-slate-900 text-cyan-400 border border-cyan-500/20'
                 }`}>
                   {tabCounts[tab] || 0}
                 </span>
@@ -192,20 +192,20 @@ const Ecosystem = () => {
         {/* Search Input */}
         <div className="relative w-full md:w-72 group">
           <label htmlFor="ecosystem-search-input" className="sr-only">Search tech stack and tools</label>
-          <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-cyan-400 text-xs transition-colors" aria-hidden="true"></i>
+          <i className="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-cyan-400 text-xs transition-colors" aria-hidden="true"></i>
           <input 
             id="ecosystem-search-input"
             type="text"
             placeholder="Search stack & tools..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-gray-900/80 border border-gray-800 rounded-xl pl-9 pr-8 py-2.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all shadow-inner"
+            className="w-full bg-slate-900/90 border border-slate-800 rounded-xl pl-9 pr-8 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all shadow-inner"
           />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
               aria-label="Clear search query"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none rounded"
             >
               <i className="fas fa-times" aria-hidden="true"></i>
             </button>
@@ -241,15 +241,15 @@ const Ecosystem = () => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-gray-950/60 border border-gray-800 rounded-3xl p-12 text-center text-gray-300 mb-20 backdrop-blur-xl max-w-md mx-auto" 
+            className="bg-slate-950/80 border border-slate-800 rounded-3xl p-12 text-center text-slate-300 mb-20 backdrop-blur-xl max-w-md mx-auto" 
             role="status"
           >
-            <i className="fas fa-search text-3xl text-gray-600 mb-3 block" aria-hidden="true"></i>
+            <i className="fas fa-search text-3xl text-slate-600 mb-3 block" aria-hidden="true"></i>
             <h2 className="text-lg font-bold text-white mb-1 font-['Space_Grotesk']">No ecosystem components found</h2>
-            <p className="text-xs text-gray-400 max-w-sm mx-auto mb-5 font-light">Try clearing your search query or resetting layer filters.</p>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto mb-5 font-light">Try clearing your search query or resetting layer filters.</p>
             <button 
               onClick={() => { setActiveTab('All'); setSearchQuery(''); setSelectedLayer(null); }}
-              className="px-5 py-2.5 bg-cyan-400 hover:bg-cyan-300 text-black rounded-xl text-xs font-bold transition-all shadow-[0_0_20px_rgba(0,240,255,0.4)] focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none"
+              className="px-5 py-2.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-[0_0_20px_rgba(0,240,255,0.4)] cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none"
             >
               Reset All Filters
             </button>
@@ -267,25 +267,31 @@ const Ecosystem = () => {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    whileHover={{ y: -6, scale: 1.02 }}
+                    whileHover={{ y: -6, transition: { duration: 0.22, ease: "easeOut" } }}
                     transition={{ duration: 0.3 }}
-                    className={`group p-7 rounded-3xl flex flex-col items-center text-center backdrop-blur-xl relative overflow-hidden transition-all duration-300 border ${
+                    className={`group relative p-7 rounded-3xl flex flex-col items-center text-center backdrop-blur-2xl overflow-hidden transition-all duration-300 border shadow-[0_12px_40px_rgba(0,0,0,0.85)] ${
                       isLayerActive
-                        ? 'bg-cyan-950/30 border-cyan-400 shadow-[0_0_30px_rgba(0,240,255,0.2)]'
-                        : 'bg-gray-950/70 border-gray-800/80 hover:border-cyan-500/50 hover:bg-gray-900/50 shadow-xl'
+                        ? 'bg-gradient-to-b from-cyan-950/60 via-slate-950/90 to-black border-cyan-400 shadow-[0_0_40px_rgba(0,240,255,0.25)]'
+                        : 'bg-gradient-to-b from-slate-900/70 via-slate-950/80 to-black/90 border-slate-800 hover:border-cyan-500/50 hover:shadow-[0_20px_50px_rgba(0,240,255,0.16)]'
                     }`}
                   >
                     {/* Top Glow Accent */}
                     <div 
                       aria-hidden="true"
-                      className={`absolute top-0 left-0 right-0 h-[2px] ${
+                      className={`absolute top-0 left-6 right-6 h-[1.5px] transition-all duration-300 ${
                         isLayerActive
-                          ? 'bg-cyan-400 shadow-[0_0_10px_rgba(0,240,255,0.9)]'
-                          : 'bg-gradient-to-r from-transparent via-gray-800 to-transparent group-hover:via-cyan-400'
-                      } transition-all duration-300`}
+                          ? 'bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_rgba(0,240,255,1)] opacity-100'
+                          : 'bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent opacity-0 group-hover:opacity-100'
+                      }`}
                     />
 
-                    <div className="w-16 h-16 rounded-2xl bg-gray-900/90 border border-gray-800 flex items-center justify-center mb-6 group-hover:border-cyan-500/40 group-hover:scale-105 transition-all duration-300 text-cyan-400 shadow-inner" aria-hidden="true">
+                    {/* Ambient Corner Glow */}
+                    <div 
+                      aria-hidden="true" 
+                      className="absolute -top-10 -right-10 w-28 h-28 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-cyan-400/20 group-hover:scale-125 transition-all duration-500" 
+                    />
+
+                    <div className="w-16 h-16 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-center mb-6 group-hover:border-cyan-500/50 group-hover:scale-110 transition-all duration-300 text-cyan-400 shadow-[0_0_20px_rgba(0,0,0,0.5)]" aria-hidden="true">
                       <i className={`fas ${tech.icon || 'fa-cube'} text-2xl text-cyan-400`}></i>
                     </div>
                     
@@ -294,17 +300,17 @@ const Ecosystem = () => {
                     </h3>
                     
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-[9px] font-mono tracking-widest text-gray-300 uppercase border border-gray-800 px-2.5 py-0.5 rounded-full bg-gray-900/80">
+                      <span className="text-[10px] font-mono tracking-widest text-slate-300 uppercase border border-slate-800 px-2.5 py-0.5 rounded-full bg-slate-900/80">
                         {tech.cat}
                       </span>
                       {tech.status && (
-                        <span className={`text-[9px] font-mono tracking-wider border px-2.5 py-0.5 rounded-full ${getStatusBadge(tech.status)}`}>
+                        <span className={`text-[10px] font-mono tracking-wider border px-2.5 py-0.5 rounded-full ${getStatusBadge(tech.status)}`}>
                           {tech.status}
                         </span>
                       )}
                     </div>
                     
-                    <p className="text-xs text-gray-300 leading-relaxed font-light">{tech.desc}</p>
+                    <p className="text-xs text-slate-400 leading-relaxed font-light">{tech.desc}</p>
                   </motion.article>
                 );
               })}
@@ -314,15 +320,15 @@ const Ecosystem = () => {
       </section>
 
       {/* Architecture Stack Component */}
-      <section aria-labelledby="architecture-stack-heading" className="bg-gray-950/70 border border-gray-800/90 rounded-3xl p-6 md:p-10 max-w-5xl mx-auto shadow-2xl backdrop-blur-xl relative overflow-hidden">
-        <div aria-hidden="true" className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none" />
+      <section aria-labelledby="architecture-stack-heading" className="bg-gradient-to-b from-slate-900/70 via-slate-950/80 to-black/90 border border-slate-800 rounded-3xl p-6 md:p-10 max-w-5xl mx-auto shadow-2xl backdrop-blur-2xl relative overflow-hidden">
+        <div aria-hidden="true" className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="text-center mb-10">
           <span className="text-xs font-mono uppercase tracking-widest text-cyan-400 font-bold block mb-2">System Architecture Blueprint</span>
           <h2 id="architecture-stack-heading" className="text-2xl md:text-4xl font-bold tracking-tight text-white font-['Space_Grotesk']">
             Architecture Stack
           </h2>
-          <p className="text-xs md:text-sm text-gray-300 mt-2 max-w-xl mx-auto font-light leading-relaxed">
+          <p className="text-xs md:text-sm text-slate-300 mt-2 max-w-xl mx-auto font-light leading-relaxed">
             Interactive multi-tier layout. Click any layer below to highlight matching ecosystem modules.
           </p>
         </div>
@@ -349,14 +355,14 @@ const Ecosystem = () => {
                 }}
                 className={`p-6 rounded-2xl border cursor-pointer transition-all duration-300 relative overflow-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none ${
                   isSelected
-                    ? 'bg-gradient-to-r from-cyan-400 via-cyan-300 to-white text-black border-cyan-300 shadow-[0_0_30px_rgba(0,240,255,0.3)] font-bold' 
-                    : 'bg-gray-900/60 border-gray-800/80 text-gray-300 hover:bg-gray-900 hover:border-cyan-500/40 hover:text-white'
+                    ? 'bg-gradient-to-r from-cyan-400 via-cyan-300 to-white text-slate-950 border-cyan-300 shadow-[0_0_35px_rgba(0,240,255,0.4)] font-bold' 
+                    : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-900 hover:border-cyan-500/40 hover:text-white shadow-md'
                 }`}
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-mono font-bold text-sm border ${
-                      isSelected ? 'bg-black text-cyan-300 border-black' : 'bg-gray-950 text-cyan-400 border-gray-800'
+                      isSelected ? 'bg-black text-cyan-300 border-black' : 'bg-slate-950 text-cyan-400 border-slate-800'
                     }`} aria-hidden="true">
                       {layer.name.charAt(0)}
                     </div>
@@ -367,13 +373,13 @@ const Ecosystem = () => {
                         </h3>
                         <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full border ${
                           isSelected 
-                            ? 'bg-black/15 text-black border-black/20 font-bold' 
-                            : 'bg-cyan-950/50 text-cyan-300 border-cyan-500/30'
+                            ? 'bg-black/20 text-black border-black/20 font-bold' 
+                            : 'bg-cyan-950/60 text-cyan-300 border-cyan-500/30'
                         }`}>
                           {layer.title}
                         </span>
                       </div>
-                      <p className={`text-xs mt-1 font-light ${isSelected ? 'text-gray-900 font-medium' : 'text-gray-300'}`}>
+                      <p className={`text-xs mt-1 font-light ${isSelected ? 'text-slate-950 font-medium' : 'text-slate-300'}`}>
                         {layer.desc}
                       </p>
                     </div>
@@ -386,7 +392,7 @@ const Ecosystem = () => {
                         className={`text-[10px] font-mono px-2.5 py-1 rounded-md border ${
                           isSelected 
                             ? 'bg-black text-white border-black font-medium shadow-sm' 
-                            : 'bg-black/60 text-gray-300 border-gray-800'
+                            : 'bg-black/70 text-slate-300 border-slate-800'
                         }`}
                       >
                         {t}
@@ -404,4 +410,3 @@ const Ecosystem = () => {
 };
 
 export default Ecosystem;
-

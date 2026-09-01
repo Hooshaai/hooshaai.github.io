@@ -15,62 +15,83 @@ const ModelCard = ({ model, index = 0, onDownload }) => {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -6, transition: { duration: 0.22, ease: "easeOut" } }}
       transition={{ delay: Math.min(index * 0.05, 0.3) }}
-      className="group bg-slate-950/70 p-6 md:p-8 rounded-3xl border border-cyan-500/20 hover:border-cyan-400/50 flex flex-col transition-all duration-300 overflow-hidden shadow-xl hover:shadow-[0_0_30px_rgba(0,240,255,0.15)] backdrop-blur-xl relative"
+      className="group relative flex flex-col justify-between p-7 md:p-8 rounded-3xl bg-gradient-to-b from-slate-900/70 via-slate-950/80 to-black/90 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 overflow-hidden backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.85)] hover:shadow-[0_20px_50px_rgba(0,240,255,0.18)]"
     >
-      {/* Background Hover Glow */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/15 transition-all duration-500 pointer-events-none" />
+      {/* Top Accent Beam */}
+      <div 
+        aria-hidden="true" 
+        className="absolute top-0 left-6 right-6 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 shadow-[0_0_12px_rgba(0,240,255,1)]" 
+      />
+
+      {/* Ambient Corner Glow */}
+      <div 
+        aria-hidden="true" 
+        className="absolute -top-12 -right-12 w-36 h-36 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-cyan-400/20 group-hover:scale-125 transition-all duration-500" 
+      />
 
       <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
-        <div className="flex justify-between items-start gap-4 mb-6">
+        <div className="flex justify-between items-start gap-3 mb-6">
           <div>
-            <h3 className="text-xl md:text-2xl font-bold font-['Space_Grotesk'] text-white group-hover:text-cyan-300 transition-colors tracking-tight leading-tight mb-1">
+            <h3 className="text-xl md:text-2xl font-bold font-['Space_Grotesk'] text-slate-100 group-hover:text-cyan-300 transition-colors tracking-tight leading-tight mb-1">
               {safeName}
             </h3>
-            <span className="inline-block text-[11px] text-gray-400 font-mono">
-              Context: <strong className="text-cyan-300">{model?.context || 'Unknown'}</strong>
+            <span className="inline-flex items-center gap-1.5 text-[11px] text-slate-400 font-mono">
+              <span>Context:</span>
+              <strong className="text-cyan-300 font-semibold">{model?.context || 'Unknown'}</strong>
             </span>
           </div>
-          <span className="bg-cyan-500/10 text-cyan-300 text-[10px] px-3 py-1 rounded-full border border-cyan-500/30 font-mono tracking-wider uppercase shrink-0 font-bold shadow-[0_0_10px_rgba(0,240,255,0.1)]">
+
+          <span className="bg-cyan-500/10 text-cyan-300 text-[10px] px-3 py-1 rounded-full border border-cyan-500/30 font-mono tracking-widest uppercase font-bold shrink-0 shadow-[0_0_12px_rgba(0,240,255,0.12)]">
             {safePrecision}
           </span>
         </div>
         
-        {/* Specifications Grid */}
-        <div className="flex flex-col gap-3.5 mb-6 flex-grow">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400 font-light text-xs">Architecture</span>
-            <span className="text-cyan-300 font-mono text-xs bg-cyan-500/10 px-2.5 py-0.5 rounded-md border border-cyan-500/20">{safeType}</span>
+        {/* Specifications List */}
+        <div className="flex flex-col gap-3 mb-6 flex-grow">
+          <div className="flex items-center justify-between text-xs py-1">
+            <span className="text-slate-400 font-light">Architecture</span>
+            <span className="text-cyan-300 font-mono font-medium bg-cyan-950/60 px-2.5 py-0.5 rounded-lg border border-cyan-500/30">
+              {safeType}
+            </span>
           </div>
-          <div className="w-full h-px bg-white/10"></div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400 font-light text-xs">Parameters</span>
-            <span className="text-white font-mono text-xs font-bold">{safeParams}</span>
+
+          <div className="w-full h-px bg-slate-800/80"></div>
+
+          <div className="flex items-center justify-between text-xs py-1">
+            <span className="text-slate-400 font-light">Active Parameters</span>
+            <span className="text-white font-mono font-bold bg-slate-900 px-2.5 py-0.5 rounded-lg border border-slate-800">
+              {safeParams}
+            </span>
           </div>
-          <div className="w-full h-px bg-white/10"></div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400 font-light text-xs">VRAM / Storage</span>
-            <span className="text-gray-300 font-mono text-xs flex items-center gap-1.5">
-              <i className="fas fa-microchip text-cyan-400 text-[10px]"></i> {safeMemory} / {safeSize}
+
+          <div className="w-full h-px bg-slate-800/80"></div>
+
+          <div className="flex items-center justify-between text-xs py-1">
+            <span className="text-slate-400 font-light">VRAM / Checkpoint Size</span>
+            <span className="text-slate-300 font-mono flex items-center gap-1.5">
+              <i className="fas fa-microchip text-cyan-400 text-[10px]"></i>
+              <span>{safeMemory} / {safeSize}</span>
             </span>
           </div>
 
           {/* Benchmark Badges Preview */}
           {(mmluScore !== undefined || mathScore !== undefined) && (
             <>
-              <div className="w-full h-px bg-white/10"></div>
+              <div className="w-full h-px bg-slate-800/80"></div>
               <div className="flex items-center justify-between text-xs pt-1">
-                <span className="text-gray-400 font-light">MMLU / MATH</span>
+                <span className="text-slate-400 font-light">MMLU / MATH</span>
                 <div className="flex items-center gap-2 font-mono">
                   {mmluScore !== undefined && mmluScore !== '-' && (
-                    <span className="text-emerald-300 font-semibold bg-emerald-500/15 px-2 py-0.5 rounded border border-emerald-500/30">
-                      MMLU: {mmluScore}
+                    <span className="text-emerald-300 font-semibold bg-emerald-500/15 px-2.5 py-0.5 rounded-lg border border-emerald-500/30 shadow-[0_0_10px_rgba(52,211,153,0.15)]">
+                      MMLU {mmluScore}
                     </span>
                   )}
                   {mathScore !== undefined && mathScore !== '-' && (
-                    <span className="text-cyan-300 font-semibold bg-cyan-500/15 px-2 py-0.5 rounded border border-cyan-500/30">
-                      MATH: {mathScore}
+                    <span className="text-cyan-300 font-semibold bg-cyan-500/15 px-2.5 py-0.5 rounded-lg border border-cyan-500/30 shadow-[0_0_10px_rgba(0,240,255,0.15)]">
+                      MATH {mathScore}
                     </span>
                   )}
                 </div>
@@ -81,11 +102,11 @@ const ModelCard = ({ model, index = 0, onDownload }) => {
         
         {/* Electric Cyan Action Button */}
         <button 
-          className="mt-auto relative w-full bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black py-3 rounded-xl font-bold font-mono text-xs shadow-[0_0_20px_rgba(0,240,255,0.3)] hover:shadow-[0_0_25px_rgba(0,240,255,0.5)] active:scale-[0.98] transition-all flex justify-center items-center gap-2 cursor-pointer uppercase tracking-wider"
+          className="mt-auto relative w-full bg-gradient-to-r from-cyan-400 to-cyan-300 hover:from-cyan-300 hover:to-white text-slate-950 py-3.5 rounded-xl font-bold font-mono text-xs shadow-[0_0_20px_rgba(0,240,255,0.35)] hover:shadow-[0_0_30px_rgba(0,240,255,0.65)] active:scale-95 transition-all duration-300 flex justify-center items-center gap-2 cursor-pointer uppercase tracking-wider focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none"
           onClick={() => onDownload && onDownload(model)}
         >
-          <i className="fas fa-download text-xs"></i>
-          <span>Get Weights</span>
+          <i className="fas fa-download text-xs" aria-hidden="true"></i>
+          <span>Get Weights & Checkpoints</span>
         </button>
       </div>
     </motion.div>
@@ -93,4 +114,3 @@ const ModelCard = ({ model, index = 0, onDownload }) => {
 };
 
 export default ModelCard;
-
