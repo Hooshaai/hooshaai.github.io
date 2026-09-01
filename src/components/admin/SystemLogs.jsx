@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Terminal, Play, Pause, Search, Download, Copy, Trash2, AlertTriangle, Bug, Activity, Radio, Check } from 'lucide-react';
+import { Terminal, Search, Download, Copy, Trash2, AlertTriangle, Bug, Activity, Check } from 'lucide-react';
 
 const SystemLogs = ({ onToast = () => {} }) => {
   const initialLogs = [

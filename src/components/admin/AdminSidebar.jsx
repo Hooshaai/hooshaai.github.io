@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Server, ListTodo, Terminal, ShieldCheck, LogOut, Menu, X, Radio, Activity } from 'lucide-react';
+import { LayoutDashboard, Server, ListTodo, Terminal, ShieldCheck, LogOut, Menu, X, Activity } from 'lucide-react';
 
 const AdminSidebar = ({ activeTab, setActiveTab, user, onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
