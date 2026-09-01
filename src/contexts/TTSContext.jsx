@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
 import { ALL_ARTICLES } from '../data/articles';
 
 export const TTSContext = createContext(null);
@@ -174,6 +174,7 @@ export const TTSProvider = ({ children }) => {
         selectedVoice,
         playbackRate,
         progress,
+        charIndex,
         play,
         pause,
         resume,

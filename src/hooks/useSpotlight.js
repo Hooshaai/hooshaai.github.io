@@ -3,9 +3,6 @@ import { useState, useEffect } from 'react';
 const useSpotlight = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
-  
-  // Provide empty results initially, you can hook this up to search data later
-  const [results, setResults] = useState([]);
 
   const close = () => {
     setIsOpen(false);
@@ -27,7 +24,7 @@ const useSpotlight = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  return { isOpen, query, setQuery, results, close };
+  return { isOpen, query, setQuery, close };
 };
 
 export default useSpotlight;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { PieChart, Users, FileText, Key, Server, Download, Search, Plus, Check, Copy, Ban, X, ShieldCheck } from 'lucide-react';
+import { PieChart, Users, FileText, Key, Server, Download, Search, Plus, Check, Copy, Ban, X } from 'lucide-react';
 
 const ClusterOverview = ({
   subscribers = [],
@@ -21,7 +21,7 @@ const ClusterOverview = ({
   const [newKeyScope, setNewKeyScope] = useState('Full Access');
 
   // Subscriber table state & pagination
-  const [subscribersList, setSubscribersList] = useState([
+  const [subscribersList] = useState([
     { e: 'alex.v@deepmind.com', org: 'DeepMind Labs', d: 'Wed, 12 Aug 2026 04:12:00 GMT', s: 'Active' },
     { e: 'sarah.k@openai.com', org: 'OpenAI Safety', d: 'Tue, 11 Aug 2026 18:30:00 GMT', s: 'Active' },
     { e: 'm.chen@stanford.edu', org: 'Stanford HAI', d: 'Mon, 10 Aug 2026 12:15:00 GMT', s: 'Active' },
@@ -29,7 +29,7 @@ const ClusterOverview = ({
     { e: 'infra-admin@meta.com', org: 'Meta AI Infra', d: 'Sat, 08 Aug 2026 21:00:00 GMT', s: 'Inactive' }
   ]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const itemsPerPage = 5;
 
   const effectiveSubs = subscribers.length > 0 ? subscribers : subscribersList;
 

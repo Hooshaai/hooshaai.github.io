@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ListTodo, Play, Plus, Download, Search, ArrowUp, StopCircle, RotateCcw, Trash2, Clock, Cpu, CheckCircle2, XCircle, AlertCircle, X } from 'lucide-react';
+import { ListTodo, Plus, Download, Search, ArrowUp, StopCircle, RotateCcw, Trash2, X } from 'lucide-react';
 
 const JobQueue = ({ onToast = () => {} }) => {
   const [jobs, setJobs] = useState([

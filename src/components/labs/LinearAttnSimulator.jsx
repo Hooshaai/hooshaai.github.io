@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Cpu, HardDrive, ArrowRight, BarChart2 } from 'lucide-react';
+import { Zap, HardDrive } from 'lucide-react';
 import { MathBlock } from '../../utils/renderMath';
 
 const LinearAttnSimulator = () => {
@@ -136,7 +136,7 @@ const LinearAttnSimulator = () => {
             className="w-full accent-cyan-400 bg-slate-800 h-2 rounded-lg appearance-none cursor-pointer"
           />
           <span className="text-[10px] font-mono text-gray-500 block">
-            Hidden dimension ($d_{\text{head}} = {dModel / 32}$)
+            Hidden dimension (d_head = {dModel / 32})
           </span>
         </div>
 

@@ -171,7 +171,7 @@ const DownloadModal = ({ downloadModal, onClose, progress = 0, speedData = [], c
             <button 
               onClick={() => {
                 const targetText = activeTab === 'wget' ? wgetCmd : activeTab === 'hf' ? hfCmd : pySnippet;
-                onCopyCode && onCopyCode(targetText, activeTab);
+                if (onCopyCode) onCopyCode(targetText, activeTab);
               }} 
               className="text-xs text-cyan-300 hover:text-white font-mono font-medium transition-all bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 px-3 py-1 rounded-lg mb-2 flex items-center gap-1.5 cursor-pointer"
             >

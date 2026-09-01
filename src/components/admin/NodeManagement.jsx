@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Server, Cpu, Zap, Plus, Search, Play, RotateCcw, Pause, Thermometer, Activity, CheckCircle2, X, HardDrive } from 'lucide-react';
+import { Server, Plus, Search, Play, RotateCcw, Pause, X } from 'lucide-react';
 
 const NodeManagement = ({ onToast = () => {} }) => {
   const [nodes, setNodes] = useState([

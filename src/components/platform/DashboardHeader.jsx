@@ -1,5 +1,5 @@
 import React from 'react';
-import { Cpu, Network, Activity, Radio, ShieldCheck } from 'lucide-react';
+import { Cpu, Network, Radio, ShieldCheck } from 'lucide-react';
 
 const DashboardHeader = () => {
   return (

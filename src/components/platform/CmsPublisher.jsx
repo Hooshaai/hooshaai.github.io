@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FileEdit, Send, History, Trash2, Sparkles, BookOpen, User, Tag, CheckCircle2 } from 'lucide-react';
+import { FileEdit, Send, Trash2, Sparkles, BookOpen, User, Tag, CheckCircle2 } from 'lucide-react';
 import { apiFetch } from '../../utils/api';
 
 const CmsPublisher = () => {

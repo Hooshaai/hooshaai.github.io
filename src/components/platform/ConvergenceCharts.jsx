@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { LineChart as LineChartIcon, TrendingDown, Zap, RotateCcw, Pause, Play, Activity } from 'lucide-react';
+import { LineChart as LineChartIcon, TrendingDown, RotateCcw, Pause, Play } from 'lucide-react';
 
 const ConvergenceCharts = ({ chartData: initialChartData }) => {
   const [chartData, setChartData] = useState(
@@ -20,7 +20,7 @@ const ConvergenceCharts = ({ chartData: initialChartData }) => {
 
     const id = setInterval(() => {
       setChartData((prev) => {
-        const newData = [...prev.slice(1)];
+        const newData = prev.slice(1);
         const lastStep = newData[newData.length - 1].step;
         const lastLoss = newData[newData.length - 1].loss;
         const lastVel = newData[newData.length - 1].velocity_field;

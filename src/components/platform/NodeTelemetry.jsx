@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, Thermometer, Zap, Activity, Flame, Pause, Play, Maximize2, X, RefreshCw } from 'lucide-react';
+import { Cpu, Thermometer, Zap, Activity, Flame, Pause, Play, X } from 'lucide-react';
 
 const NodeTelemetry = ({ telemetry: initialTelemetry }) => {
   const [telemetry, setTelemetry] = useState(
@@ -101,7 +101,7 @@ const NodeTelemetry = ({ telemetry: initialTelemetry }) => {
   const avgUsage = (activeTelemetry.reduce((acc, g) => acc + g.usage, 0) / activeTelemetry.length).toFixed(1);
 
   // SVG Circular Gauge Component with electric cyan glow defs
-  const RadialGauge = ({ value, max = 100, size = 72, strokeWidth = 6, strokeColor = '#00f0ff', label = '', id = 'gauge' }) => {
+  const RadialGauge = ({ value, max = 100, size = 72, strokeWidth = 6, strokeColor = '#00f0ff', label = '' }) => {
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
     const pct = Math.min(100, Math.max(0, (value / max) * 100));
