@@ -1,5 +1,5 @@
 # Production Dockerfile for Hoosha AI Backend (Django + Gunicorn + Celery)
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # Prevent Python from writing .pyc files and enable unbuffered output
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     curl \
-    netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy and install python dependencies

@@ -18,6 +18,11 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  DJANGO_SECRET_KEY: 'django-insecure-ci-test-key-!@#$%^&*()_+'
+  DJANGO_DEBUG: 'True'
+  PYTHONUNBUFFERED: '1'
+
 jobs:
   test:
     name: 🧪 Django Tests

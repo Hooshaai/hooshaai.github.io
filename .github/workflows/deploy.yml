@@ -34,6 +34,7 @@ jobs:
       - name: Verify Root React Bundle Exists
         run: |
           echo "🔍 Checking Root React SPA Bundle..."
+          touch .nojekyll
           for f in index.html .nojekyll; do
             if [ -f "$f" ]; then
               echo "  ✅ $f ($(wc -c < "$f") bytes)"
@@ -134,7 +135,7 @@ jobs:
       - name: Package React SPA Site
         run: |
           zip -r hoosha-react-spa-${{ github.ref_name }}.zip \
-            index.html .nojekyll assets/ react_app/ \
+            index.html .nojekyll assets/ src/ \
             --exclude "*.DS_Store"
 
       - name: Create GitHub Release
