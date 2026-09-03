@@ -24,17 +24,17 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
 
     if (mode === 'register') {
       if (!username.trim() || !email.trim() || !password.trim()) {
-        setError('لطفاً تمامی فیلدهای نام کاربری، ایمیل و رمز عبور را وارد نمایید.');
+        setError('Please enter username, email, and password.');
         setLoading(false);
         return;
       }
       if (password !== confirmPassword) {
-        setError('رمز عبور و تکرار آن با یکدیگر مطابقت ندارند.');
+        setError('Passwords do not match.');
         setLoading(false);
         return;
       }
       if (password.length < 6) {
-        setError('رمز عبور باید حداقل ۶ کاراکتر باشد.');
+        setError('Password must be at least 6 characters.');
         setLoading(false);
         return;
       }
@@ -42,28 +42,28 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
       const res = await register(username, email, password);
       setLoading(false);
       if (res.success) {
-        setSuccessMsg('ثبت‌نام با موفقیت انجام شد! در حال ورود به حساب...');
+        setSuccessMsg('Account registered successfully! Signing in...');
         setTimeout(() => {
           onClose();
         }, 1200);
       } else {
-        setError(res.error || 'خطایی در ثبت‌نام رخ داد.');
+        setError(res.error || 'Registration failed.');
       }
     } else {
       if (!username.trim() || !password.trim()) {
-        setError('لطفاً نام کاربری و رمز عبور را وارد نمایید.');
+        setError('Please enter your username and password.');
         setLoading(false);
         return;
       }
       const res = await login(username, password);
       setLoading(false);
       if (res.success) {
-        setSuccessMsg('ورود با موفقیت انجام شد!');
+        setSuccessMsg('Signed in successfully!');
         setTimeout(() => {
           onClose();
         }, 1000);
       } else {
-        setError(res.error || 'نام کاربری یا رمز عبور اشتباه است.');
+        setError(res.error || 'Invalid username or password.');
       }
     }
   };
@@ -86,7 +86,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 20 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full max-w-md bg-slate-900/90 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-[0_0_60px_rgba(0,240,255,0.15)] backdrop-blur-2xl overflow-hidden z-10"
+          className="relative w-full max-w-md bg-slate-900/90 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-[0_0_60px_rgba(0,240,255,0.15)] backdrop-blur-2xl overflow-hidden z-10 text-left"
         >
           {/* Top Shimmer Glow */}
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
@@ -106,10 +106,10 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
               <i className={`fas ${mode === 'register' ? 'fa-user-plus' : 'fa-lock'} text-xl`}></i>
             </div>
             <h2 className="text-2xl font-bold font-['Space_Grotesk'] text-white tracking-tight">
-              {mode === 'register' ? 'ثبت‌نام حساب جدید' : 'ورود به حساب کاربری'}
+              {mode === 'register' ? 'Create Account' : 'Welcome Back'}
             </h2>
-            <p className="text-xs font-mono text-slate-400 mt-1 dir-rtl">
-              {mode === 'register' ? 'ایجاد دسترسی به آزمایشگاه و مدل‌ها' : 'ورود به داشبورد پژوهش و پلتفرم'}
+            <p className="text-xs font-mono text-slate-400 mt-1">
+              {mode === 'register' ? 'Access research labs, checkpoints & platform' : 'Sign in to access platform & research tools'}
             </p>
           </div>
 
@@ -124,7 +124,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <i className="fas fa-user-plus mr-1.5"></i> ثبت‌نام کاربر
+              <i className="fas fa-user-plus mr-1.5"></i> Register
             </button>
             <button
               type="button"
@@ -135,27 +135,27 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <i className="fas fa-sign-in-alt mr-1.5"></i> ورود به سیستم
+              <i className="fas fa-sign-in-alt mr-1.5"></i> Sign In
             </button>
           </div>
 
           {/* Feedback Messages */}
           {error && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-mono">
-              <i className="fas fa-exclamation-circle ml-1.5"></i> {error}
+              <i className="fas fa-exclamation-circle mr-1.5"></i> {error}
             </motion.div>
           )}
           {successMsg && (
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs text-center font-mono">
-              <i className="fas fa-check-circle ml-1.5"></i> {successMsg}
+              <i className="fas fa-check-circle mr-1.5"></i> {successMsg}
             </motion.div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 text-right">
+          <form onSubmit={handleSubmit} className="space-y-4 text-left">
             <div>
               <label className="block text-xs font-mono text-slate-300 mb-1.5 font-semibold">
-                نام کاربری (Username)
+                Username
               </label>
               <div className="relative">
                 <input
@@ -163,8 +163,8 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="مثال: hoosha_researcher"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all ltr text-left"
+                  placeholder="e.g. hoosha_researcher"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all text-left"
                 />
                 <i className="fas fa-user absolute left-3.5 top-3 text-xs text-slate-500"></i>
               </div>
@@ -173,7 +173,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
             {mode === 'register' && (
               <div>
                 <label className="block text-xs font-mono text-slate-300 mb-1.5 font-semibold">
-                  آدرس ایمیل (Email Address)
+                  Email Address
                 </label>
                 <div className="relative">
                   <input
@@ -182,7 +182,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="user@hoosha.ai"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all ltr text-left"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all text-left"
                   />
                   <i className="fas fa-envelope absolute left-3.5 top-3 text-xs text-slate-500"></i>
                 </div>
@@ -191,7 +191,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
 
             <div>
               <label className="block text-xs font-mono text-slate-300 mb-1.5 font-semibold">
-                رمز عبور (Password)
+                Password
               </label>
               <div className="relative">
                 <input
@@ -200,7 +200,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all ltr text-left"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all text-left"
                 />
                 <i className="fas fa-key absolute left-3.5 top-3 text-xs text-slate-500"></i>
               </div>
@@ -209,7 +209,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
             {mode === 'register' && (
               <div>
                 <label className="block text-xs font-mono text-slate-300 mb-1.5 font-semibold">
-                  تکرار رمز عبور (Confirm Password)
+                  Confirm Password
                 </label>
                 <div className="relative">
                   <input
@@ -218,7 +218,7 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all ltr text-left"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono transition-all text-left"
                   />
                   <i className="fas fa-shield-alt absolute left-3.5 top-3 text-xs text-slate-500"></i>
                 </div>
@@ -234,8 +234,8 @@ const AuthModal = ({ isOpen, onClose, initialMode = 'register' }) => {
                 <i className="fas fa-spinner fa-spin"></i>
               ) : (
                 <>
-                  <span>{mode === 'register' ? 'تکمیل ثبت‌نام و ورود' : 'ورود به حساب'}</span>
-                  <i className="fas fa-arrow-left text-xs"></i>
+                  <span>{mode === 'register' ? 'Complete Registration & Enter' : 'Sign In'}</span>
+                  <i className="fas fa-arrow-right text-xs"></i>
                 </>
               )}
             </button>

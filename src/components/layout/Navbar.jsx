@@ -284,7 +284,7 @@ const Navbar = () => {
               <span className="text-cyan-300 font-bold max-w-[90px] truncate">{user.username || 'User'}</span>
               <button 
                 onClick={logout}
-                title="خروج از حساب"
+                title="Sign Out"
                 className="text-slate-400 hover:text-red-400 transition-colors ml-1 cursor-pointer"
               >
                 <i className="fas fa-sign-out-alt text-xs"></i>
@@ -296,7 +296,7 @@ const Navbar = () => {
               className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-black font-mono font-bold text-xs shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <i className="fas fa-user-plus text-[11px]"></i>
-              <span>ثبت‌نام کاربر</span>
+              <span>Register</span>
             </button>
           )}
 
