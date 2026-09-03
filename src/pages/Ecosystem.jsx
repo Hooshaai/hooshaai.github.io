@@ -13,8 +13,9 @@ const Ecosystem = () => {
     { name: 'PyTorch', cat: 'Framework', tag: 'DL Engine', desc: 'Core deep learning framework for training and inference.', icon: 'fa-fire', status: 'Active' },
     { name: 'CUDA', cat: 'Kernel', tag: 'GPU Compute', desc: 'Hardware-level parallel programming & acceleration.', icon: 'fa-microchip', status: 'Core' },
     { name: 'Triton', cat: 'Kernel', tag: 'Custom Kernels', desc: 'Custom high-performance kernels for fused operations.', icon: 'fa-water', status: 'Optimized' },
-    { name: 'HuggingFace', cat: 'Model', tag: 'Hub & Weights', desc: 'Model weights hosting and open community distribution.', icon: 'fa-cube', status: 'Verified' },
-    { name: 'Substack', cat: 'Framework', tag: 'Research Hub', desc: 'Open research journal and architectural paper releases.', icon: 'fa-pen-nib', status: 'Publications' },
+    { name: 'HuggingFace', cat: 'Model', tag: 'Hub & Spaces', desc: 'Model weights hosting, safetensors vault, and interactive Spaces.', icon: 'fa-cube', status: 'Verified' },
+    { name: 'Substack', cat: 'Framework', tag: 'Research Hub', desc: 'Open research journal, math papers, and full architectural releases.', icon: 'fa-pen-nib', status: 'Publications' },
+    { name: 'X (Twitter)', cat: 'Framework', tag: 'Live Dispatches', desc: 'Real-time research announcements, telemetry metrics, and technical threads.', icon: 'fab fa-x-twitter', status: 'Social Wire' },
     { name: 'University of Tehran', cat: 'Hardware', tag: 'HPC Partner', desc: 'Academic partner & high-performance computing clusters.', icon: 'fa-university', status: 'Partner' },
     { name: 'Sharif University', cat: 'Hardware', tag: 'HPC Partner', desc: 'Academic partner for distributed systems research.', icon: 'fa-university', status: 'Partner' },
     { name: 'Python', cat: 'Framework', tag: 'Core Language', desc: 'Primary development language and ecosystem tooling.', icon: 'fa-code', status: 'Standard' }

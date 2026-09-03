@@ -4,8 +4,14 @@
  * benchmark tables, code blocks, and key takeaways for all 20 Substack articles.
  */
 
+import substackContents from '../data/substackContents.json';
+
 export function generateSubstackArticleModalHTML(art) {
   if (!art) return '<p>Article content loading...</p>';
+
+  if (art.id && substackContents[art.id]) {
+    return substackContents[art.id];
+  }
 
   const title = art.title || 'Substack Research Dispatch';
   const snippet = art.snippet || '';

@@ -1,162 +1,262 @@
 [
   {
+    "id": "art-sub-1",
+    "title": "The Evolution of Attention: From Quadratic Bottlenecks to Infinite Context and Hardware Co-Design",
+    "link": "https://hooshaai.substack.com/p/the-evolution-of-attention-from-quadratic",
+    "pubDate": "Tue, 01 Sep 2026 12:11:56 GMT",
+    "wordCount": "16,594 words",
+    "readTime": "75 min read",
+    "snippet": "The fundamental bottleneck of modern deep learning is not compute; it is the physical movement of electrons. The \u201cMemory Wall\u201d dictates the absolute limits of neural network performance.",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-2",
+    "title": "Adaptive Transformer Compressor: Energy\u2011Thresholded SVD for Automatic Rank Selection in Attention and Linear Layers",
+    "link": "https://hooshaai.substack.com/p/adaptive-transformer-compressor-energythresholde",
+    "pubDate": "Fri, 28 Aug 2026 02:24:54 GMT",
+    "wordCount": "26 words",
+    "readTime": "1 min read",
+    "snippet": "Compress transformers with per\u2011layer adaptive low\u2011rank factorization, preserving 95% singular energy by default",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-3",
+    "title": "A3 Compressor: Activation\u2011Aware Factorized SVD Compression with Fisher Weighting for Attention Module",
+    "link": "https://hooshaai.substack.com/p/a3-compressor-activationaware-factorized",
+    "pubDate": "Fri, 28 Aug 2026 02:20:55 GMT",
+    "wordCount": "1,365 words",
+    "readTime": "6 min read",
+    "snippet": "Low\u2011rank compression tailored for attention layers in transformer models",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-4",
+    "title": "Beyond Tokenizers: How \u201cLatent Causal Attention\u201d Lets AI Models Write Multiple Bytes at Once",
+    "link": "https://hooshaai.substack.com/p/beyond-tokenizers-how-latent-causal",
+    "pubDate": "Thu, 27 Aug 2026 18:33:34 GMT",
+    "wordCount": "5,750 words",
+    "readTime": "26 min read",
+    "snippet": "A complete, plain-English walkthrough of the paper \u201cDynamic Multi-Byte Prediction With Hierarchical Language Models\u201d (arXiv:2608.15454, August 2026)",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-5",
+    "title": "Systemic Architecture and Scaling Dynamics of Latent Causal Attention (LCA) in Hierarchical Byte-Level Language Models",
+    "link": "https://hooshaai.substack.com/p/systemic-architecture-and-scaling",
+    "pubDate": "Thu, 27 Aug 2026 17:08:11 GMT",
+    "wordCount": "3,914 words",
+    "readTime": "18 min read",
+    "snippet": "The transition from subword-tokenized language models to tokenizer-free, byte-level architectures represents a fundamental paradigm shift in modern artificial intelligence. Historically, subword token",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-6",
+    "title": "The Attention Rewrite of 2026",
+    "link": "https://hooshaai.substack.com/p/the-attention-rewrite-of-2026",
+    "pubDate": "Wed, 26 Aug 2026 23:49:32 GMT",
+    "wordCount": "6,473 words",
+    "readTime": "29 min read",
+    "snippet": "Five papers that quietly redesigned how large language models remember, focus, and run",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-7",
+    "title": "The Recursive Epistemic Collapse Framework: Deconstructing the Mirror Loop in Generative Reasoning",
+    "link": "https://hooshaai.substack.com/p/the-recursive-epistemic-collapse",
+    "pubDate": "Fri, 21 Aug 2026 01:08:53 GMT",
+    "wordCount": "3,852 words",
+    "readTime": "18 min read",
+    "snippet": "Imagine placing a brilliant scientist in an isolated room where the only source of information is their own writings. Every day, they write new theories, read them, and develop better theories based o",
+    "category": "verification",
+    "categoryName": "Verification",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-8",
+    "title": "Specialized Small Models as Scalable Judges, Critics, and Reward Models: A Critical Review and Framework for Efficient AI Evaluation and Alignment",
+    "link": "https://hooshaai.substack.com/p/specialized-small-models-as-scalable",
+    "pubDate": "Thu, 20 Aug 2026 19:19:09 GMT",
+    "wordCount": "3,710 words",
+    "readTime": "17 min read",
+    "snippet": "The rapid adoption of large language models (LLMs) as automated evaluators, critics, and reward models has created severe scalability, cost, and reproducibility bottlenecks. A growing body of research",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-9",
+    "title": "The Memory Paradigm Shift: Unifying Theory, Cognition, and Architecture in Continual In-Context Learning",
+    "link": "https://hooshaai.substack.com/p/the-memory-paradigm-shift-unifying",
+    "pubDate": "Sun, 16 Aug 2026 19:46:27 GMT",
+    "wordCount": "3,556 words",
+    "readTime": "16 min read",
+    "snippet": "Artificial intelligence has long grappled with a fundamental paradox of learning: how to continuously acquire new capabilities without corrupting previously mastered knowledge.",
+    "category": "cognition",
+    "categoryName": "Cognition",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-10",
+    "title": "The Cognitive Scaling Paradigm: How Inference-Time Compute, Post-Training RL, and Open-Ended Search Are Redefining AI ",
+    "link": "https://hooshaai.substack.com/p/the-cognitive-scaling-paradigm-how",
+    "pubDate": "Fri, 14 Aug 2026 20:07:04 GMT",
+    "wordCount": "1,244 words",
+    "readTime": "6 min read",
+    "snippet": "From static pre-training to self-improving systems \u2014 a complete technical map of the four research threads reshaping the frontier.",
+    "category": "cognition",
+    "categoryName": "Cognition",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-11",
+    "title": "The GRPO Variant Explosion: From Imitating Narrated Reasoning to Experiential Verification",
+    "link": "https://hooshaai.substack.com/p/the-grpo-variant-explosion-from-imitating",
+    "pubDate": "Wed, 12 Aug 2026 23:54:44 GMT",
+    "wordCount": "2,422 words",
+    "readTime": "11 min read",
+    "snippet": "Why complex optimization algorithms aren\u2019t enough, and why verification substrates are the true frontier of AI reasoning.",
+    "category": "verification",
+    "categoryName": "Verification",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-12",
+    "title": "The Imitation vs. Experience Paradigm in Large Language Model Optimization: Analyzing the Proliferation of GRPO Variants and the Need for a Verification Substrate",
+    "link": "https://hooshaai.substack.com/p/the-imitation-vs-experience-paradigm",
+    "pubDate": "Wed, 12 Aug 2026 23:42:11 GMT",
+    "wordCount": "4,519 words",
+    "readTime": "21 min read",
+    "snippet": "The rapid advancement of Large Language Models (LLMs) has recently transitioned from purely supervised fine-tuning toward reinforcement learning (RL) to elicit sophisticated, multi-step reasoning capa",
+    "category": "verification",
+    "categoryName": "Verification",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
+  },
+  {
+    "id": "art-sub-13",
     "title": "Scaling Transformers: How Linear Attention is Reshaping Cross-Task AI",
     "link": "https://hooshaai.substack.com/p/scaling-transformers-how-linear-attention",
     "pubDate": "Tue, 11 Aug 2026 00:28:09 GMT",
-    "wordCount": "1,941 words",
-    "readTime": "8 min read",
-    "snippet": "The evolution of sequence modeling over the past decade has been governed by a singular, unavoidable mathematical bottleneck: the quadratic computational complexity of the standard Transformer&#8217;s..."
+    "wordCount": "2,011 words",
+    "readTime": "9 min read",
+    "snippet": "Breaking the Quadratic Bottleneck in Recommender Systems and Bidirectional Modeling",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
   },
   {
+    "id": "art-sub-14",
     "title": "The Architecture of Boundaries",
     "link": "https://hooshaai.substack.com/p/the-architecture-of-boundaries",
     "pubDate": "Tue, 11 Aug 2026 00:17:23 GMT",
-    "wordCount": "2,159 words",
-    "readTime": "9 min read",
-    "snippet": "The frontier of applied science is increasingly defined by our ability to manipulate and track phenomena at extreme boundaries. Whether it&#8217;s engineering the van der Waals gap between atomic laye..."
+    "wordCount": "2,241 words",
+    "readTime": "10 min read",
+    "snippet": "Navigating 2D Spintronics, Quasiconformal Geometry, and Infrared Kinematics",
+    "category": "consciousness",
+    "categoryName": "Consciousness",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
   },
   {
+    "id": "art-sub-15",
     "title": "The Post-Transformer Era",
     "link": "https://hooshaai.substack.com/p/the-post-transformer-era",
     "pubDate": "Mon, 10 Aug 2026 23:30:44 GMT",
-    "wordCount": "3,806 words",
-    "readTime": "15 min read",
-    "snippet": "The Impossible TriangleSince its introduction, the Transformer has been the near-universal foundation underneath modern AI &#8212; language, vision, multimodal systems, all of it. Its self-attention m..."
+    "wordCount": "3,911 words",
+    "readTime": "18 min read",
+    "snippet": "A Deep Dive into Sub-Quadratic Sequence Models",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
   },
   {
+    "id": "art-sub-16",
     "title": "The Rise of Linear Attention in Bidirectional Modeling and Long-Term Recommenders",
     "link": "https://hooshaai.substack.com/p/the-rise-of-linear-attention-in-bidirectional",
     "pubDate": "Mon, 10 Aug 2026 23:23:04 GMT",
-    "wordCount": "3,004 words",
-    "readTime": "12 min read",
-    "snippet": "A Historical Crossroads for the TransformerSince 2017, the Transformer has been the default engine behind nearly every major advance in natural language processing, computer vision, and recommender sy..."
+    "wordCount": "3,074 words",
+    "readTime": "14 min read",
+    "snippet": "How LinRec and LION Are Rewriting the Rules for Sequences That Refuse to Stay Short",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
   },
   {
+    "id": "art-sub-17",
     "title": "Re-Engineering the Attention Engine",
     "link": "https://hooshaai.substack.com/p/re-engineering-the-attention-engine",
     "pubDate": "Mon, 10 Aug 2026 22:55:46 GMT",
-    "wordCount": "3,105 words",
-    "readTime": "12 min read",
-    "snippet": "Why Attention Got Expensive in the First PlaceEvery Transformer, from the original 2017 architecture to today&#8217;s frontier models, is built around the same core operation: for every token in a seq..."
+    "wordCount": "3,187 words",
+    "readTime": "14 min read",
+    "snippet": "Mathematical Frontiers in Sub-Quadratic Transformers",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
   },
   {
+    "id": "art-sub-18",
     "title": "Breaking the Quadratic Barrier",
     "link": "https://hooshaai.substack.com/p/breaking-the-quadratic-barrier",
     "pubDate": "Mon, 10 Aug 2026 22:34:16 GMT",
-    "wordCount": "1,492 words",
-    "readTime": "6 min read",
-    "snippet": "The self-attention mechanism is the engine at the center of modern deep learning. It computes a weighted average of feature representations across every position in a sequence, and that trick is large..."
+    "wordCount": "1,547 words",
+    "readTime": "7 min read",
+    "snippet": "The Architectural Evolution of Linear Transformers and Infinite Context Models",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
   },
   {
+    "id": "art-sub-19",
     "title": "Implementing Grounded Causal Verification to Prevent Recursive Epistemic Collapse in Self-Improving AI Systems",
     "link": "https://hooshaai.substack.com/p/implementing-grounded-causal-verification",
     "pubDate": "Fri, 07 Aug 2026 22:31:36 GMT",
-    "wordCount": "3,922 words",
-    "readTime": "16 min read",
-    "snippet": "1. AbstractThe pursuit of recursive self-improvement in large language models relies on the fundamental premise that an artificial agent can autonomously evaluate, refine, and integrate modifications ..."
+    "wordCount": "4,037 words",
+    "readTime": "18 min read",
+    "snippet": "The pursuit of recursive self-improvement in large language models relies on the fundamental premise that an artificial agent can autonomously evaluate, refine, and integrate modifications to its own",
+    "category": "verification",
+    "categoryName": "Verification",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
   },
   {
+    "id": "art-sub-20",
     "title": "The Civilization Simulator: Why Recursive AI Needs an Evolutionary Verification Engine",
     "link": "https://hooshaai.substack.com/p/the-civilization-simulator-why-recursive",
     "pubDate": "Fri, 07 Aug 2026 19:28:11 GMT",
-    "wordCount": "1,911 words",
-    "readTime": "8 min read",
-    "snippet": "LLMs with million-token contexts collapse out-of-distribution. The human brain, limited to 4&#8211;7 active memory slots, adapts universally. Why? Biological constraints force continuous chaos into di..."
-  },
-  {
-    "title": "Evaluation of Grounded Causal and Evolutionary Verification for Recursive Self-Improvement",
-    "link": "https://hooshaai.substack.com/p/evaluation-of-grounded-causal-and",
-    "pubDate": "Fri, 07 Aug 2026 18:45:51 GMT",
-    "wordCount": "3,878 words",
-    "readTime": "16 min read",
-    "snippet": "Executive SummaryThe ambition to architect a stable, non-degenerative loop for Recursive Self-Improvement (RSI) in artificial intelligence has historically been constrained by the verification bottlen..."
-  },
-  {
-    "title": "Why Biological Constraints Breed Universal Adaptation While Unconstrained AI Collapses",
-    "link": "https://hooshaai.substack.com/p/why-biological-constraints-breed",
-    "pubDate": "Fri, 07 Aug 2026 01:03:29 GMT",
-    "wordCount": "2,485 words",
-    "readTime": "10 min read",
-    "snippet": "Introduction: The Computational Paradox of General IntelligenceIn the current paradigm of artificial intelligence, scaling laws dictate that greater capability requires wider contexts, billions of par..."
-  },
-  {
-    "title": "The Generalization Paradox: Why Biological Constraints Breed Universal Adaptation While Unconstrained AI Collapses",
-    "link": "https://hooshaai.substack.com/p/the-generalization-paradox-why-biological",
-    "pubDate": "Fri, 07 Aug 2026 00:16:18 GMT",
-    "wordCount": "1,215 words",
-    "readTime": "5 min read",
-    "snippet": "Introduction: The Computational Paradox of General IntelligenceIn the current paradigm of artificial intelligence, scaling laws dictate that greater capability requires wider contexts, billions of par..."
-  },
-  {
-    "title": "The True Paradigm: Symbolic Internalization, Not Just External Scaffolding",
-    "link": "https://hooshaai.substack.com/p/the-true-paradigm-symbolic-internalization",
-    "pubDate": "Thu, 06 Aug 2026 23:06:16 GMT",
-    "wordCount": "2,850 words",
-    "readTime": "11 min read",
-    "snippet": "AbstractRecent advances in LLM-based agents suggest that the core breakthrough in AI reasoning lies not in fusing neural nets with fixed symbolic rules, but in internalizing symbolic reasoning entirel..."
-  },
-  {
-    "title": "The Cognitive Scaling Paradigm: Unifying Pre-Training, Inference Algorithms, and Post-Training Reinforcement Learning",
-    "link": "https://hooshaai.substack.com/p/the-cognitive-scaling-paradigm-unifying",
-    "pubDate": "Mon, 03 Aug 2026 04:17:56 GMT",
-    "wordCount": "4,752 words",
-    "readTime": "19 min read",
-    "snippet": "The Cognitive Scaling Paradigm: Unifying Pre-Training, Inference Algorithms, and Post-Training Reinforcement LearningThe trajectory of artificial intelligence development has irrevocably shifted from ..."
-  },
-  {
-    "title": "Building AI that thinks before speaking",
-    "link": "https://hooshaai.substack.com/p/building-ai-that-thinks-before-speaking",
-    "pubDate": "Mon, 03 Aug 2026 03:49:51 GMT",
-    "wordCount": "0 words",
-    "readTime": "1 min read",
-    "snippet": ""
-  },
-  {
-    "title": "The ACWT Architecture",
-    "link": "https://hooshaai.substack.com/p/the-acwt-architecture",
-    "pubDate": "Mon, 03 Aug 2026 03:49:09 GMT",
-    "wordCount": "0 words",
-    "readTime": "1 min read",
-    "snippet": ""
-  },
-  {
-    "title": "Beyond Bigger Datasets",
-    "link": "https://hooshaai.substack.com/p/beyond-bigger-datasets",
-    "pubDate": "Mon, 03 Aug 2026 03:28:34 GMT",
-    "wordCount": "2,389 words",
-    "readTime": "10 min read",
-    "snippet": "We&#8217;ve hit the data wall. For years, the recipe for a better language model was simple: more parameters, more tokens, more compute &#8212; scale everything together and the loss goes down. That r..."
-  },
-  {
-    "title": "The Post-Training Frontier: Unified Frameworks for Reinforcement Learning, Process-Supervised Evaluation, and Test-Time Cognitive Scaling in Large Language Models",
-    "link": "https://hooshaai.substack.com/p/the-post-training-frontier-unified",
-    "pubDate": "Mon, 03 Aug 2026 03:22:08 GMT",
-    "wordCount": "5,391 words",
-    "readTime": "22 min read",
-    "snippet": "Historical and Theoretical Context of Cognitive ScalingThe trajectory of autoregressive language model development has historically been guided by empirical training-time scaling laws, which predict d..."
-  },
-  {
-    "title": "Building Synthetic Consciousness with Integrated Information Theory, Global Workspace Theory, and System-2 Refinement",
-    "link": "https://hooshaai.substack.com/p/architecting-synthetic-consciousness",
-    "pubDate": "Sat, 01 Aug 2026 12:12:54 GMT",
-    "wordCount": "1,504 words",
-    "readTime": "6 min read",
-    "snippet": "IIT-Inspired AttentionA Conceptual Architecture ProposalCombining Integrated Information Theory, Global Workspace Theory, and System-2 refinement as inductive biases for transformer attentionScope not..."
-  },
-  {
-    "title": "A Technical Report on the IIT-Attention Modulation (IIT-AM) Research Program: System Architecture, Benchmark Provenance, and Evaluation Results",
-    "link": "https://hooshaai.substack.com/p/a-technical-report-on-the-iit-attention",
-    "pubDate": "Sat, 01 Aug 2026 12:07:22 GMT",
-    "wordCount": "3,638 words",
-    "readTime": "15 min read",
-    "snippet": "Scope note (read first): This document reports what is actually recorded in the project&#8217;s own artifacts: a reports-folder structure, a benchmark data-provenance log for the &#8220;IIT-A NeurIPS ..."
-  },
-  {
-    "title": "Open-Ended Innovation: Closing the Vocabulary and Verifier Gaps",
-    "link": "https://hooshaai.substack.com/p/open-ended-innovation-closing-the",
-    "pubDate": "Mon, 27 Jul 2026 19:41:41 GMT",
-    "wordCount": "2,247 words",
+    "wordCount": "2,034 words",
     "readTime": "9 min read",
-    "snippet": "Open-Ended Innovation: Closing the Vocabulary and Verifier GapsCurrent AI excels at finding solutions within fixed frames, but truly creative innovation requires changing the frameitself &#8211; inven..."
+    "snippet": "On the biological bottleneck, the flintknapping compiler, epistemic vigilance, and the grounded architecture of safe self-improvement.",
+    "category": "linear-attention",
+    "categoryName": "Linear Attention",
+    "author": "Mohammad Taha Majlesi",
+    "authorRole": "Co-Founder & Lead AI Architect @ Hoosha AI"
   }
 ]

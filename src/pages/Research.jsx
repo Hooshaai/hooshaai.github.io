@@ -6,6 +6,7 @@ import useTTSPlayer from '../hooks/useTTSPlayer';
 import ResearchHeader from '../components/research/ResearchHeader';
 import CategoryFilter from '../components/research/CategoryFilter';
 import ArticleCard from '../components/research/ArticleCard';
+import XFeedSection from '../components/research/XFeedSection';
 import SEO from '../components/common/SEO';
 
 const Research = () => {
@@ -241,6 +242,9 @@ const Research = () => {
           </motion.div>
         )}
       </section>
+
+      {/* X / Twitter Messages Stream */}
+      <XFeedSection />
 
       {/* Article Detail Modal */}
       <AnimatePresence>

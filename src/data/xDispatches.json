@@ -1,0 +1,68 @@
+[
+  {
+    "id": "tweet-1",
+    "handle": "@HooshaAI",
+    "date": "Sep 1, 2026",
+    "timestamp": "2026-09-01T12:15:00Z",
+    "content": "🚨 Massive release: The Evolution of Attention from O(N²) bottlenecks to Infinite Context and Hardware Co-Design. We breakdown FlashAttention-4, Mamba-2 state space duality, and how we slashed KV-cache VRAM by 87.5% across H100 clusters.",
+    "url": "https://x.com/HooshaAI",
+    "retweets": "412",
+    "likes": "1.8K",
+    "tags": ["Attention", "HardwareCoDesign", "LLMs", "Triton"]
+  },
+  {
+    "id": "tweet-2",
+    "handle": "@HooshaAI",
+    "date": "Aug 28, 2026",
+    "timestamp": "2026-08-28T02:30:00Z",
+    "content": "Introducing the Adaptive Transformer Compressor & A3 Compressor: Activation-Aware factorized SVD compression with Fisher Information weighting for attention modules. Auto rank selection without retraining degradation.",
+    "url": "https://x.com/HooshaAI",
+    "retweets": "285",
+    "likes": "1.2K",
+    "tags": ["ModelCompression", "SVD", "Quantization", "DeepLearning"]
+  },
+  {
+    "id": "tweet-3",
+    "handle": "@HooshaAI",
+    "date": "Aug 27, 2026",
+    "timestamp": "2026-08-27T18:40:00Z",
+    "content": "Why byte-level models are replacing tokenizers: Latent Causal Attention (LCA) allows models to predict multiple bytes in parallel with hierarchical recurrence, eradicating vocabulary out-of-distribution crashes.",
+    "url": "https://x.com/HooshaAI",
+    "retweets": "529",
+    "likes": "2.4K",
+    "tags": ["TokenizerFree", "ByteLevel", "LCA", "AIResearch"]
+  },
+  {
+    "id": "tweet-4",
+    "handle": "@HooshaAI",
+    "date": "Aug 21, 2026",
+    "timestamp": "2026-08-21T01:15:00Z",
+    "content": "The Recursive Epistemic Collapse Framework: When LLMs train on their own synthetic outputs without grounded causal verification substrates, entropy collapses into sycophancy. Formal verification in Lean 4 provides the only thermodynamic grounding.",
+    "url": "https://x.com/HooshaAI",
+    "retweets": "640",
+    "likes": "3.1K",
+    "tags": ["RLVR", "FormalVerification", "Lean4", "AIAlignment"]
+  },
+  {
+    "id": "tweet-5",
+    "handle": "@HooshaAI",
+    "date": "Aug 13, 2026",
+    "timestamp": "2026-08-13T23:58:00Z",
+    "content": "Deconstructing the GRPO Variant Explosion: Why DAPO, SAPO, GDPO, and PAPO proliferate when models imitate narrated reasoning instead of experiencing deterministic test substrates. Read our technical deep-dive and benchmark analysis.",
+    "url": "https://x.com/HooshaAI",
+    "retweets": "394",
+    "likes": "1.6K",
+    "tags": ["GRPO", "Reasoning", "ReinforcementLearning", "MathAI"]
+  },
+  {
+    "id": "tweet-6",
+    "handle": "@HooshaAI",
+    "date": "Aug 7, 2026",
+    "timestamp": "2026-08-07T19:35:00Z",
+    "content": "The Civilization Simulator: We are no longer trying to simulate an isolated brain. Safe recursive self-improvement requires an evolutionary verification engine grounded in physical execution, adversarial debate swarms, and minimum description length.",
+    "url": "https://x.com/HooshaAI",
+    "retweets": "782",
+    "likes": "3.8K",
+    "tags": ["AGI", "EvolutionaryEngines", "CognitiveScience", "CivilizationSimulator"]
+  }
+]

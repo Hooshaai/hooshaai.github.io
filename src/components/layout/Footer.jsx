@@ -73,9 +73,10 @@ const Footer = () => {
 
             <div className="flex items-center gap-3 pt-2">
               {[
+                { href: 'https://x.com/HooshaAI', icon: 'fab fa-x-twitter', label: 'X (Twitter) Profile', hover: 'hover:border-cyan-400 hover:text-white hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]' },
                 { href: 'https://github.com/Hooshaai/hooshaai.github.io', icon: 'fab fa-github', label: 'GitHub Repository', hover: 'hover:border-cyan-400 hover:text-cyan-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]' },
                 { href: 'https://hooshaai.substack.com', icon: 'fas fa-rss text-orange-400', label: 'Substack Journal', hover: 'hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.4)]' },
-                { href: 'https://huggingface.co', icon: 'fas fa-cube text-yellow-400', label: 'HuggingFace Model Hub', hover: 'hover:border-yellow-400 hover:shadow-[0_0_20px_rgba(250,204,21,0.4)]' },
+                { href: 'https://huggingface.co/spaces/Hooshaai/hoosha-ai', icon: 'fas fa-cube text-yellow-400', label: 'HuggingFace Space & Hub', hover: 'hover:border-yellow-400 hover:shadow-[0_0_20px_rgba(250,204,21,0.4)]' },
                 { href: 'mailto:hooshaai@gmail.com', icon: 'fas fa-paper-plane text-cyan-400', label: 'Email Laboratory', hover: 'hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]' },
               ].map(s => (
                 <motion.a
